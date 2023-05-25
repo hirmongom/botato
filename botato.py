@@ -1,25 +1,34 @@
 import os
-import discord
 from dotenv import load_dotenv
+
+import discord
 from discord.ext import commands
+from discord import app_commands
 
-
-# ********************** STARTUP ********************** #
-intents = discord.Intents().all()
-bot = commands.Bot(command_prefix = '.', intents = intents)
+load_dotenv()
+token = os.getenv('TOKEN')
+bot = commands.Bot(command_prefix = "_not_designed_for_prefix_commands_", intents = discord.Intents.all())
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user} is connected\n')
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="lo tonto que eres"))
-# ****************************************************** #
+    try:
+        sync = await bot.tree.sync()
+        print(f"Synced {len(sync)} commands")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
+    print(f'{bot.user} is connected\n')
 
-@bot.command(name = "ping", help= "Returns Pong")
-async def ping(ctx):
-        await ctx.send("Pong")
+@bot.tree.command(name = "ping")
+async def ping(interaction: discord.Interaction):
+        print(f">> |ping| from {interaction.user.name}#{interaction.user.discriminator}")
+        await interaction.response.send_message("Pong")
+
+@bot.tree.command(name = "echo")
+@app_commands.describe(message = "The message to echo")
+async def echo(interaction: discord.Interaction, message: str):
+    print(f">> |echo| from {interaction.user.name}#{interaction.user.discriminator}")
+    await interaction.response.send_message(message)
 
 
-# ********************** RUN *************************** #
-load_dotenv()
-bot.run(os.getenv('TOKEN'))
-# ****************************************************** #
+bot.run(token)
