@@ -5,30 +5,28 @@ import discord
 from discord.ext import commands
 from discord import app_commands
 
+class Botato(commands.Bot):
+
+    def __init__(self, appId):
+        super().__init__(
+            command_prefix = "_not_designed_for_prefix_commands_", 
+            intents = discord.Intents.all(),
+            application_id = appId)
+
+    async def setup_hook(self):
+
+        for folder in os.listdir("./cogs"):
+                await self.load_extension(f"cogs.{folder}.{folder}_cog")
+        try:
+            sync = await bot.tree.sync()
+            print(f"Synced {len(sync)} commands")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
+
+    async def on_ready(self):
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="lo tonto que eres"))
+        print(f'{bot.user} is connected\n')
+
 load_dotenv()
-token = os.getenv('TOKEN')
-bot = commands.Bot(command_prefix = "_not_designed_for_prefix_commands_", intents = discord.Intents.all())
-
-@bot.event
-async def on_ready():
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="lo tonto que eres"))
-    try:
-        sync = await bot.tree.sync()
-        print(f"Synced {len(sync)} commands")
-    except Exception as e:
-        print(f"Failed to sync commands: {e}")
-    print(f'{bot.user} is connected\n')
-
-@bot.tree.command(name = "ping")
-async def ping(interaction: discord.Interaction):
-        print(f">> |ping| from {interaction.user.name}#{interaction.user.discriminator}")
-        await interaction.response.send_message("Pong")
-
-@bot.tree.command(name = "echo")
-@app_commands.describe(message = "The message to echo")
-async def echo(interaction: discord.Interaction, message: str):
-    print(f">> |echo| from {interaction.user.name}#{interaction.user.discriminator}")
-    await interaction.response.send_message(message)
-
-
-bot.run(token)
+bot = Botato(appId=os.getenv('APPID'))
+bot.run(os.getenv('TOKEN'))
