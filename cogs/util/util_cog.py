@@ -42,6 +42,7 @@ class Util(commands.Cog):
         service = Service(executable_path = "./chromedriver/chromedriver.exe")
         driver = webdriver.Chrome(service = service, options = options)
 
+        #sometimes the command returns nothing, gotta add a wait for element
         driver.get(link)
         html = driver.page_source
         driver.quit()
@@ -55,16 +56,13 @@ class Util(commands.Cog):
         keys = table.find_all("div", class_ = "offers-table-row x-offer")
 
         content = ""
-        i = 0
-        for key in keys:
+        for i, key in enumerate(keys):
             if (i == 5 or i == len(keys)):
-                break
-            
+                break     
             info = "[ " + key.find("div", class_ = "x-offer-edition-region-names offers-infos d-block d-md-none").get_text(separator = " - ") + " ]"
             store = key.find("div", class_ = "x-offer-merchant-title offers-merchant text-truncate").get("title")
             price = key.find("div", class_ = "offers-table-row-cell buy-btn-cell").find("span").get_text()
             content += f"\n{info}    {price} {store}"
-            i += 1
 
         await interaction.followup.send(f"{title}\n{query}\n{content}")
 
