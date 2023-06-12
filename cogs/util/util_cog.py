@@ -42,7 +42,7 @@ class Util(commands.Cog):
         service = Service(executable_path = "./chromedriver/chromedriver.exe")
         driver = webdriver.Chrome(service = service, options = options)
 
-        #sometimes the command returns nothing, gotta add a wait for element
+        # TODO sometimes the command returns nothing, gotta add a wait for element
         driver.get(link)
         html = driver.page_source
         driver.quit()
@@ -55,6 +55,7 @@ class Util(commands.Cog):
         table = soup.find("div", id = "offers_table")
         keys = table.find_all("div", class_ = "offers-table-row x-offer")
 
+        # TODO should i only include keys for Steam?
         content = ""
         for i, key in enumerate(keys):
             if (i == 5 or i == len(keys)):
