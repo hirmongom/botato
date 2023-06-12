@@ -23,7 +23,7 @@ class Util(commands.Cog):
         name = "keys",
         description = "Queries for a game in clavecd.es and returns the first 5 prices")
     async def keys(self, interaction: discord.Interaction, query: str):
-        print(f">> |keys| from {interaction.user.name}#{interaction.user.discriminator} with query |{query}|")
+        print(f">> |keys| from {interaction.user.name} with query |{query}|")
         query = query.replace(" ", "+")
         query = f"https://clavecd.es/catalog/search-{query}"
 

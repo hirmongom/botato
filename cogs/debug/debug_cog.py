@@ -11,14 +11,14 @@ class Debug(commands.Cog):
         name = "ping",
         description = "Pong!")
     async def ping(self, interaction: discord.Interaction):
-        print(f">> |ping| from {interaction.user.name}#{interaction.user.discriminator}")
+        print(f">> |ping| from {interaction.user.name}")
         await interaction.response.send_message("Pong")
 
     @app_commands.command(
         name = "echo",
         description = "Echoes a message")
     async def echo(self, interaction: discord.Interaction, message: str):
-        print(f">> |echo| from {interaction.user.name}#{interaction.user.discriminator} with message |{message}|")
+        print(f">> |echo| from {interaction.user.name} with message |{message}|")
         await interaction.response.send_message(message)
 
     @app_commands.command(
@@ -31,14 +31,14 @@ class Debug(commands.Cog):
         Choice(name = "three", value = 3)
     ])
     async def test(self, interaction: discord.Interaction, number: int):
-        print(f">> |test| from {interaction.user.name}#{interaction.user.discriminator} with number |{number}|")
+        print(f">> |test| from {interaction.user.name} with number |{number}|")
         await interaction.response.send_message(f"Number: {number}")
 
     @app_commands.command(
         name = "reloadall",
         description = "Reloads all cogs")
     async def reloadall(self, interaction: discord.Interaction):
-        print(f">> |reloadall| from {interaction.user.name}#{interaction.user.discriminator}")
+        print(f">> |reloadall| from {interaction.user.name}")
         if interaction.user.name != self.bot.admin:
             await interaction.response.send_message("No permission")
             return
@@ -52,7 +52,7 @@ class Debug(commands.Cog):
         name = "reload",
         description = "Reloads a cog")
     async def reload(self, interaction: discord.Interaction, cog: str):
-        print(f">> |reload| from {interaction.user.name}#{interaction.user.discriminator} with cog |{cog}|")
+        print(f">> |reload| from {interaction.user.name} with cog |{cog}|")
         if interaction.user.name != self.bot.admin:
             await interaction.response.send_message("No permission")
             return
