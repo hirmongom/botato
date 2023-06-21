@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from util.scrap_keys import scrapKeys
+from util.scrap_keys import scrapKeys, getLink, getTitle
 
 class Util(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -13,19 +13,37 @@ class Util(commands.Cog):
         description = "Queries for a game in clavecd.es and returns the first 5 prices")
     async def keys(self, interaction: discord.Interaction, query: str):
         print(f">> |keys| from {interaction.user.name} with query |{query}|")
-        query = query.replace(" ", "+")
-        query = f"https://clavecd.es/catalog/search-{query}"
 
         await interaction.response.defer()
 
         try:
-            title, content = scrapKeys(query)
+            link = getLink(query)
+            title, content = scrapKeys(link)
         except Exception as e:
             print(e)
             await interaction.followup.send(f"No results found")
             return
 
-        await interaction.followup.send(f"{title}\n{query}\n{content}")
+        await interaction.followup.send(f"{title}\n{link}\n{content}")
+
+    @app_commands.command(
+        name = "follow",
+        description = "Follow a game to easily check key prices"
+    )
+    async def follow(self, interaction: discord.Interaction, game : str):
+        print(f">> |follow| from {interaction.user.name} with game |{game}|")
+
+        await interaction.response.defer()
+        
+        try:
+            link = getLink(game)
+            title = getTitle(link)
+        except Exception as e:
+            print(e)
+            await interaction.followup.send(f"No results found")
+            return
+     
+        await interaction.followup.send(f"Query: {game}\nTitle: {title}\nLink: {link}")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Util(bot))

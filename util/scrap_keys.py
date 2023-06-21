@@ -7,13 +7,26 @@ from selenium.webdriver.chrome.service import Service
 
 from . import browserPath
 
-def scrapKeys(query: str):
+def getLink(query: str):
+    query = query.replace(" ", "+")
+    query = f"https://clavecd.es/catalog/search-{query}"
+
     html = BeautifulSoup(requests.get(query).text, "lxml")
     try:
         link = html.find("li", class_ = "search-results-row").find("a").get("href")
     except AttributeError:
         raise Exception()
 
+    return link
+
+def getTitle(link: str):
+    soup = BeautifulSoup(requests.get(link).text, "lxml")
+
+    title = soup.find("div", class_ = "content-box-title").find("span", attrs = {"data-itemprop": "name"}).get_text()
+    title = title.replace("\n", "").replace("\t", "")
+    return title
+
+def scrapKeys(link: str):
     options = Options()
     options.add_argument("--headless")
     options.binary_location = browserPath
