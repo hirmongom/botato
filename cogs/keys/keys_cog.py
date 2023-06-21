@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from util.scrap_keys import scrapKeys, getLink, getTitle
+from util.key_data import storeKey
 
 class Util(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -43,7 +44,9 @@ class Util(commands.Cog):
             await interaction.followup.send(f"No results found")
             return
      
-        await interaction.followup.send(f"Query: {game}\nTitle: {title}\nLink: {link}")
+        storeKey(interaction.user.name, title, link)
+
+        await interaction.followup.send(f"You are now following {title}")
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(Util(bot))
