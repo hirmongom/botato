@@ -2,50 +2,57 @@ import discord
 from discord import app_commands
 from discord.app_commands import Choice
 from discord.ext import commands
+
 import os
+
+
 class Debug(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+
 
     @app_commands.command(
         name = "ping",
         description = "Returns Pong!")
     async def ping(self, interaction: discord.Interaction) -> None:
         print(f">> |ping| from {interaction.user.name}")
-        await interaction.response.send_message("Pong!")
+        await interaction.response.send_message("Pong!")     
 
-    @app_commands.command(
-        name = "echo",
-        description = "Echoes a message")
-    async def echo(self, interaction: discord.Interaction, message: str) -> None:
-        print(f">> |echo| from {interaction.user.name} with message |{message}|")
-        await interaction.response.send_message(message)       
 
     @app_commands.command(
         name = "reload",
-        description = "Reload a specific cog")
-    @app_commands.checks.has_permissions(administrator = True)
-    async def reload(self, interaction: discord.Interaction, cog: str) -> None:
-        print(f">> |reload| from {interaction.user.name} with cog |{cog}|")
-        await self.bot.reload_extension(f"cogs.{cog}.{cog}_cog")
-        await interaction.response.send_message(f"Reloaded {cog}")
+        description = "Reload all cogs")
+    async def reload(self, interaction: discord.Interaction) -> None:
+        print(f">> |reload| from {interaction.user.name}, {type(interaction.user)}")
 
-    @app_commands.command(
-        name = "resync",
-        description = "Reloads all cogs and resyncs")
-    @app_commands.checks.has_permissions(administrator = True)
-    async def resync(self, interaction: discord.Interaction) -> None:
-        print(f">> |resync| from {interaction.user.name}")
-
-        await interaction.response.defer()
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.response.send_message("Missing Administrator permissions")
+            return
 
         for folder in os.listdir("./cogs"):
-                await self.bot.reload_extension(f"cogs.{folder}.{folder}_cog")
-                print(f"Reloaded {folder}")
+            await self.bot.reload_extension(f"cogs.{folder}.{folder}_cog")
+            print(f"Reloaded {folder}")
 
-        await self.bot.resync()
+        await interaction.response.send_message("Reloaded all cogs")
 
-        await interaction.followup.send("Resynced commands")
+
+    @app_commands.command(
+        name = "sync",
+        description = "Syncs tree commands")
+    async def sync(self, interaction: discord.Interaction) -> None:
+        print(f">> |sync| from {interaction.user.name}")
+
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.response.send_message("Missing Administrator permissions")
+            return
+
+        try:
+            sync = await self.bot.tree.sync()
+            print(f"Synced {len(sync)} commands")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
+
+        await interaction.response.send_message("Synced tree commands")
 
 
 async def setup(bot: commands.Bot) -> None:
