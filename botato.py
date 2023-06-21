@@ -27,6 +27,14 @@ class Botato(commands.Bot):
         await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="lo tonto que eres"))
         print(f'{bot.user} is connected\n')
 
+    async def resync(self):
+        try: 
+            sync = await bot.tree.sync()
+            print(f"Synced {len(sync)} commands")
+        except Exception as e:
+            print(f"Failed to sync commands: {e}")
+    
+
 if __name__ == "__main__":
     load_dotenv()
     bot = Botato(appId=os.getenv('APPID'), admin=os.getenv('ADMIN'))
