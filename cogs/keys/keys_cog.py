@@ -12,7 +12,7 @@ class Util(commands.Cog):
     @app_commands.command(
         name = "keys",
         description = "Queries for a game in clavecd.es and returns the first 5 prices")
-    async def keys(self, interaction: discord.Interaction, query: str):
+    async def keys(self, interaction: discord.Interaction, query: str) -> None:
         print(f">> |keys| from {interaction.user.name} with query |{query}|")
 
         await interaction.response.defer()
@@ -31,7 +31,7 @@ class Util(commands.Cog):
         name = "follow",
         description = "Follow a game to easily check key prices"
     )
-    async def follow(self, interaction: discord.Interaction, game : str):
+    async def follow(self, interaction: discord.Interaction, game : str) -> None:
         print(f">> |follow| from {interaction.user.name} with game |{game}|")
 
         await interaction.response.defer()
@@ -48,5 +48,5 @@ class Util(commands.Cog):
 
         await interaction.followup.send(f"You are now following {title}")
 
-async def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Util(bot))

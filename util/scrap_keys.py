@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.service import Service
 
 from . import browserPath
 
-def getLink(query: str):
+def getLink(query: str) -> str:
     query = query.replace(" ", "+")
     query = f"https://clavecd.es/catalog/search-{query}"
 
@@ -19,14 +19,14 @@ def getLink(query: str):
 
     return link
 
-def getTitle(link: str):
+def getTitle(link: str) -> str:
     soup = BeautifulSoup(requests.get(link).text, "lxml")
 
     title = soup.find("div", class_ = "content-box-title").find("span", attrs = {"data-itemprop": "name"}).get_text()
     title = title.replace("\n", "").replace("\t", "")
     return title
 
-def scrapKeys(link: str):
+def scrapKeys(link: str) -> tuple[str, str]:
     options = Options()
     options.add_argument("--headless")
     options.binary_location = browserPath

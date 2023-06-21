@@ -1,7 +1,7 @@
 import os
 import json
 
-def storeKey(user: str, title: str, link: str):
+def storeKey(user: str, title: str, link: str) -> None:
     data = {}
     filePath = f"data/{user}.json"
     

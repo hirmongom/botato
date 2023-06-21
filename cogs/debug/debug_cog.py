@@ -4,20 +4,20 @@ from discord.app_commands import Choice
 from discord.ext import commands
 import os
 class Debug(commands.Cog):
-    def __init__(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
     @app_commands.command(
         name = "ping",
         description = "Returns Pong!")
-    async def ping(self, interaction: discord.Interaction):
+    async def ping(self, interaction: discord.Interaction) -> None:
         print(f">> |ping| from {interaction.user.name}")
         await interaction.response.send_message("Pong!")
 
     @app_commands.command(
         name = "echo",
         description = "Echoes a message")
-    async def echo(self, interaction: discord.Interaction, message: str):
+    async def echo(self, interaction: discord.Interaction, message: str) -> None:
         print(f">> |echo| from {interaction.user.name} with message |{message}|")
         await interaction.response.send_message(message)       
 
@@ -25,7 +25,7 @@ class Debug(commands.Cog):
         name = "reload",
         description = "Reload a specific cog")
     @app_commands.checks.has_permissions(administrator = True)
-    async def reload(self, interaction: discord.Interaction, cog: str):
+    async def reload(self, interaction: discord.Interaction, cog: str) -> None:
         print(f">> |reload| from {interaction.user.name} with cog |{cog}|")
         await self.bot.reload_extension(f"cogs.{cog}.{cog}_cog")
         await interaction.response.send_message(f"Reloaded {cog}")
@@ -34,7 +34,7 @@ class Debug(commands.Cog):
         name = "resync",
         description = "Reloads all cogs and resyncs")
     @app_commands.checks.has_permissions(administrator = True)
-    async def resync(self, interaction: discord.Interaction):
+    async def resync(self, interaction: discord.Interaction) -> None:
         print(f">> |resync| from {interaction.user.name}")
 
         await interaction.response.defer()
@@ -48,5 +48,5 @@ class Debug(commands.Cog):
         await interaction.followup.send("Resynced commands")
 
 
-async def setup(bot: commands.Bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Debug(bot))
