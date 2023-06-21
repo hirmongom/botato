@@ -6,17 +6,16 @@ from discord.ext import commands
 from discord import app_commands
 
 class Botato(commands.Bot):
-
-    def __init__(self, appId, admin):
+    def __init__(self, appId):
         super().__init__(
             command_prefix = "_not_designed_for_prefix_commands_", 
             intents = discord.Intents.all(),
             application_id = appId)
-        self.admin = admin
 
     async def setup_hook(self):
         for folder in os.listdir("./cogs"):
                 await self.load_extension(f"cogs.{folder}.{folder}_cog")
+                print(f"Loaded {folder}_cog")
         try:
             sync = await bot.tree.sync()
             print(f"Synced {len(sync)} commands")
@@ -33,9 +32,8 @@ class Botato(commands.Bot):
             print(f"Synced {len(sync)} commands")
         except Exception as e:
             print(f"Failed to sync commands: {e}")
-    
 
 if __name__ == "__main__":
     load_dotenv()
-    bot = Botato(appId=os.getenv('APPID'), admin=os.getenv('ADMIN'))
+    bot = Botato(appId=os.getenv('APPID'))
     bot.run(os.getenv('TOKEN'))
