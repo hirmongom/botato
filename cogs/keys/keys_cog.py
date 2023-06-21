@@ -19,7 +19,8 @@ class Util(commands.Cog):
 
         try:
             link = getLink(query)
-            title, content = scrapKeys(link)
+            title = getTitle(link)
+            content = scrapKeys(link)
         except Exception as e:
             print(e)
             await interaction.followup.send(f"No results found")
