@@ -48,5 +48,10 @@ class Util(commands.Cog):
 
         await interaction.followup.send(f"You are now following {title}")
 
+    # TODO list following games
+    # TODO unfollow game (should bring a choice selection)
+    # TODO ask for manual update of all following
+    # TODO set remind hours?
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Util(bot))
