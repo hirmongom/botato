@@ -1,9 +1,14 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Select, View
 
 from util.scrap_keys import scrapKeys, getLink, getTitle
-from util.key_data import storeKey
+from util.game_follow import storeGame, getGameList, removeGames
+
+# TODO ask for manual update of all following
+# TODO set remind hours?
+# TODO max 25 following games
 
 class Util(commands.Cog):
     def __init__(self, bot: commands.Bot):
@@ -45,14 +50,62 @@ class Util(commands.Cog):
             await interaction.followup.send(f"No results found")
             return
      
-        storeKey(interaction.user.name, title, link)
+        storeGame(interaction.user.name, title, link)
 
-        await interaction.followup.send(f"You are now following {title}")
+        await interaction.followup.send(f"You are now following {title}\n{link}")
 
-    # TODO list following games
-    # TODO unfollow game (should bring a choice selection)
-    # TODO ask for manual update of all following
-    # TODO set remind hours?
+    @app_commands.command(
+        name = "list",
+        description = "Lists all games you are following"
+    )
+    async def list(self, interaction: discord.Interaction) -> None:
+        print(f">> |list| from {interaction.user.name}")
+    
+        games = getGameList(interaction.user.name)   
+
+        if len(games) == 0:
+            await interaction.response.send_message("You are not following any games")
+            return
+
+        output = ""
+        for i, game in enumerate(games):
+            output += f"\n-\t {game}"
+
+        await interaction.response.send_message(f"Following games:{output}")
+
+
+    @app_commands.command(
+        name = "unfollow",
+        description = "Remove one or multiple games from your following list"
+    )
+    async def unfollow(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer()
+
+        games = getGameList(interaction.user.name)
+        game_choice = [discord.SelectOption(label = game, value = i) for i, game in enumerate(games)]
+
+        menu = Select(
+            min_values = 1,
+            max_values = len(games),
+            placeholder = "Choose games to unfollow", 
+            options = game_choice)
+
+        async def menu_callback(interaction: discord.Interaction) -> None:
+            to_remove = [games[int(i)] for i in menu.values]
+
+            removeGames(interaction.user.name, to_remove)
+
+            response = ""
+            for game in to_remove:
+                response += "\n-\t" + game
+ 
+            await interaction.response.send_message(f"You unfollowed:{response}")
+
+        menu.callback = menu_callback
+        view = View()
+        view.add_item(menu)
+        await interaction.followup.send(view = view)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Util(bot))
