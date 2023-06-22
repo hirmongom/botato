@@ -14,6 +14,7 @@ class Util(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
+
     @app_commands.command(
         name = "keys",
         description = "Queries for a game in clavecd.es and returns the first 5 prices")
@@ -32,6 +33,7 @@ class Util(commands.Cog):
             return
 
         await interaction.followup.send(f"{title}\n{link}\n{content}")
+
 
     @app_commands.command(
         name = "follow",
@@ -53,6 +55,7 @@ class Util(commands.Cog):
         storeGame(interaction.user.name, title, link)
 
         await interaction.followup.send(f"You are now following {title}\n{link}")
+
 
     @app_commands.command(
         name = "list",
@@ -79,9 +82,15 @@ class Util(commands.Cog):
         description = "Remove one or multiple games from your following list"
     )
     async def unfollow(self, interaction: discord.Interaction) -> None:
+        print(f">> |unfollow| from {interaction.user.name}")
         await interaction.response.defer()
 
         games = getGameList(interaction.user.name)
+
+        if len(games) == 0:
+            await interaction.followup.send("You are not following any games")
+            return
+
         game_choice = [discord.SelectOption(label = game, value = i) for i, game in enumerate(games)]
 
         menu = Select(
