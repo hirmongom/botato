@@ -82,6 +82,7 @@ class Util(commands.Cog):
         description = "Remove one or multiple games from your following list"
     )
     async def unfollow(self, interaction: discord.Interaction) -> None:
+        # TODO delete/disable menu when done 
         print(f">> |unfollow| from {interaction.user.name}")
         await interaction.response.defer()
 
