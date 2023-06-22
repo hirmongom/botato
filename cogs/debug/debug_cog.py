@@ -22,7 +22,7 @@ class Debug(commands.Cog):
         name = "reload",
         description = "Reload all cogs")
     async def reload(self, interaction: discord.Interaction) -> None:
-        print(f">> |reload| from {interaction.user.name}, {type(interaction.user)}")
+        print(f">> |reload| from {interaction.user.name}")
 
         if not interaction.user.guild_permissions.administrator:
             await interaction.response.send_message("Missing Administrator permissions")
