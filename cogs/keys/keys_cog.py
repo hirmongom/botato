@@ -17,7 +17,11 @@ class Util(commands.Cog):
 
     @app_commands.command(
         name = "keys",
-        description = "Queries for a game in clavecd.es and returns the first 5 prices")
+        description = "Queries for a game in clavecd.es and returns the first 5 prices"
+    )
+    @app_commands.describe(
+        query = "The search query to find the game you are looking for"
+    )
     async def keys(self, interaction: discord.Interaction, query: str) -> None:
         print(f">> |keys| from {interaction.user.name} with query |{query}|")
 
@@ -38,6 +42,9 @@ class Util(commands.Cog):
     @app_commands.command(
         name = "follow",
         description = "Follow a game to easily check key prices"
+    )
+    @app_commands.describe(
+        game = "The game you want to follow"
     )
     async def follow(self, interaction: discord.Interaction, game : str) -> None:
         print(f">> |follow| from {interaction.user.name} with game |{game}|")
