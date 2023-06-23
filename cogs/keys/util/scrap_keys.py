@@ -14,11 +14,13 @@ options.binary_location = browserPath
 service = Service(executable_path = "./chromedriver/chromedriver.exe")
 driver = webdriver.Chrome(service = service, options = options)
 
+
 def restartDriver() -> None:
     global driver
     print("(!) restarted webdriver")
     driver.quit()
     driver = webdriver.Chrome(service = service, options = options)
+
 
 def getLink(query: str) -> str:
     query = query.replace(" ", "+")
@@ -32,12 +34,14 @@ def getLink(query: str) -> str:
 
     return link
 
+
 def getTitle(link: str) -> str:
     soup = BeautifulSoup(requests.get(link).text, "lxml")
 
     title = soup.find("div", class_ = "content-box-title").find("span", attrs = {"data-itemprop": "name"}).get_text()
     title = title.replace("\n", "").replace("\t", "")
     return title
+
 
 def scrapKeys(link: str) -> str:
     driver.get(link)
@@ -58,5 +62,3 @@ def scrapKeys(link: str) -> str:
         content += f"\n{info}    {price} {store}"
 
     return content
-
-
