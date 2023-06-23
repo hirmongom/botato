@@ -3,8 +3,8 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Select, View
 
-from util.scrap_keys import scrapKeys, getLink, getTitle
-from util.game_follow import storeGame, getGameList, removeGames
+from .util.scrap_keys import scrapKeys, getLink, getTitle
+from .util.game_follow import storeGame, getGameList, removeGames
 
 # TODO ask for manual update of all following
 # TODO set remind hours?
@@ -82,7 +82,6 @@ class Util(commands.Cog):
         description = "Remove one or multiple games from your following list"
     )
     async def unfollow(self, interaction: discord.Interaction) -> None:
-        # TODO delete/disable menu when done 
         print(f">> |unfollow| from {interaction.user.name}")
         await interaction.response.defer()
 
@@ -98,23 +97,22 @@ class Util(commands.Cog):
             min_values = 1,
             max_values = len(games),
             placeholder = "Choose games to unfollow", 
-            options = game_choice)
+            options = game_choice,
+        )
 
         async def menu_callback(interaction: discord.Interaction) -> None:
             to_remove = [games[int(i)] for i in menu.values]
-
             removeGames(interaction.user.name, to_remove)
 
             response = ""
             for game in to_remove:
                 response += "\n-\t" + game
- 
-            await interaction.response.send_message(f"You unfollowed:{response}")
+            await message.edit(content = f"You unfollowed:{response}", view = None)
 
         menu.callback = menu_callback
         view = View()
         view.add_item(menu)
-        await interaction.followup.send(view = view)
+        message = await interaction.followup.send(view = view)
 
 
 async def setup(bot: commands.Bot) -> None:
