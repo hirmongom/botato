@@ -7,6 +7,12 @@ from selenium.webdriver.chrome.service import Service
 
 from . import browserPath
 
+options = Options()
+options.add_argument("--headless")
+options.binary_location = browserPath
+service = Service(executable_path = "./chromedriver/chromedriver.exe")
+driver = webdriver.Chrome(service = service, options = options)
+
 def getLink(query: str) -> str:
     query = query.replace(" ", "+")
     query = f"https://clavecd.es/catalog/search-{query}"
@@ -27,15 +33,8 @@ def getTitle(link: str) -> str:
     return title
 
 def scrapKeys(link: str) -> str:
-    options = Options()
-    options.add_argument("--headless")
-    options.binary_location = browserPath
-    service = Service(executable_path = "./chromedriver/chromedriver.exe")
-    driver = webdriver.Chrome(service = service, options = options)
-
     driver.get(link)
     html = driver.page_source
-    driver.quit()
 
     soup = BeautifulSoup(html, "lxml")
 
