@@ -126,10 +126,11 @@ class Util(commands.Cog):
 
         message = await interaction.followup.send("Sit back and relax, this is going to take some time...")
 
-        response = ""
+        response = f"{40 * '='}\n\n"
         for title in games.keys():
-            response += f"{title}\n{games[title]}\n{scrapKeys(games[title])}\n\n"
+            response += f"**{title}**\n<{games[title]}>\n{scrapKeys(games[title])}\n\n{40 * '='}\n\n"
 
+        print(response)
         await message.edit(content = response)
 
 
