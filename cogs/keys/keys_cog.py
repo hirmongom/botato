@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.ui import Select, View
 
 from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
-from .util.game_follow import storeGame, getGameList, removeGames, loadJson
+from .util.game_list_mngmnt import storeGame, getGameList, removeGames, loadJson
 
 # TODO ask for manual update of all following
 # TODO set remind hours?
