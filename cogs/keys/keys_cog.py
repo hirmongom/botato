@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Select, View
 
-from .util.scrap_keys import scrapKeys, getLink, getTitle
+from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
 from .util.game_follow import storeGame, getGameList, removeGames, loadJson
 
 # TODO ask for manual update of all following
@@ -131,13 +131,21 @@ class Util(commands.Cog):
         await interaction.response.defer()
         games = loadJson(interaction.user.name)
 
-        message = await interaction.followup.send("Sit back and relax, this is going to take some time...")
+        message = await interaction.followup.send("Sit back and relax, this may take some time...")
 
         response = f"{40 * '='}\n\n"
-        for title in games.keys():
-            response += f"**{title}**\n<{games[title]}>\n{scrapKeys(games[title])}\n\n{40 * '='}\n\n"
-
-        print(response)
+        keys = ""
+        try:
+            for title in games.keys():
+                while True:
+                    keys = scrapKeys(games[title])
+                    if len(keys) != 0:
+                        break
+                    restartDriver()
+                response += f"**{title}**\n<{games[title]}>\n{keys}\n\n{40 * '='}\n\n"
+        except Exception as e:
+            await message.edit(content = "An error ocurred")
+            return
         await message.edit(content = response)
 
 

@@ -7,11 +7,18 @@ from selenium.webdriver.chrome.service import Service
 
 from . import browserPath
 
+
 options = Options()
 options.add_argument("--headless")
 options.binary_location = browserPath
 service = Service(executable_path = "./chromedriver/chromedriver.exe")
 driver = webdriver.Chrome(service = service, options = options)
+
+def restartDriver() -> None:
+    global driver
+    print("(!) restarted webdriver")
+    driver.quit()
+    driver = webdriver.Chrome(service = service, options = options)
 
 def getLink(query: str) -> str:
     query = query.replace(" ", "+")
@@ -51,3 +58,5 @@ def scrapKeys(link: str) -> str:
         content += f"\n{info}    {price} {store}"
 
     return content
+
+
