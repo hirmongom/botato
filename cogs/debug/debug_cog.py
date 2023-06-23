@@ -12,10 +12,10 @@ class Debug(commands.Cog):
 
     @app_commands.command(
         name = "ping",
-        description = "Returns Pong!")
+        description = "Checks bot latency")
     async def ping(self, interaction: discord.Interaction) -> None:
         print(f">> |ping| from {interaction.user.name}")
-        await interaction.response.send_message("Pong!")     
+        await interaction.response.send_message(f"My latency is {format(self.bot.latency * 1000, '.2f')} milliseconds")     
 
 
     @app_commands.command(
