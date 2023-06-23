@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.ui import Select, View
 
 from .util.scrap_keys import scrapKeys, getLink, getTitle
-from .util.game_follow import storeGame, getGameList, removeGames
+from .util.game_follow import storeGame, getGameList, removeGames, loadJson
 
 # TODO ask for manual update of all following
 # TODO set remind hours?
@@ -107,12 +107,30 @@ class Util(commands.Cog):
             response = ""
             for game in to_remove:
                 response += "\n-\t" + game
-            await message.edit(content = f"You unfollowed:{response}", view = None)
+            await message.edit(content = f"You unfollowed:{response}", view = None, ephemeral = False)
 
         menu.callback = menu_callback
         view = View()
         view.add_item(menu)
-        message = await interaction.followup.send(view = view)
+        message = await interaction.followup.send(view = view, ephemeral = True)
+
+
+    @app_commands.command(
+        name = "update",
+        description = "Get the key prices for all the games or your following list"
+    )
+    async def update(self, interaction: discord.Interaction) -> None:
+        print(f">> |update| from {interaction.user.name}")
+        await interaction.response.defer()
+        games = loadJson(interaction.user.name)
+
+        message = await interaction.followup.send("Sit back and relax, this is going to take some time...")
+
+        response = ""
+        for title in games.keys():
+            response += f"{title}\n{games[title]}\n{scrapKeys(games[title])}\n\n"
+
+        await message.edit(content = response)
 
 
 async def setup(bot: commands.Bot) -> None:
