@@ -5,13 +5,12 @@ def loadJson(user: str) -> dict[str, str]:
     data = {}
     filePath = f"data/{user}.json"
     
-    if not os.path.isfile(filePath):
-        with open(filePath, "w") as file:
-            file.close()
-            
-    with open(filePath, "r") as file:
-        data = json.load(file)
-
+    if os.path.isfile(filePath):
+        with open(filePath, "r") as file:
+            data = json.load(file)
+    else:
+        data = {}
+        
     return data
     
 def saveJson(data: dict[str, str], user: str) -> None:
