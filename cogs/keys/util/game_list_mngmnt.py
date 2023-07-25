@@ -4,10 +4,9 @@ import json
 def loadJson(user: str) -> dict[str, str]:
     data = {}
     filePath = f"data/{user}.json"
-    
-    if os.path.isfile(filePath):
-        with open(filePath, "r") as file:
-            data = json.load(file)
+  
+    with open(filePath, "r") as file:
+        data = json.load(file)
 
     return data
     
