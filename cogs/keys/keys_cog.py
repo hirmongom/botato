@@ -133,7 +133,6 @@ class Util(commands.Cog):
 
         message = await interaction.followup.send("Sit back and relax, this may take some time...")
 
-        response = f"{40 * '='}\n\n"
         keys = ""
         try:
             for title in games.keys():
@@ -142,11 +141,12 @@ class Util(commands.Cog):
                     if len(keys) != 0:
                         break
                     restartDriver()
-                response += f"**{title}**\n<{games[title]}>\n{keys}\n\n{40 * '='}\n\n"
+                await interaction.followup.send(
+                  f"**{title}**\n<{games[title]}>\n{keys}")
         except Exception as e:
             await message.edit(content = "An error ocurred")
             return
-        await message.edit(content = response)
+        await message.delete()
 
 
 async def setup(bot: commands.Bot) -> None:
