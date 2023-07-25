@@ -12,7 +12,7 @@ def loadJson(user: str) -> dict[str, str]:
     with open(filePath, "r") as file:
         try:
             data = json.load(file)
-        except JSONDecodeError:
+        except json.decoder.JSONDecodeError:
             data = {}
 
     return data
