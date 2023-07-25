@@ -5,12 +5,16 @@ def loadJson(user: str) -> dict[str, str]:
     data = {}
     filePath = f"data/{user}.json"
     
-    if os.path.isfile(filePath):
-        with open(filePath, "r") as file:
+    if not os.path.isfile(filePath):
+        with open(filePath, "w") as file:
+            file.close()
+            
+    with open(filePath, "r") as file:
+        try:
             data = json.load(file)
-    else:
-        data = {}
-        
+        except JSONDecodeError:
+            data = {}
+
     return data
     
 def saveJson(data: dict[str, str], user: str) -> None:
