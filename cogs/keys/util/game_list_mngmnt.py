@@ -3,7 +3,7 @@ import json
 
 def loadJson(user: str) -> dict[str, str]:
     data = {}
-    filePath = f"data/{user}.json"
+    filePath = f"data/keys/{user}.json"
     
     if not os.path.isfile(filePath):
         with open(filePath, "w") as file:
@@ -18,7 +18,7 @@ def loadJson(user: str) -> dict[str, str]:
     return data
     
 def saveJson(data: dict[str, str], user: str) -> None:
-    filePath = f"data/{user}.json"
+    filePath = f"data/keys/{user}.json"
 
     with open(filePath, "w") as file:
         json.dump(data, file)
