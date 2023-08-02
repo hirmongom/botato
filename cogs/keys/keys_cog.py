@@ -123,7 +123,7 @@ class Keys(commands.Cog):
 
   @app_commands.command(
     name = "update",
-    description = "Get the key prices for all the games or your following list"
+    description = "Get the key prices for all the games on your following list"
   )
   async def update(self, interaction: discord.Interaction) -> None:
     print(f">> |update| from {interaction.user.name}")
