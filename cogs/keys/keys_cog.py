@@ -6,11 +6,10 @@ from discord.ui import Select, View
 from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
 from .util.game_list_mngmnt import storeGame, getGameList, removeGames, loadJson
 
-# TODO ask for manual update of all following
 # TODO set remind hours?
 # TODO max 25 following games
 
-class Util(commands.Cog):
+class Keys(commands.Cog):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
@@ -114,7 +113,7 @@ class Util(commands.Cog):
             response = ""
             for game in to_remove:
                 response += "\n-\t" + game
-            await message.edit(content = f"You unfollowed:{response}", view = None, ephemeral = False)
+            await message.edit(content = f"You unfollowed:{response}", view = None)
 
         menu.callback = menu_callback
         view = View()
@@ -150,4 +149,4 @@ class Util(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(Util(bot))
+    await bot.add_cog(Keys(bot))
