@@ -4,7 +4,7 @@ from discord.ext import commands
 from discord.ui import Select, View
 
 from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
-from .util.game_list_mngmnt import storeGame, getGameList, removeGames, loadJson
+from .util.data import storeGame, getGameList, removeGames, loadJson
 
 # TODO set remind hours?
 # TODO max 25 following games
