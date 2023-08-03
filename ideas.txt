@@ -1,2 +1,16 @@
 IDEA Economy stuff => Expand
 IDEA => Some machine learning stuff to remember
+
+IDEA GPT-4:
+
+  Error Handling: Right now, your bot might crash if it encounters an error it doesn't know how to handle. You could add some global error handling to your bot to catch these errors and respond appropriately.
+
+  Logging: Instead of using print statements, consider using Python's built-in logging module. This will give you more control over what gets logged and where it gets logged to.
+
+  Command Checks: You're checking if the user has administrator permissions in your reload and sync commands. You could use commands.has_permissions decorator to do this check, which would make your code a bit cleaner.
+
+  Command Descriptions: Consider adding more detailed descriptions to your commands. This will make your bot easier to use, especially for new users.
+
+  Bot Presence: You've set a custom presence for your bot, which is a nice touch. You could consider changing this presence periodically, or based on some condition, to make your bot feel more dynamic.
+
+  Command Prefix: You've set the command prefix to "not_designed_for_prefix_commands". If you don't plan to use prefix commands, you could set the prefix to None or an empty string.
