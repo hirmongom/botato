@@ -10,7 +10,7 @@ from .util.data import storeGame, getGameList, removeGames, loadJson
 # TODO max 25 following games
 
 class Keys(commands.Cog):
-  def __init__(self, bot: commands.Bot):
+  def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 

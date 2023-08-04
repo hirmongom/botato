@@ -7,7 +7,7 @@ import random
 from util.json import loadJson, saveJson
 
 class Economy(commands.Cog):
-  def __init__(self, bot: commands.Bot):
+  def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 
@@ -38,7 +38,6 @@ class Economy(commands.Cog):
         probability += 5
         data["probability"] = probability
         saveJson(data, interaction.user.name, "economy")
-        print(f"Current probability: {probability}")
 
 
   @app_commands.command(
