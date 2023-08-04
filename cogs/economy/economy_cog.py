@@ -1,3 +1,5 @@
+import os
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -11,33 +13,47 @@ class Economy(commands.Cog):
     self.bot = bot
 
 
+  async def daily_trigger(self) -> None:
+    print("Economy daily trigger")
+    for file in os.listdir("data/economy/"):
+      data = loadJson(file[:-5], "economy")
+      data["daily_payments"] = 5
+      data["probability"] = 5
+      saveJson(data, file[:-5], "economy")
+
+
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     data = loadJson(interaction.user.name, "economy")
     try:
       money = data["money"]
       probability = data["probability"]
+      daily_payments = data["daily_payments"]
     except Exception as e:  # First time run for user
       money = 100
       probability = 5
+      daily_payments = 5
       data["money"] = money
       data["probability"] = probability
+      data["daily_payments"] = daily_payments
       saveJson(data, interaction.user.name, "economy")
       data = loadJson(interaction.user.name, "economy")
 
-    if random.randint(1, 100) <= probability:
-      money = data.get("money")
-      increase = random.randint(10, 50)
-      money += increase
-      data["money"] = money
-      data["probability"] = 5
-      saveJson(data, interaction.user.name, "economy")
-      await interaction.channel.send(f"Money received: {increase}")
-    else:
-      if probability < 70:
-        probability += 5
-        data["probability"] = probability
+    if daily_payments > 0:
+      if random.randint(1, 100) <= probability:
+        money = data.get("money")
+        increase = random.randint(10, 50)
+        money += increase
+        data["money"] = money
+        data["probability"] = 5
+        data["daily_payments"] = data["daily_payments"] - 1
         saveJson(data, interaction.user.name, "economy")
+        await interaction.channel.send(f"Money received: {increase}")
+      else:
+        if probability < 75:
+          probability += 5
+          data["probability"] = probability
+          saveJson(data, interaction.user.name, "economy")
 
 
   @app_commands.command(
