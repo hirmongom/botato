@@ -13,7 +13,8 @@ class Debug(commands.Cog):
   async def daily_trigger(self) -> None:
     time = datetime.now()
     print(f"(!) Automatic cog daily trigger has started at "
-          f"{time.hour}:{time.minute} {time.day}/{time.month}/{time.year}")
+          f"{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)} " 
+          f"{time.day}/{time.month}/{time.year}")
 
 
   @app_commands.command(
@@ -30,8 +31,9 @@ class Debug(commands.Cog):
   async def time(self, interaction: discord.Interaction) -> None:
     print(f">> |time| from {interaction.user.name}")
     time = datetime.now()
-    await interaction.response.send_message(f"Current time and date is "
-          f"{time.hour}:{time.minute}:{time.seconds} {time.day}/{time.month}/{time.year}")
+    await interaction.response.send_message(f"Bot's current local time and date is"
+          f"\n{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)}:{str(time.second).zfill(2)}"
+          f"\n{time.day}/{time.month}/{time.year}")
 
 
   @app_commands.command(
