@@ -4,14 +4,38 @@ from discord.ext import commands
 from discord.ui import Select, View
 
 from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
-from .util.data import storeGame, getGameList, removeGames, loadJson
+from .util.data import storeGame, getGameList, removeGames
+from util.json import loadJson, saveJson
 
-# TODO set remind hours?
 # TODO max 25 following games
 
 class Keys(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
+
+
+  async def daily_trigger(self) -> None:
+    channel = self.bot.get_channel(int(self.bot.main_channel))
+    data = loadJson("autoupdate", "keys")
+    for user_id in data.keys():
+      user = await self.bot.fetch_user(user_id)
+      await channel.send(f"<@{user_id}> Your daily update is ready!")
+
+      games = loadJson(user.name, "keys")
+      keys = ""
+      try:
+        for title in games.keys():
+          while True:
+            keys = scrapKeys(games[title])
+            if len(keys) != 0:
+              break
+            restartDriver()
+          await channel.send(
+            f"**{title}**\n<{games[title]}>\n{keys}")
+        await channel.send("------------------------------------------------------------")
+      except Exception as e:
+        await channel.send(content = "An error ocurred")
+        return
 
 
   @app_commands.command(
@@ -124,11 +148,11 @@ class Keys(commands.Cog):
   @app_commands.command(
     name = "update",
     description = "Get the key prices for all the games on your following list"
-  )
+    )
   async def update(self, interaction: discord.Interaction) -> None:
     print(f">> |update| from {interaction.user.name}")
     await interaction.response.defer()
-    games = loadJson(interaction.user.name)
+    games = loadJson(interaction.user.name, "keys")
 
     message = await interaction.followup.send("Sit back and relax, this may take some time...")
 
@@ -146,6 +170,28 @@ class Keys(commands.Cog):
       await message.edit(content = "An error ocurred")
       return
     await message.delete()
+
+
+  @app_commands.command(
+    name = "autoupdate_keys",
+    description = "Enable or disable the autoupdate keys function"
+  )
+  @app_commands.choices(option = [
+    app_commands.Choice(name = "Enable", value = 1),
+    app_commands.Choice(name = "Disable", value = 0)
+  ])
+  async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
+    print(f">> |autoupdate_keys| from {interaction.user.name} and param {option}")
+    print(option.value)
+    data = loadJson("autoupdate", "keys")
+    data[interaction.user.id] = option.value
+
+    saveJson(data, "autoupdate", "keys")
+
+    if option.value == 1:
+      await interaction.response.send_message("You have opted in to receive daily updates for your followed games")
+    else:
+      await interaction.response.send_message("You have opted out to receive daily updates for your followed games")
 
 
 async def setup(bot: commands.Bot) -> None:
