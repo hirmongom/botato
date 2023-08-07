@@ -7,6 +7,7 @@ def loadJson(user: str, cog: str) -> dict[str, str]:
   
   if not os.path.isfile(filePath):
     with open(filePath, "w") as file:
+      json.dump(data, file)
       file.close()
           
   with open(filePath, "r") as file:
