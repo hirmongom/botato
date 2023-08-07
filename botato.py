@@ -10,8 +10,11 @@ from discord.ext import commands
 from discord import app_commands
 from discord.ext import tasks
 
+trigger_hour = 9
+trigger_minute = 00
 
 class Botato(commands.Bot):
+  main_channel = 0
   def __init__(self) -> None:
     super().__init__(
       command_prefix = "_not_designed_for_prefix_commands_", 
@@ -27,7 +30,7 @@ class Botato(commands.Bot):
   @tasks.loop(hours=24)
   async def daily_cog_trigger(self) -> None:
     now = datetime.now()
-    if now.hour == 10 and now.minute == 42:
+    if now.hour == trigger_hour and now.minute == trigger_minute:
       for cog in self.cogs.values():
         if hasattr(cog, "daily_trigger"):
           await cog.daily_trigger()
@@ -35,7 +38,7 @@ class Botato(commands.Bot):
 
   @daily_cog_trigger.before_loop
   async def before_daily_cog_trigger(self):
-    await self.wait_until(10, 42)
+    await self.wait_until(trigger_hour, trigger_minute)
 
 
   async def wait_until(self, hour, minute):
@@ -48,6 +51,7 @@ class Botato(commands.Bot):
 
   def run(self) -> None:
     load_dotenv()
+    self.main_channel = os.getenv("MAIN_CHANNEL")
     super().run(os.getenv("TOKEN"))
 
 
