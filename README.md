@@ -3,8 +3,8 @@
 ### ./.env ###
 * TOKEN
 
-    You should find this on the Discord Developer portal (https://discord.com/developers), after selection
-    the application, head to the left side panel, enter the *Bot* category and get the Token.
+    You should find this on the Discord Developer portal (https://discord.com/developers), after selecting
+    the A¬pplication, head to the left side panel, enter the *Bot* category and get the Token.
 
 * APPID
 
