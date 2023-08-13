@@ -4,7 +4,7 @@
 * TOKEN
 
     You should find this on the Discord Developer portal (https://discord.com/developers), after selecting
-    the A¬pplication, head to the left side panel, enter the *Bot* category and get the Token.
+    the Application, head to the left side panel, enter the *Bot* category and get the Token.
 
 * APPID
 
