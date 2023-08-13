@@ -1,0 +1,27 @@
+.env variables
+--------------
+### ./.env ###
+* TOKEN
+
+    You should find this on the Discord Developer portal (https://discord.com/developers), after selection
+    the application, head to the left side panel, enter the *Bot* category and get the Token.
+
+* APPID
+
+  You should find this on the Discord Developer portal (https://discord.com/developers), select your Application
+  and on the *General Information* tab you should find the application id.
+
+* MAIN_CHANNEL
+
+  This represents the ID of the channel where the bot will primarily interact. To get this ID you can head to the Discord
+  application, right-click the desired channel and select *Copy Channel ID* (You must have *Developer Mode* enabled on settings).
+
+  (As of today 13/08/2023, this is only used in the ```daily_trigger()``` function in keys_cog.py)
+
+### ./cogs/keys/util/.env ###
+
+* BROWSERPATH
+
+  This should represent the full path to a Chromium based browser.
+  (e.g. ```BROWSERPATH=C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe```,
+  or ```BROWSERPATH=/usr/bin/google-chrome```)
