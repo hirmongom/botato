@@ -12,7 +12,7 @@ class Debug(commands.Cog):
 
   async def daily_trigger(self) -> None:
     time = datetime.now()
-    print(f"(!) Automatic cog daily trigger has started at "
+    self.bot.interaction_logger.info(f"Automatic cog daily trigger has started at "
           f"{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)} " 
           f"{time.day}/{time.month}/{time.year}")
 
@@ -21,7 +21,7 @@ class Debug(commands.Cog):
     name = "ping",
     description = "Checks bot latency")
   async def ping(self, interaction: discord.Interaction) -> None:
-    print(f">> |ping| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|ping| from {interaction.user.name}")
     await interaction.response.send_message(f"My latency is {format(self.bot.latency * 1000, '.2f')} milliseconds")     
 
 
@@ -29,7 +29,7 @@ class Debug(commands.Cog):
     name = "time",
     description = "Displays the current local time of the bot")
   async def time(self, interaction: discord.Interaction) -> None:
-    print(f">> |time| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|time| from {interaction.user.name}")
     time = datetime.now()
     await interaction.response.send_message(f"Bot's current local time and date is"
           f"\n{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)}:{str(time.second).zfill(2)}"
@@ -40,7 +40,7 @@ class Debug(commands.Cog):
     name = "reload",
     description = "Reload all cogs")
   async def reload(self, interaction: discord.Interaction) -> None:
-    print(f">> |reload| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|reload| from {interaction.user.name}")
 
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
@@ -48,7 +48,7 @@ class Debug(commands.Cog):
 
     for folder in os.listdir("./cogs"):
       await self.bot.reload_extension(f"cogs.{folder}.{folder}_cog")
-      print(f"Reloaded {folder}")
+      self.bot.logger.info(f"Reloaded {folder}_cog")
 
     await interaction.response.send_message("Reloaded all cogs")
 
@@ -57,7 +57,7 @@ class Debug(commands.Cog):
     name = "sync",
     description = "Syncs tree commands")
   async def sync(self, interaction: discord.Interaction) -> None:
-    print(f">> |sync| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|sync| from {interaction.user.name}")
 
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
@@ -65,9 +65,9 @@ class Debug(commands.Cog):
 
     try:
       sync = await self.bot.tree.sync()
-      print(f"Synced {len(sync)} commands")
+      self.bot.logger.info(f"Synced {len(sync)} commands")
     except Exception as e:
-      print(f"Failed to sync commands: {e}")
+      self.bot.logger.error(f"Failed to sync commands: {e}")
 
     await interaction.response.send_message("Synced tree commands")
 

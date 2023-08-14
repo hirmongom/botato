@@ -14,7 +14,7 @@ class Economy(commands.Cog):
 
 
   async def daily_trigger(self) -> None:
-    print("Economy daily trigger")
+    self.bot.interaction_logger.info("Economy daily trigger")
     for file in os.listdir("data/economy/"):
       data = loadJson(file[:-5], "economy")
       data["daily_payments"] = 5
@@ -48,6 +48,7 @@ class Economy(commands.Cog):
         data["probability"] = 5
         data["daily_payments"] = data["daily_payments"] - 1
         saveJson(data, interaction.user.name, "economy")
+        self.bot.interaction_logger.info(f"Money increase trigger succesful for {interaction.user.name}")
         await interaction.channel.send(f"Money received: {increase}")
       else:
         if probability < 75:
@@ -61,7 +62,7 @@ class Economy(commands.Cog):
     description = "Checks your economy balance"
   )
   async def balance(self, interaction: discord.Interaction) -> None:
-    print(f">> |balance| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|balance| from {interaction.user.name}")
 
     data = loadJson(interaction.user.name, "economy")
     money = data["money"]

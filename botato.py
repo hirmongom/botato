@@ -5,22 +5,48 @@ from dotenv import load_dotenv
 import asyncio
 from datetime import datetime, timedelta
 
+import logging
+
 import discord
 from discord.ext import commands
 from discord import app_commands
 from discord.ext import tasks
 
-trigger_hour = 9
-trigger_minute = 00
+trigger_hour = 0
+trigger_minute = 0
+    
 
 class Botato(commands.Bot):
   main_channel = 0
   def __init__(self) -> None:
     super().__init__(
-      command_prefix = "_not_designed_for_prefix_commands_", 
+      command_prefix = None, 
       intents = discord.Intents.all(),
       activity = discord.Activity(type = discord.ActivityType.watching, 
                                   name = "lo tonto que eres"))
+
+    # Configure and set loggers
+    logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger_stream_handler = logging.StreamHandler()
+    logger_stream_handler.setFormatter(logger_formatter)
+
+
+    # Set up main logger
+    self.logger = logging.getLogger("MainLogger")
+    self.logger.setLevel(logging.INFO)
+    self.logger.addHandler(logger_stream_handler)
+    main_file_handler = logging.FileHandler("data/logs/main.log")
+    main_file_handler.setFormatter(logger_formatter)
+    self.logger.addHandler(main_file_handler)
+
+    # Set up interaction logger
+    self.interaction_logger = logging.getLogger("InteractionLogger")
+    self.interaction_logger.setLevel(logging.DEBUG)
+    self.interaction_logger.addHandler(logger_stream_handler)
+    interaction_file_handler = logging.FileHandler("data/logs/interaction.log")
+    interaction_file_handler.setFormatter(logger_formatter)
+    self.interaction_logger.addHandler(interaction_file_handler)
+    self.interaction_logger.propagate = False
 
 
   def cog_unload(self) -> None:
@@ -56,9 +82,10 @@ class Botato(commands.Bot):
 
 
   async def setup_hook(self) -> None:
+    self.logger.info("Started setup_hook()")
     for folder in os.listdir("./cogs"):
       await self.load_extension(f"cogs.{folder}.{folder}_cog")
-      print(f"(!) Loaded {folder}_cog")
+      self.logger.info(f"Loaded cog {folder}_cog")
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--setup", action="store_true", help="Run setup_hook on startup")
@@ -67,14 +94,16 @@ class Botato(commands.Bot):
     if args.setup:
       try:
         sync = await self.tree.sync()
-        print(f"(!) Synced {len(sync)} commands")
+        self.logger.info(f"Synced {len(sync)} commands")
       except Exception as e:
-        print(f"(!) Failed to sync commands: {e}")
+        self.logger.error(f"Failed to sync commands: \n{e}")
+
+    self.logger.info("Finished setup_hook()")
 
 
   async def on_ready(self) -> None:
     self.daily_cog_trigger.start()
-    print(f'(!) {bot.user} is ready\n')
+    self.logger.info(f"{bot.user} is ready")
 
 
 if __name__ == "__main__":  

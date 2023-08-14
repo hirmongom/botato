@@ -7,7 +7,7 @@ from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
 from .util.data import storeGame, getGameList, removeGames
 from util.json import loadJson, saveJson
 
-# TODO max 25 following games
+# @todo max 25 following games
 
 class Keys(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -15,6 +15,7 @@ class Keys(commands.Cog):
 
 
   async def daily_trigger(self) -> None:
+    self.bot.interaction_logger.info("Keys daily trigger")
     channel = self.bot.get_channel(int(self.bot.main_channel))
     data = loadJson("autoupdate", "keys")
     for user_id in data.keys():
@@ -34,6 +35,7 @@ class Keys(commands.Cog):
             f"**{title}**\n<{games[title]}>\n{keys}")
         await channel.send("------------------------------------------------------------")
       except Exception as e:
+        self.bot.logger(f"Error on Keys daily trigger for {user}\n{e}")
         await channel.send(content = "An error ocurred")
         return
 
@@ -46,7 +48,7 @@ class Keys(commands.Cog):
     query = "The search query to find the game you are looking for"
   )
   async def keys(self, interaction: discord.Interaction, query: str) -> None:
-    print(f">> |keys| from {interaction.user.name} with query |{query}|")
+    self.bot.interaction_logger.info(f"|keys| from {interaction.user.name} with query |{query}|")
 
     await interaction.response.defer()
 
@@ -70,7 +72,7 @@ class Keys(commands.Cog):
     game = "The game you want to follow"
   )
   async def follow(self, interaction: discord.Interaction, game : str) -> None:
-    print(f">> |follow| from {interaction.user.name} with game |{game}|")
+    self.bot.interaction_logger.info(f"|follow| from {interaction.user.name} with game |{game}|")
 
     await interaction.response.defer()
     
@@ -78,7 +80,7 @@ class Keys(commands.Cog):
       link = getLink(game)
       title = getTitle(link)
     except Exception as e:
-      print(e)
+      self.bot.logger.error(f"Error ocurred on follow() for {interaction.user.name} with game {game}\n{e}")
       await interaction.followup.send(f"No results found")
       return
   
@@ -92,7 +94,7 @@ class Keys(commands.Cog):
     description = "Lists all games you are following"
   )
   async def list(self, interaction: discord.Interaction) -> None:
-    print(f">> |list| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|list| from {interaction.user.name}")
 
     games = getGameList(interaction.user.name)   
 
@@ -112,7 +114,7 @@ class Keys(commands.Cog):
     description = "Remove one or multiple games from your following list"
   )
   async def unfollow(self, interaction: discord.Interaction) -> None:
-    print(f">> |unfollow| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|unfollow| from {interaction.user.name}")
     await interaction.response.defer()
 
     games = getGameList(interaction.user.name)
@@ -150,7 +152,7 @@ class Keys(commands.Cog):
     description = "Get the key prices for all the games on your following list"
     )
   async def update(self, interaction: discord.Interaction) -> None:
-    print(f">> |update| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|update| from {interaction.user.name}")
     await interaction.response.defer()
     games = loadJson(interaction.user.name, "keys")
 
@@ -167,6 +169,7 @@ class Keys(commands.Cog):
         await interaction.followup.send(
           f"**{title}**\n<{games[title]}>\n{keys}")
     except Exception as e:
+      self.bot.logger.error(f"Error on update() for {interaction.user.name}\n{e}")
       await message.edit(content = "An error ocurred")
       return
     await message.delete()
@@ -181,8 +184,7 @@ class Keys(commands.Cog):
     app_commands.Choice(name = "Disable", value = 0)
   ])
   async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
-    print(f">> |autoupdate_keys| from {interaction.user.name} and param {option}")
-    print(option.value)
+    self.bot.interaction_logger.info(f"|autoupdate_keys| from {interaction.user.name} and param {option}")
     data = loadJson("autoupdate", "keys")
     data[interaction.user.id] = option.value
 
