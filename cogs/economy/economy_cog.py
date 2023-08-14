@@ -49,7 +49,7 @@ class Economy(commands.Cog):
         data["daily_payments"] = data["daily_payments"] - 1
         saveJson(data, interaction.user.name, "economy")
         self.bot.interaction_logger.info(f"Money increase trigger succesful for {interaction.user.name}")
-        await interaction.channel.send(f"Money received: {increase}")
+        await interaction.channel.send(f"You found {increase}€!")
       else:
         if probability < 75:
           probability += 5
