@@ -1,12 +1,1 @@
 @idea Economy stuff => Expand
-@idea => Some machine learning stuff to remember
-
-@idea GPT-4:
-
-  Error Handling: Right now, your bot might crash if it encounters an error it doesn't know 
-  how to handle. You could add some global error handling to your bot to catch these errors 
-  and respond appropriately.
-
-  Command Checks: You're checking if the user has administrator permissions in your reload 
-  and sync commands. You could use commands.has_permissions decorator to do this check, 
-  which would make your code a bit cleaner.
