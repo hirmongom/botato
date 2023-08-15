@@ -35,7 +35,7 @@ class Botato(commands.Bot):
     self.logger = logging.getLogger("MainLogger")
     self.logger.setLevel(logging.INFO)
     self.logger.addHandler(logger_stream_handler)
-    main_file_handler = logging.FileHandler("data/logs/main.log")
+    main_file_handler = logging.FileHandler("logs/main.log")
     main_file_handler.setFormatter(logger_formatter)
     self.logger.addHandler(main_file_handler)
 
@@ -43,7 +43,7 @@ class Botato(commands.Bot):
     self.interaction_logger = logging.getLogger("InteractionLogger")
     self.interaction_logger.setLevel(logging.DEBUG)
     self.interaction_logger.addHandler(logger_stream_handler)
-    interaction_file_handler = logging.FileHandler("data/logs/interaction.log")
+    interaction_file_handler = logging.FileHandler("logs/interaction.log")
     interaction_file_handler.setFormatter(logger_formatter)
     self.interaction_logger.addHandler(interaction_file_handler)
     self.interaction_logger.propagate = False
@@ -88,7 +88,8 @@ class Botato(commands.Bot):
       self.logger.info(f"Loaded cog {folder}_cog")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--setup", action="store_true", help="Run setup_hook on startup")
+    parser.add_argument("--setup", action = "store_true", help = "Run setup_hook on startup")
+    parser.add_argument("--wipe", action = "store_true", help = "Wipe all data")
     args = parser.parse_args()
 
     if args.setup:
@@ -97,6 +98,12 @@ class Botato(commands.Bot):
         self.logger.info(f"Synced {len(sync)} commands")
       except Exception as e:
         self.logger.error(f"Failed to sync commands: \n{e}")
+
+    if args.wipe:
+      for category in os.listdir("data/"):
+        for data_file in os.listdir(f"data/{category}/"):
+          os.remove(f"data/{category}/{data_file}")
+      self.logger.info("Data wipe completed")
 
     self.logger.info("Finished setup_hook()")
 
