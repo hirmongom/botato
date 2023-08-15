@@ -25,19 +25,21 @@ class Botato(commands.Bot):
       activity = discord.Activity(type = discord.ActivityType.watching, 
                                   name = "lo tonto que eres"))
     self.set_up_loggers()
+    self.logger.info("********************** RUN **********************")
 
   def set_up_loggers(self) -> None: 
     # Configure and set loggers
-    logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger_formatter_stream = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger_formatter_file = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logger_stream_handler = logging.StreamHandler()
-    logger_stream_handler.setFormatter(logger_formatter)
+    logger_stream_handler.setFormatter(logger_formatter_stream)
 
     # Set up main logger
     self.logger = logging.getLogger("MainLogger")
     self.logger.setLevel(logging.INFO)
     self.logger.addHandler(logger_stream_handler)
     main_file_handler = logging.FileHandler("logs/main.log")
-    main_file_handler.setFormatter(logger_formatter)
+    main_file_handler.setFormatter(logger_formatter_file)
     self.logger.addHandler(main_file_handler)
 
     # Set up interaction logger
@@ -45,7 +47,7 @@ class Botato(commands.Bot):
     self.interaction_logger.setLevel(logging.DEBUG)
     self.interaction_logger.addHandler(logger_stream_handler)
     interaction_file_handler = logging.FileHandler("logs/interaction.log")
-    interaction_file_handler.setFormatter(logger_formatter)
+    interaction_file_handler.setFormatter(logger_formatter_file)
     self.interaction_logger.addHandler(interaction_file_handler)
     self.interaction_logger.propagate = False
 
@@ -88,8 +90,8 @@ class Botato(commands.Bot):
       await self.load_extension(f"cogs.{folder}.{folder}_cog")
       self.logger.info(f"Loaded cog {folder}_cog")
 
-    self.logger.info("Finished setup_hook()")
     await self.argument_parsing()
+    self.logger.info("Finished setup_hook()")
 
 
   async def argument_parsing(self) -> None:
