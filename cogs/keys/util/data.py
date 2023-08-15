@@ -16,3 +16,7 @@ def removeGames(user: str, games: list[str]) -> None:
   for game in games:
     del data[game]
   saveJson(data, user, "keys")
+
+def getFollowingSize(user: str) -> int:
+  data = loadJson(user, "keys")
+  return len(data.keys())

@@ -4,10 +4,9 @@ from discord.ext import commands
 from discord.ui import Select, View
 
 from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
-from .util.data import storeGame, getGameList, removeGames
+from .util.data import storeGame, getGameList, removeGames, getFollowingSize
 from util.json import loadJson, saveJson
 
-# @todo max 25 following games
 
 class Keys(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -66,13 +65,17 @@ class Keys(commands.Cog):
 
   @app_commands.command(
     name = "follow",
-    description = "Follow a game to easily check key prices"
+    description = "Follow a game to easily check key prices (Maximum of 25 games)"
   )
   @app_commands.describe(
     game = "The game you want to follow"
   )
   async def follow(self, interaction: discord.Interaction, game : str) -> None:
     self.bot.interaction_logger.info(f"|follow| from {interaction.user.name} with game |{game}|")
+
+    if getFollowingSize(interaction.user.name) >= 25:
+      await interaction.response.send_message("You have reached the maximum of following games")
+      return
 
     await interaction.response.defer()
     
