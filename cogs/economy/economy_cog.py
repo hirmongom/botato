@@ -85,7 +85,6 @@ class Economy(commands.Cog):
     description = "Checks your economy balance"
   )
   async def balance(self, interaction: discord.Interaction) -> None:
-    # @todo xp and money, show xp to next level
     self.bot.interaction_logger.info(f"|balance| from {interaction.user.name}")
 
     data = loadJson(interaction.user.name, "economy")
