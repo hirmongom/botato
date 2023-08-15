@@ -1,5 +1,5 @@
+import os, sys
 import argparse
-import os
 from dotenv import load_dotenv
 
 import asyncio
@@ -24,12 +24,13 @@ class Botato(commands.Bot):
       intents = discord.Intents.all(),
       activity = discord.Activity(type = discord.ActivityType.watching, 
                                   name = "lo tonto que eres"))
+    self.set_up_loggers()
 
+  def set_up_loggers(self) -> None: 
     # Configure and set loggers
     logger_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger_stream_handler = logging.StreamHandler()
     logger_stream_handler.setFormatter(logger_formatter)
-
 
     # Set up main logger
     self.logger = logging.getLogger("MainLogger")
@@ -88,6 +89,12 @@ class Botato(commands.Bot):
       self.logger.info(f"Loaded cog {folder}_cog")
 
     self.logger.info("Finished setup_hook()")
+    await self.argument_parsing()
+
+
+  async def argument_parsing(self) -> None:
+    if len(sys.argv) == 1:
+      return
 
     self.logger.info("Started argument parsing")
 
@@ -115,7 +122,6 @@ class Botato(commands.Bot):
   async def on_ready(self) -> None:
     self.daily_cog_trigger.start()
     self.logger.info(f"{bot.user} is ready")
-
 
 if __name__ == "__main__":  
   bot = Botato()
