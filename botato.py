@@ -87,6 +87,10 @@ class Botato(commands.Bot):
       await self.load_extension(f"cogs.{folder}.{folder}_cog")
       self.logger.info(f"Loaded cog {folder}_cog")
 
+    self.logger.info("Finished setup_hook()")
+
+    self.logger.info("Started argument parsing")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--setup", action = "store_true", help = "Run setup_hook on startup")
     parser.add_argument("--wipe", action = "store_true", help = "Wipe all data")
@@ -105,7 +109,7 @@ class Botato(commands.Bot):
           os.remove(f"data/{category}/{data_file}")
       self.logger.info("Data wipe completed")
 
-    self.logger.info("Finished setup_hook()")
+    self.logger.info("Finished argument parsing")
 
 
   async def on_ready(self) -> None:
