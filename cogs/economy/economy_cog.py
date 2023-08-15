@@ -17,8 +17,9 @@ class Economy(commands.Cog):
     self.bot.interaction_logger.info("Economy daily trigger")
     for file in os.listdir("data/economy/"):
       data = loadJson(file[:-5], "economy")
-      data["daily_payments"] = 5
-      data["probability"] = 5
+      data["daily_xp"] = 5
+      data["xp_probabiliy"] = 5
+      data["daily_money"] = 1
       saveJson(data, file[:-5], "economy")
 
 
@@ -26,35 +27,57 @@ class Economy(commands.Cog):
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     data = loadJson(interaction.user.name, "economy")
     try:
+      level = data["level"]
+      experience = data["experience"]
+      xp_probabiliy = data["xp_probabiliy"]
+      daily_xp = data["daily_xp"]
       money = data["money"]
-      probability = data["probability"]
-      daily_payments = data["daily_payments"]
+      daily_money = data["daily_money"]
     except Exception as e:  # First time run for user
+      level = 1
+      experience = 0
+      xp_probabiliy = 5
+      daily_xp = 5
       money = 100
-      probability = 5
-      daily_payments = 5
-      data["money"] = money
-      data["probability"] = probability
-      data["daily_payments"] = daily_payments
-      saveJson(data, interaction.user.name, "economy")
-      data = loadJson(interaction.user.name, "economy")
+      daily_money = 1
 
-    if daily_payments > 0:
-      if random.randint(1, 100) <= probability:
-        money = data.get("money")
+      data["level"] = level
+      data["experience"] = experience
+      data["xp_probabiliy"] = xp_probabiliy
+      data["daily_xp"] = daily_xp
+      data["money"] = money
+      data["daily_money"] = daily_money
+
+    if daily_money == 1:
+      increase = random.randint(50, 150)
+      data["money"] = data["money"] + increase
+      data["daily_money"] = 0
+      await interaction.channel.send(f"(*) You received {increase}€")
+      self.bot.interaction_logger.info(f"Money increase on first interaction for {interaction.user.name} with {increase}€")
+
+    if daily_xp > 0:
+      if random.randint(1, 100) <= xp_probabiliy:
         increase = random.randint(10, 50)
-        money += increase
-        data["money"] = money
-        data["probability"] = 5
-        data["daily_payments"] = data["daily_payments"] - 1
-        saveJson(data, interaction.user.name, "economy")
-        self.bot.interaction_logger.info(f"Money increase trigger succesful for {interaction.user.name}")
-        await interaction.channel.send(f"You found {increase}€!")
+        experience += increase
+        await interaction.channel.send(f"(*) You received {increase} XP")
+
+        if experience >= (level * 100):
+          experience = experience - level * 100
+          level += 1
+          data["level"] = level
+          await interaction.channel.send(f"(*) You leveled up to level {level}!!")
+
+        data["experience"] = experience
+        data["xp_probabiliy"] = 5
+        data["daily_xp"] = data["daily_xp"] - 1  
+        self.bot.interaction_logger.info(f"experience increase trigger succesful for {interaction.user.name} with {increase} XP")
+        
       else:
-        if probability < 75:
-          probability += 5
-          data["probability"] = probability
-          saveJson(data, interaction.user.name, "economy")
+        if xp_probabiliy < 75:
+          xp_probabiliy += 5
+          data["xp_probabiliy"] = xp_probabiliy
+      
+      saveJson(data, interaction.user.name, "economy")
 
 
   @app_commands.command(
@@ -62,12 +85,19 @@ class Economy(commands.Cog):
     description = "Checks your economy balance"
   )
   async def balance(self, interaction: discord.Interaction) -> None:
+    # @todo xp and money, show xp to next level
     self.bot.interaction_logger.info(f"|balance| from {interaction.user.name}")
 
     data = loadJson(interaction.user.name, "economy")
+    level = data["level"]
+    experience = data["experience"]
     money = data["money"]
     
-    await interaction.response.send_message(f"Your account balance is {money}€")
+    await interaction.response.send_message(f"Level = {level}\n" +
+                                            f"Current XP = {experience}\n" +
+                                            f"{level * 100 - experience} XP remaining for level {level + 1}\n"
+                                            f"Money = {money}€"
+                                            f"\n\n(I know i need to make this more visually appealing... will get to it someday)")
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Economy(bot))
