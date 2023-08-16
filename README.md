@@ -25,3 +25,10 @@
   This should represent the full path to a Chromium based browser.
   (e.g. ```BROWSERPATH=C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe```,
   or ```BROWSERPATH=/usr/bin/google-chrome```)
+
+./cogs/keys/chromedriver/
+--------------
+
+  The execution might file depending on the versions of the webdrivert and the browser and/or the OS where it is being executed. To get the appropiate webdriver visit https://chromedriver.chromium.org/
+  
+  (I will keep the chromedriver I'm using commited since I share the same enviroment between multiple machines)
