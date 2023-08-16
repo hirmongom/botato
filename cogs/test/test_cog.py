@@ -11,7 +11,7 @@ class Test(commands.Cog):
 
   @app_commands.command(
     name = "test_step",
-    description = "Test for progressive (?), multiple-step (?) commands"
+    description = "Test for multiple-step (?) commands"
   )
   async def test_step(self, interaction: discord.Interaction) -> None:
     def check(message: str) -> bool:
@@ -29,6 +29,7 @@ class Test(commands.Cog):
       await interaction.followup.send("No mientas, si que eres Kenny")
     else:
       await interaction.followup.send("AAAAAAAAAAAAAAAAAAAAHHH, donde esta Kenny?")
+
 
   @app_commands.command(
     name = "test_cpp",
