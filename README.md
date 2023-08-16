@@ -24,7 +24,8 @@
 
   This should represent the full path to a Chromium based browser.
   (e.g. ```BROWSERPATH=C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe```,
-  or ```BROWSERPATH=/usr/bin/google-chrome```)
+  or ```BROWSERPATH=/usr/bin/google-chrome```,
+  or ```BROWSERPATH=/usr/bin/brave-browser```)
 
 ./cogs/keys/chromedriver/
 --------------
