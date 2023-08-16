@@ -104,7 +104,7 @@ class Economy(commands.Cog):
     name = "bank",
     description = "Bank stuff"
   )
-  async def bank(interaction: discord.Interaction) -> None:
+  async def bank(self, interaction: discord.Interaction) -> None:
     # @todo bank() command
     # First interaction you gotta sign up to bank
     # Check money
