@@ -1,4 +1,22 @@
-# @todo doxygen documentation
-# @todo trigger routine each hour, daily trigger if hour = 0
-# @idea economy cog economy game (companies, stocks, management, ...)
-# @idea economy game stuff in c++ and learn to mix languages?
+@todo doxygen documentation
+@todo trigger routine each hour, daily trigger if hour = 0
+@todo give role of Level for each level
+@todo huge help command
+
+@idea economy expansion:
+  - Casino (blackjack, poker, roulette, coin flip)
+      * Limit gains: Based of amount of money earned in a span of time, there is an increasing
+        chance of an event happens with x options to choose from and 1 correct, the others have
+        varying degrees of negativity, and make you lose money.
+        The values of the choices are randomly based
+      * The higher the level of the user, the higher bets he can make
+  - Bets on real events (f1, lol)
+  - Level limits:
+      Higher levels, can extract more money from bank, each week there is a max limit
+      At higher levels, can buy better bank stuff, like being able to extract more money
+  - Weekly lottery, minimum of players
+  - Purchasable:
+      Custom name color
+      Custom rol
+  - Bank interest rate, can receive money weekly based on saved money, to promote having money on bank
+  - Benefits for daily usage of the bot
