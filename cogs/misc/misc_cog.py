@@ -40,6 +40,27 @@ class Misc(commands.Cog):
     response += f"\nTOTAL = {roll_result}"
     await interaction.response.send_message(f"You rolled {rolls}d{dice} and got:{response}")
 
+  @app_commands.command(
+    name = "test",
+    description = "Test for progressive (?) commands"
+  )
+  async def test(self, interaction: discord.Interaction) -> None:
+    def check(message: str) -> bool:
+      return message.author == interaction.user and message.channel == interaction.channel
+
+    self.bot.interaction_logger.info(f"|test| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    await interaction.followup.send("[y]es or [n]o?")
+    response = await self.bot.wait_for("message", check = check, timeout = 5)
+
+    if response.content.lower()[:1] == "y":
+      await interaction.followup.send("Eres Kenny")
+    elif response.content.lower()[:1] == "n":
+      await interaction.followup.send("No mientas, si que eres Kenny")
+    else:
+      await interaction.followup.send("AAAAAAAAAAAAAAAAAAAAHHH, donde esta Kenny?")
+
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Misc(bot))
