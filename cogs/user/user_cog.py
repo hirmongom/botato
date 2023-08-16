@@ -82,12 +82,13 @@ class User(commands.Cog):
       data = loadJson(interaction.user.name, "user")
       level = data["level"]
       experience = data["experience"]
+      description = data["user_description"]
     except KeyError:
       await interaction.response.send_message("It seems this is your first interaction with this " + 
                                               "bot, so I don't have any data, please check again")
       return
 
-    embed = discord.Embed(title = interaction.user.display_name, color = discord.Color.pink())
+    embed = discord.Embed(title = interaction.user.display_name, description = str(description), color = discord.Color.pink())
     embed.add_field(name = "Level", value = level, inline = True)
     embed.add_field(name = "Experience", value = f"{experience} XP", inline = True)
     embed.add_field(name = "To Next Level", value = f"{level * 100 - experience} XP")
@@ -107,11 +108,15 @@ class User(commands.Cog):
   async def description(self, interaction: discord.Interaction, description: str) -> None:
     self.bot.interaction_logger.info(f"|description| from {interaction.user.name} with description |{description}|")
 
-    if len(description) > 64:
+    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
+      await interaction.response.send_message("You cannot set your description on your first " +
+                                              "interaction, please try again")
+    elif len(description) > 64:
       await interaction.response.send_message("Description too long")
     else:
       data = loadJson(interaction.user.name, "user")
-      data["user_descritpion"] = description
+      data["user_description"] = description
+      saveJson(data, interaction.user.name, "user")
       await interaction.response.send_message("Description set!") 
   
 async def setup(bot: commands.Bot) -> None:
