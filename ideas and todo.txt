@@ -1,3 +1,4 @@
 # @todo doxygen documentation
 # @todo trigger routine each hour, daily trigger if hour = 0
 # @idea economy cog economy game (companies, stocks, management, ...)
+# @idea economy game stuff in c++ and learn to mix languages?
