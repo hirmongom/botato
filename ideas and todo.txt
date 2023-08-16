@@ -1,0 +1,3 @@
+# @todo doxygen documentation
+# @todo trigger routine each hour, daily trigger if hour = 0
+# @idea economy cog economy game (companies, stocks, management, ...)

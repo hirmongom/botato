@@ -92,11 +92,26 @@ class Economy(commands.Cog):
     experience = data["experience"]
     money = data["money"]
     
+    # @todo embed
     await interaction.response.send_message(f"Level = {level}\n" +
                                             f"Current XP = {experience}\n" +
                                             f"{level * 100 - experience} XP remaining for level {level + 1}\n"
                                             f"Money = {money}€"
                                             f"\n\n(I know i need to make this more visually appealing... will get to it someday)")
+
+
+  @app_commands.command(
+    name = "bank",
+    description = "Bank stuff"
+  )
+  async def bank(interaction: discord.Interaction) -> None:
+    # @todo bank() command
+    # First interaction you gotta sign up to bank
+    # Check money
+    # Change bank
+    # Buy/manage stocks??
+    pass
+
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Economy(bot))
