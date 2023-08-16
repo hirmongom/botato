@@ -1,0 +1,16 @@
+On use of C++ from python
+
+Functions must be wrapped with < extern "C" { ... } >
+
+Compilation:
+    g++ -shared -o main.so -fPIC main.cpp
+
+From Python:
+  import ctypes
+
+  lib = ctypes.CDLL("./cpp/main.so") -> Load shared library
+
+  (supposing in the lib there is a function declared "const int* foo()")
+  lib.foo.restype = ctypes.c_int_p -> Set return type (c for constant, p for pointer)
+
+  result = lib.foo() -> Call function

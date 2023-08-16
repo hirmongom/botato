@@ -1,6 +1,8 @@
 #include <iostream>
+#include <string>
 
 extern "C" {
-void hello_cpp() {
-  std::cout << "Hello, from C++" << std::endl;
+const char* hello_cpp() {
+  return "Hello, from C++";
+}
 }
