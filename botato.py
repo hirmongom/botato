@@ -106,6 +106,7 @@ class Botato(commands.Bot):
     args = parser.parse_args()
 
     if args.setup:
+      self.logger.info("--setup")
       try:
         sync = await self.tree.sync()
         self.logger.info(f"Synced {len(sync)} commands")
@@ -113,9 +114,11 @@ class Botato(commands.Bot):
         self.logger.error(f"Failed to sync commands: \n{e}")
 
     if args.wipe:
+      self.logger.info("--wipe")
       for category in os.listdir("data/"):
         for data_file in os.listdir(f"data/{category}/"):
-          os.remove(f"data/{category}/{data_file}")
+          if data_file != ".gitkeep":
+            os.remove(f"data/{category}/{data_file}")
       self.logger.info("Data wipe completed")
 
     self.logger.info("Finished argument parsing")
