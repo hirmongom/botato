@@ -20,7 +20,7 @@ class Botato(commands.Bot):
   main_channel = 0
   def __init__(self) -> None:
     super().__init__(
-      command_prefix = None, 
+      command_prefix = "~", 
       intents = discord.Intents.all(),
       activity = discord.Activity(type = discord.ActivityType.watching, 
                                   name = "lo tonto que eres"))
