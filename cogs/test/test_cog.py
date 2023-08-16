@@ -37,7 +37,7 @@ class Test(commands.Cog):
   async def test_cpp(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|test_cpp| from {interaction.user.name}")
 
-    lib = ctypes.CDLL("./cpp/test.so")
+    lib = ctypes.CDLL("./cpp/test/test.so")
     lib.hello_cpp.restype = ctypes.c_char_p
 
     await interaction.response.send_message(lib.hello_cpp().decode("utf-8"))
