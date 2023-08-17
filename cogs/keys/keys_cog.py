@@ -155,10 +155,13 @@ class Keys(commands.Cog):
     description = "Get the key prices for all the games on your following list"
     )
   async def update(self, interaction: discord.Interaction) -> None:
-    # @fixme fix response if there are no games on the following list
     self.bot.interaction_logger.info(f"|update| from {interaction.user.name}")
     await interaction.response.defer()
     games = load_json(interaction.user.name, "keys")
+
+    if len(games) == 0:
+      await interaction.followup.send("You are not following any games")
+      return
 
     message = await interaction.followup.send("Sit back and relax, this may take some time...")
 
@@ -188,7 +191,11 @@ class Keys(commands.Cog):
     app_commands.Choice(name = "Disable", value = 0)
   ])
   async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
-    # @fixme fix response if there are no games on the following list
+    games = load_json(interaction.user.name, "keys")
+    if len(games) == 0:
+      await interaction.response.send_message("You are not following any games")
+      return
+    
     self.bot.interaction_logger.info(f"|autoupdate_keys| from {interaction.user.name} and param {option}")
     data = load_json("autoupdate", "keys")
     data[interaction.user.id] = option.value
