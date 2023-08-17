@@ -42,7 +42,7 @@ class Test(commands.Cog):
     lib.hello_cpp.restype = ctypes.c_char_p
 
     await interaction.response.send_message(lib.hello_cpp().decode("utf-8"))
-    
+
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Test(bot))
