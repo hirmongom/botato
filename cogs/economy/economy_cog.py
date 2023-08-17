@@ -46,15 +46,20 @@ class Economy(commands.Cog):
     description = "Bank stuff"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
+    # @todo only user who issued command shall interact with the menu
     class CustomSelect(discord.ui.Select):
-      def __init__(self, *args, **kwargs) -> None:
+      def __init__(self, user_id: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.modals = {}
+        self.user_id = user_id
 
       def set_modal(self, value: str, modal: discord.ui.Modal) -> None:
         self.modals[value] = modal
 
       async def callback(self, interaction: discord.Interaction) -> None:
+        if interaction.user.id != self.user_id:
+            #await interaction.response.send_message("You are not authorized to interact with this menu.", ephemeral=True)
+            return
         self.disabled = True
         await interaction.message.edit(view = self.view)
         await interaction.response.send_modal(self.modals[self.values[0]])
@@ -153,6 +158,7 @@ class Economy(commands.Cog):
       discord.SelectOption(label = "Deposit", value = 1),
       discord.SelectOption(label = "Withdraw", value = 2)]
     menu = CustomSelect(
+      user_id = interaction.user.id,
       placeholder = "Choose an operation",
       options = menu_choice,)
     menu.set_modal("1", deposit_modal)
