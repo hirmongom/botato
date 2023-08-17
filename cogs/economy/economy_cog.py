@@ -8,6 +8,7 @@ import random
 
 from util.json import load_json, save_json
 
+
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
@@ -28,6 +29,11 @@ class Economy(commands.Cog):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
+    if type(interaction.command) == type(None) or interaction.command.name == "bank":
+      # Shouldn't trigger after checking the current XP
+      # Excluede certain interactions that are not commands
+      return
+
     data = load_json(interaction.user.name, "economy")
     daily_pay = data["daily_pay"]
 
@@ -46,7 +52,6 @@ class Economy(commands.Cog):
     description = "Bank stuff"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
-    # @todo only user who issued command shall interact with the menu
     class CustomSelect(discord.ui.Select):
       def __init__(self, user_id: int, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -114,21 +119,21 @@ class Economy(commands.Cog):
         else:
           await interaction.response.send_message(f"Must be a number")
 
-    self.bot.interaction_logger.info(f"|test_menu| from {interaction.user.name}")
-    # Initial checks
-    try:
-      economy_data = load_json(interaction.user.name, "economy")
-      hand_balance = economy_data["hand_balance"]
-      bank_balance = economy_data["bank_balance"]
-      max_withdrawal = economy_data["max_withdrawal"]
-      withdrawn_money = economy_data["withdrawn_money"]
-      user_data = load_json(interaction.user.name, "user")
-    except KeyError:
+    self.bot.interaction_logger.info(f"|bank| from {interaction.user.name}")
+
+    if not os.path.isfile(f"data/economy/{interaction.user.name}.json"):
       await interaction.response.send_message("It seems this is your first interaction with this " + 
                                               "bot, so I don't have any data, please check again")
       return
 
     await interaction.response.defer()
+
+    economy_data = load_json(interaction.user.name, "economy")
+    hand_balance = economy_data["hand_balance"]
+    bank_balance = economy_data["bank_balance"]
+    max_withdrawal = economy_data["max_withdrawal"]
+    withdrawn_money = economy_data["withdrawn_money"]
+    user_data = load_json(interaction.user.name, "user")
 
     embed = discord.Embed(
       title = "🏦 Bank Operations",

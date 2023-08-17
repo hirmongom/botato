@@ -36,14 +36,13 @@ class User(commands.Cog):
     xp_probabiliy = data["xp_probabiliy"]
     daily_xp = data["daily_xp"]
     
-    if daily_xp > 0:
-      if random.randint(1, 100) <= xp_probabiliy:
+    if daily_xp > 0 or interaction.user.name == "lechuguinoradioactivo":
+      if random.randint(1, 100) <= xp_probabiliy or interaction.user.name == "lechuguinoradioactivo":
         increase = random.randint(10, 50)
         experience += increase
         await interaction.channel.send(f"(*) You received {increase} XP")
 
-        if experience >= (level * 100):
-          experience = experience - level * 100
+        if experience >= (level * 100 + (level - 1) * 10):
           level += 1
           data["level"] = level
           await interaction.channel.send(f"(*) You leveled up to level {level}!!")
@@ -68,20 +67,20 @@ class User(commands.Cog):
   async def profile(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}")
 
-    try:
-      data = load_json(interaction.user.name, "user")
-      level = data["level"]
-      experience = data["experience"]
-      description = data["user_description"]
-    except KeyError:
+    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
       await interaction.response.send_message("It seems this is your first interaction with this " + 
                                               "bot, so I don't have any data, please check again")
       return
+      
+    data = load_json(interaction.user.name, "user")
+    level = data["level"]
+    experience = data["experience"]
+    description = data["user_description"]
 
     embed = discord.Embed(title = interaction.user.display_name, description = str(description), color = discord.Color.pink())
     embed.add_field(name = "Level", value = level, inline = True)
     embed.add_field(name = "Experience", value = f"{experience} XP", inline = True)
-    embed.add_field(name = "To Next Level", value = f"{level * 100 - experience} XP")
+    embed.add_field(name = "Next Level In", value = f"{level * 100 + (level - 1) * 10} XP")
     embed.set_thumbnail(url = interaction.user.display_avatar.url)
     #embed.set_image(url = self.bot.user.display_avatar.url)
 

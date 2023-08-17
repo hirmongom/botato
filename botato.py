@@ -130,10 +130,13 @@ class Botato(commands.Bot):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
+    print("Main interaction")
     if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
+      print(f"Made data for {interaction.user.name}")
       self.interaction_logger.info(f"First interaction of |{interaction.user.name}|")
       # First interaction for user -> create data
       make_data(interaction.user.name)
+      
 
 if __name__ == "__main__":  
   bot = Botato()
