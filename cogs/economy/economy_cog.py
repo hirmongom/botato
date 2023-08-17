@@ -3,6 +3,7 @@ import os
 import discord
 from discord import app_commands
 from discord.ext import commands
+from discord.ui import Select, View
 
 import random
 
@@ -50,11 +51,28 @@ class Economy(commands.Cog):
   )
   async def bank(self, interaction: discord.Interaction) -> None:
     # @todo bank() command
-    # First interaction you gotta sign up to bank
     # Check money
     # Change bank
     # Buy/manage stocks??
-    pass
+    self.bot.interaction_logger.info(f"|bank| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    menu_choice = [ discord.SelectOption(label = "Option 1", value = 1), 
+                    discord.SelectOption(label = "Option 2", value = 2)]
+    menu = Select(
+      min_values = 1,
+      max_values = 1,
+      placeholder = "Make a choice",
+      options = [menu_choice],
+    )
+
+    async def menu_callback(interaction: discord.Interaction) -> None:
+      await message.edit(content = f"You choose {menu.values}", view = None)
+
+    menu.callback = menu_callback
+    view = View()
+    view.add_item(menu)
+    message = await interaction.followup.send(view = view, ephemeral = True)
 
 
 async def setup(bot: commands.Bot) -> None:
