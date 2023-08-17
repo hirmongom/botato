@@ -1,7 +1,7 @@
 import os
 import json
 
-def loadJson(user: str, cog: str) -> dict[str, str]:
+def load_json(user: str, cog: str) -> dict[str, str]:
   data = {}
   filePath = f"data/{cog}/{user}.json"
   
@@ -18,7 +18,7 @@ def loadJson(user: str, cog: str) -> dict[str, str]:
 
   return data
   
-def saveJson(data: dict[str, str], user: str, cog: str) -> None:
+def save_json(data: dict[str, str], user: str, cog: str) -> None:
   filePath = f"data/{cog}/{user}.json"
 
   with open(filePath, "w") as file:

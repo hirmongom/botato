@@ -5,7 +5,7 @@ from discord.ui import Select, View
 
 from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
 from .util.data import storeGame, getGameList, removeGames, getFollowingSize
-from util.json import loadJson, saveJson
+from util.json import load_json, save_json
 
 
 class Keys(commands.Cog):
@@ -16,12 +16,12 @@ class Keys(commands.Cog):
   async def daily_trigger(self) -> None:
     self.bot.interaction_logger.info("Keys daily trigger")
     channel = self.bot.get_channel(int(self.bot.main_channel))
-    data = loadJson("autoupdate", "keys")
+    data = load_json("autoupdate", "keys")
     for user_id in data.keys():
       user = await self.bot.fetch_user(user_id)
       await channel.send(f"<@{user_id}> Your daily update is ready!")
 
-      games = loadJson(user.name, "keys")
+      games = load_json(user.name, "keys")
       keys = ""
       try:
         for title in games.keys():
@@ -158,7 +158,7 @@ class Keys(commands.Cog):
     # @fixme fix response if there are no games on the following list
     self.bot.interaction_logger.info(f"|update| from {interaction.user.name}")
     await interaction.response.defer()
-    games = loadJson(interaction.user.name, "keys")
+    games = load_json(interaction.user.name, "keys")
 
     message = await interaction.followup.send("Sit back and relax, this may take some time...")
 
@@ -190,10 +190,10 @@ class Keys(commands.Cog):
   async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
     # @fixme fix response if there are no games on the following list
     self.bot.interaction_logger.info(f"|autoupdate_keys| from {interaction.user.name} and param {option}")
-    data = loadJson("autoupdate", "keys")
+    data = load_json("autoupdate", "keys")
     data[interaction.user.id] = option.value
 
-    saveJson(data, "autoupdate", "keys")
+    save_json(data, "autoupdate", "keys")
 
     if option.value == 1:
       await interaction.response.send_message("You have opted in to receive daily updates for your followed games")
