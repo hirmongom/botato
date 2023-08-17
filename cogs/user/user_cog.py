@@ -36,13 +36,13 @@ class User(commands.Cog):
     xp_probabiliy = data["xp_probabiliy"]
     daily_xp = data["daily_xp"]
     
-    if daily_xp > 0 or interaction.user.name == "lechuguinoradioactivo":
-      if random.randint(1, 100) <= xp_probabiliy or interaction.user.name == "lechuguinoradioactivo":
+    if daily_xp > 0:
+      if random.randint(1, 100) <= xp_probabiliy:
         increase = random.randint(10, 50)
         experience += increase
         await interaction.channel.send(f"(*) You received {increase} XP")
 
-        if experience >= (level * 100 + (level - 1) * 10):
+        if experience >= (level * 100 + (level - 1) * 50):
           level += 1
           data["level"] = level
           await interaction.channel.send(f"(*) You leveled up to level {level}!!")
@@ -80,7 +80,7 @@ class User(commands.Cog):
     embed = discord.Embed(title = interaction.user.display_name, description = str(description), color = discord.Color.pink())
     embed.add_field(name = "Level", value = level, inline = True)
     embed.add_field(name = "Experience", value = f"{experience} XP", inline = True)
-    embed.add_field(name = "Next Level In", value = f"{level * 100 + (level - 1) * 10} XP")
+    embed.add_field(name = "Next Level In", value = f"{level * 100 + (level - 1) * 50} XP")
     embed.set_thumbnail(url = interaction.user.display_avatar.url)
     #embed.set_image(url = self.bot.user.display_avatar.url)
 
