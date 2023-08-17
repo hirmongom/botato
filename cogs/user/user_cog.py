@@ -6,7 +6,7 @@ from discord.ext import commands
 
 import random
 
-from util.json import loadJson, saveJson
+from util.json import load_json, save_json
 
 
 class User(commands.Cog):
@@ -17,58 +17,48 @@ class User(commands.Cog):
   async def daily_trigger(self) -> None:
     self.bot.interaction_logger.info("User daily trigger")
     for file in os.listdir("data/user/"):
-      data = loadJson(file[:-5], "user")
+      data = load_json(file[:-5], "user")
       data["daily_xp"] = 5
       data["xp_probabiliy"] = 5
-      saveJson(data, file[:-5], "user")
+      save_json(data, file[:-5], "user")
 
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
-    data = loadJson(interaction.user.name, "user")
-    try:
-      level = data["level"]
-      experience = data["experience"]
-      xp_probabiliy = data["xp_probabiliy"]
-      daily_xp = data["daily_xp"]
-    except Exception as e:  # First time run for user
-      level = 1
-      experience = 0
-      xp_probabiliy = 5
-      daily_xp = 5
-      user_description = ""
+    if type(interaction.command) == type(None) or interaction.command.name == "profile":
+      # Shouldn't trigger after checking the current XP
+      # Excluede certain interactions that are not commands
+      return
 
-      data["level"] = level
-      data["experience"] = experience
-      data["xp_probabiliy"] = xp_probabiliy
-      data["daily_xp"] = daily_xp
-      data["user_description"] = user_description
+    data = load_json(interaction.user.name, "user")
+    level = data["level"]
+    experience = data["experience"]
+    xp_probabiliy = data["xp_probabiliy"]
+    daily_xp = data["daily_xp"]
+    
+    if daily_xp > 0:
+      if random.randint(1, 100) <= xp_probabiliy:
+        increase = random.randint(10, 50)
+        experience += increase
+        await interaction.channel.send(f"(*) You received {increase} XP")
 
-    if interaction.command.name != "profile":
-      # Shouldn't trigger after checking the current XP   
-      if daily_xp > 0:
-        if random.randint(1, 100) <= xp_probabiliy:
-          increase = random.randint(10, 50)
-          experience += increase
-          await interaction.channel.send(f"(*) You received {increase} XP")
+        if experience >= (level * 100):
+          experience = experience - level * 100
+          level += 1
+          data["level"] = level
+          await interaction.channel.send(f"(*) You leveled up to level {level}!!")
 
-          if experience >= (level * 100):
-            experience = experience - level * 100
-            level += 1
-            data["level"] = level
-            await interaction.channel.send(f"(*) You leveled up to level {level}!!")
-
-          data["experience"] = experience
-          data["xp_probabiliy"] = 5
-          data["daily_xp"] = data["daily_xp"] - 1  
-          self.bot.interaction_logger.info(f"experience increase trigger succesful for {interaction.user.name} with {increase} XP")
-          
-        else:
-          if xp_probabiliy < 75:
-            xp_probabiliy += 5
-            data["xp_probabiliy"] = xp_probabiliy
+        data["experience"] = experience
+        data["xp_probabiliy"] = 5
+        data["daily_xp"] = data["daily_xp"] - 1  
+        self.bot.interaction_logger.info(f"Experience increase trigger succesful for {interaction.user.name} with {increase} XP")
+        
+      else:
+        if xp_probabiliy < 75:
+          xp_probabiliy += 5
+          data["xp_probabiliy"] = xp_probabiliy
       
-    saveJson(data, interaction.user.name, "user")
+    save_json(data, interaction.user.name, "user")
 
 
   @app_commands.command(
@@ -79,7 +69,7 @@ class User(commands.Cog):
     self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}")
 
     try:
-      data = loadJson(interaction.user.name, "user")
+      data = load_json(interaction.user.name, "user")
       level = data["level"]
       experience = data["experience"]
       description = data["user_description"]
@@ -114,10 +104,11 @@ class User(commands.Cog):
     elif len(description) > 64:
       await interaction.response.send_message("Description too long")
     else:
-      data = loadJson(interaction.user.name, "user")
+      data = load_json(interaction.user.name, "user")
       data["user_description"] = description
-      saveJson(data, interaction.user.name, "user")
+      save_json(data, interaction.user.name, "user")
       await interaction.response.send_message("Description set!") 
+  
   
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(User(bot))

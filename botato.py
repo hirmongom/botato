@@ -4,13 +4,13 @@ from dotenv import load_dotenv
 
 import asyncio
 from datetime import datetime, timedelta
-
 import logging
 
 import discord
 from discord.ext import commands
-from discord import app_commands
 from discord.ext import tasks
+
+from util.funcs import make_data
 
 trigger_hour = 0
 trigger_minute = 0
@@ -127,6 +127,13 @@ class Botato(commands.Bot):
   async def on_ready(self) -> None:
     self.daily_cog_trigger.start()
     self.logger.info(f"{bot.user} is ready")
+
+  @commands.Cog.listener()
+  async def on_interaction(self, interaction: discord.Interaction) -> None:
+    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
+      self.interaction_logger.info(f"First interaction of |{interaction.user.name}|")
+      # First interaction for user -> create data
+      make_data(interaction.user.name)
 
 if __name__ == "__main__":  
   bot = Botato()
