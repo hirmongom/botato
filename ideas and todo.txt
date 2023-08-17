@@ -12,7 +12,6 @@
       * The higher the level of the user, the higher bets he can make
   - Bets on real events (f1, lol)
   - Level limits:
-      Higher levels, can extract more money from bank, each week there is a max limit
       At higher levels, can buy better bank stuff, like being able to extract more money
   - Weekly lottery, minimum of players
   - Purchasable:
