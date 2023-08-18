@@ -6,6 +6,9 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 import logging
+import datetime
+import re
+
 
 class WebScrapper():
   def __init__(self, logger: logging.Logger, browserPath: str) -> None:
@@ -16,6 +19,7 @@ class WebScrapper():
     self.service = Service(executable_path = "./chromedriver/chromedriver")
     self.driver = webdriver.Chrome(service = self.service, options = self.options)
     self.logger.info("Started WebScrapper")
+
 
   def restart_driver(self) -> None:
     self.driver.quit()
@@ -61,5 +65,42 @@ class WebScrapper():
       store = key.find("div", class_ = "x-offer-merchant-title offers-merchant text-truncate").get("title")
       price = key.find("div", class_ = "offers-table-row-cell buy-btn-cell").find("span").get_text()
       content += f"\n{info}    {price} {store}"
-
     return content
+
+
+  def scrap_f1(self) -> str:
+    url = "https://pitwall.app/seasons/2023-formula-1-world-championship"
+    html = BeautifulSoup(requests.get(url).text, "lxml")
+
+    sections = html.find_all("div", class_ = "section")
+    
+    now = datetime.datetime.now()
+
+    table = None
+    for section in sections:
+      h3_element = section.find("h3", class_ = "block-title")
+      if h3_element.get_text() == f"{now.year} schedule":
+        table = section
+        break
+
+    races = []
+
+    html_dates = table.find_all("td", class_ = "nowrap")
+    for date in html_dates:
+      races.append(date.get_text())
+
+    pattern = re.compile(r'#\d+\s*(.*)')
+    html_winners = table.find_all("td", class_ = "minmd title")
+
+    for i, winner in enumerate(html_winners):
+      driver_name = winner.get_text(strip = True)
+      if  driver_name == "":
+        break
+      driver_name = pattern.match(driver_name).group(1)
+      races[i] += f" -> {driver_name}"
+
+    response = ""
+    for race in races:
+      response += race + "\n"
+
+    return response

@@ -5,16 +5,18 @@ from discord.ext import commands
 import ctypes
 import datetime
 
+
+
 class Test(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 
   @app_commands.command(
-    name = "test_step",
+    name = "step_test",
     description = "Test for multiple-step (?) commands"
   )
-  async def test_step(self, interaction: discord.Interaction) -> None:
+  async def step_test(self, interaction: discord.Interaction) -> None:
     def check(message: str) -> bool:
       return message.author == interaction.user and message.channel == interaction.channel
 
@@ -33,10 +35,10 @@ class Test(commands.Cog):
 
 
   @app_commands.command(
-    name = "test_cpp",
+    name = "cpp_test",
     description = "Test execution of C++ script from python"
   )
-  async def test_cpp(self, interaction: discord.Interaction) -> None:
+  async def cpp_test(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|test_cpp| from {interaction.user.name}")
 
     lib = ctypes.CDLL("./cpp/test/test.so")
@@ -46,10 +48,10 @@ class Test(commands.Cog):
 
 
   @app_commands.command(
-     name = "test_embed",
+     name = "embed_test",
      description = "Test embed creation and design"
   )
-  async def test_embed(self, interaction: discord.Interaction) -> None:
+  async def embed_test(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|test_embed| from {interaction.user.name}")
 
     embed = discord.Embed(
@@ -82,6 +84,18 @@ class Test(commands.Cog):
     embed.timestamp = datetime.datetime.utcnow()
 
     await interaction.response.send_message(embed = embed)
+
+
+  @app_commands.command(
+    name = "f1_test",
+    description = "Testing the fastF1 API"
+  )
+  async def f1_test(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|f1_test| from {interaction.user.name}")
+    await interaction.response.defer()
+    response = self.bot.web_scrapper.scrap_f1()
+    await interaction.followup.send(response)
+
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Test(bot))
