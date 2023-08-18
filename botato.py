@@ -11,9 +11,6 @@ from discord.ext import commands
 from discord.ext import tasks
 
 from util.funcs import make_data
-
-trigger_hour = 0
-trigger_minute = 0
     
 
 class Botato(commands.Bot):
@@ -56,25 +53,25 @@ class Botato(commands.Bot):
     self.daily_cog_trigger.cancel()
 
 
-  @tasks.loop(hours=24)
-  async def daily_cog_trigger(self) -> None:
+  @tasks.loop(hours = 1)
+  async def hourly_task(self) -> None:
+    daily_trigger_hour = 0
+
     now = datetime.now()
-    if now.hour == trigger_hour and now.minute == trigger_minute:
+    if now.hour == daily_trigger_hour:
       for cog in self.cogs.values():
         if hasattr(cog, "daily_trigger"):
           await cog.daily_trigger()
 
 
-  @daily_cog_trigger.before_loop
-  async def before_daily_cog_trigger(self):
-    await self.wait_until(trigger_hour, trigger_minute)
+  @hourly_task.before_loop
+  async def before_hourly_task(self):
+    await self.wait_until_next_hour()
 
 
-  async def wait_until(self, hour, minute):
+  async def wait_until_next_hour(self):
     now = datetime.now()
-    future = datetime(now.year, now.month, now.day, hour, minute)
-    if now.time() > future.time():
-      future += timedelta(days=1)
+    future = datetime(now.year, now.month, now.day, now.hour + 1, 0)
     await discord.utils.sleep_until(future)
 
 
