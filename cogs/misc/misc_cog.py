@@ -48,6 +48,15 @@ class Misc(commands.Cog):
       roll_result += roll
     response += f"\nTOTAL = {roll_result}"
     await interaction.response.send_message(f"You rolled {rolls}d{dice} and got:{response}")
+
+  @app_commands.command(
+    name = "help",
+    description = "Get help on how to use the bot and information about its functionalities"
+  )
+  async def help(self, interaction: discord.Interaction) -> None:
+    # @todo huge help command
+    self.bot.interaction_logger.info(f"|help| from {interaction.user.name}")
+    await interaction.response.send_message("This is still a TODO, so ask Potato if you need any help")
     
 
 async def setup(bot: commands.Bot) -> None:

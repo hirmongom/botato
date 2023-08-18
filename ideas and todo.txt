@@ -1,7 +1,4 @@
-@todo doxygen documentation
-@todo trigger routine each hour, daily trigger if hour = 0
 @todo give role of Level for each level
-@todo huge help command
 @todo more detailed logs
 
 @todo economy expansion:
