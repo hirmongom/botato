@@ -11,7 +11,7 @@ class Misc(commands.Cog):
 
   @app_commands.command(
     name = "git",
-    description = "Check my code in my github repository"
+    description = "Check my code in my GitHub repository"
   )
   async def git(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|git| from {interaction.user.name}")
