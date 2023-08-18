@@ -3,8 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Select, View
 
-from .util.scrap_keys import scrapKeys, getLink, getTitle, restartDriver
-from .util.data import storeGame, getGameList, removeGames, getFollowingSize
+from .util.game_data import storeGame, getGameList, removeGames, getFollowingSize
 from util.json import load_json, save_json
 
 
@@ -26,10 +25,10 @@ class Keys(commands.Cog):
       try:
         for title in games.keys():
           while True:
-            keys = scrapKeys(games[title])
+            keys = self.bot.web_scrapper.get_game_keys(games[title])
             if len(keys) != 0:
               break
-            restartDriver()
+            self.bot.web_scrapper.restart_driver()
           await channel.send(
             f"**{title}**\n<{games[title]}>\n{keys}")
         await channel.send("------------------------------------------------------------")
@@ -52,9 +51,9 @@ class Keys(commands.Cog):
     await interaction.response.defer()
 
     try:
-      link = getLink(query)
-      title = getTitle(link)
-      content = scrapKeys(link)
+      link = self.bot.web_scrapper.get_game_link(query)
+      title = self.bot.web_scrapper.get_game_title(link)
+      content = self.bot.web_scrapper.get_game_keys(link)
     except Exception as e:
       print(e)
       await interaction.followup.send(f"No results found")
@@ -80,8 +79,8 @@ class Keys(commands.Cog):
     await interaction.response.defer()
     
     try:
-      link = getLink(game)
-      title = getTitle(link)
+      link = self.bot.web_scrapper.get_game_link(game)
+      title = self.bot.web_scrapper.get_game_title(link)
     except Exception as e:
       self.bot.logger.error(f"Error ocurred on follow() for {interaction.user.name} with game {game}\n{e}")
       await interaction.followup.send(f"No results found")
@@ -169,10 +168,10 @@ class Keys(commands.Cog):
     try:
       for title in games.keys():
         while True:
-          keys = scrapKeys(games[title])
+          keys = self.bot.web_scrapper.get_game_keys(games[title])
           if len(keys) != 0:
             break
-          restartDriver()
+          self.bot.web_scrapper.restart_driver()
         await interaction.followup.send(
           f"**{title}**\n<{games[title]}>\n{keys}")
     except Exception as e:

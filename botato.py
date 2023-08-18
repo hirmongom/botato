@@ -11,6 +11,7 @@ from discord.ext import commands
 from discord.ext import tasks
 
 from util.funcs import make_data
+from util.web_scrapper import WebScrapper
     
 
 class Botato(commands.Bot):
@@ -23,6 +24,7 @@ class Botato(commands.Bot):
                                   name = "lo tonto que eres"))
     self.set_up_loggers()
     self.logger.info("********************** RUN **********************")
+    self.web_scrapper = None
 
   def set_up_loggers(self) -> None: 
     # Configure and set loggers
@@ -84,6 +86,7 @@ class Botato(commands.Bot):
   def run(self) -> None:
     load_dotenv()
     self.main_channel = os.getenv("MAIN_CHANNEL")
+    self.web_scrapper = WebScrapper(self.logger, os.getenv("BROWSER_PATH"))
     super().run(os.getenv("TOKEN"))
 
 
@@ -128,7 +131,7 @@ class Botato(commands.Bot):
 
 
   async def on_ready(self) -> None:
-    self.daily_cog_trigger.start()
+    self.hourly_loop.start()
     self.logger.info(f"{bot.user} is ready")
 
   @commands.Cog.listener()
