@@ -69,7 +69,7 @@ class Economy(commands.Cog):
     user_data = load_json(interaction.user.name, "user")
 
     embed = discord.Embed(
-      title = "🏦 Bank Operations",
+      title = "🏦 Bank Account",
       description = f"Welcome to the bank, {interaction.user.display_name}! Choose an operation below.",
       color = discord.Color.gold()
     )
@@ -106,8 +106,12 @@ class Economy(commands.Cog):
     view = discord.ui.View()
     view.add_item(menu)
     if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
-      button = BankUpgradeButton(label = "Upgrade Bank", style = discord.ButtonStyle.primary,
-                                  user_id = interaction.user.id)
+      button = BankUpgradeButton(user_id = interaction.user.id,
+                                message = message,
+                                embed = embed,
+                                economy_data = economy_data,
+                                label = "Upgrade Bank", 
+                                style = discord.ButtonStyle.primary,)
       view.add_item(button)
 
     await message.edit(embed = embed, view = view)
