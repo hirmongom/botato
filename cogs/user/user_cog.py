@@ -115,7 +115,7 @@ class User(commands.Cog):
   async def leaderboard(self, interaction: discord.Interaction) -> None:
     # @todo leaderboard
     self.bot.interaction_logger.info(f"|leaderboard| from {interaction.user.name}")
-    await interaction.response.send("Unimplemented")
+    await interaction.response.send_message("Unimplemented")
   
   
 async def setup(bot: commands.Bot) -> None:
