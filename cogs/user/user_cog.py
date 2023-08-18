@@ -106,7 +106,16 @@ class User(commands.Cog):
       data = load_json(interaction.user.name, "user")
       data["user_description"] = description
       save_json(data, interaction.user.name, "user")
-      await interaction.response.send_message("Description set!") 
+      await interaction.response.send_message("Description set!")
+
+  @app_commands.command(
+    name = "leaderboard",
+    description = "Chech the leaderboard of the users with the highest level on the server"
+  )
+  async def leaderboard(self, interaction: discord.Interaction) -> None:
+    # @todo leaderboard
+    self.bot.interaction_logger.info(f"|leaderboard| from {interaction.user.name}")
+    await interaction.response.send("Unimplemented")
   
   
 async def setup(bot: commands.Bot) -> None:
