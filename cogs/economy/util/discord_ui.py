@@ -25,11 +25,14 @@ class BankUpgradeButton(discord.ui.Button):
       self.economy_data["hand_balance"] = self.economy_data["hand_balance"] - upgrade_cost
       self.economy_data["bank_upgrade"] = self.economy_data["bank_upgrade"] + 1
       self.economy_data["max_withdrawal"] = self.economy_data["max_withdrawal"] + 500
+      self.economy_data["interest_rate"] = self.economy_data["interest_rate"] + 0.01
       save_json(self.economy_data, interaction.user.name, "economy")
       
       max_withdrawal = self.economy_data["max_withdrawal"]
+      interest_rate = self.economy_data["interest_rate"]
       await interaction.response.send_message(f"Upgrade completed!\nYou can now withdraw up to "
-                                              f"{max_withdrawal} each week")
+                                              f"{max_withdrawal} each week\nYour interest rate has "
+                                              f"increased to {int((interest_rate - 1) * 100)}%")
       await update_embed(message = self.message, embed = self.embed, 
                         economy_data = self.economy_data, was_upgrade = True)
     

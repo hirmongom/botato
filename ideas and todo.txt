@@ -1,4 +1,3 @@
-@todo give role of Level for each level
 @todo more detailed logs
 
 @todo economy expansion:
@@ -13,5 +12,4 @@
   - Purchasable:
       Custom name color
       Custom rol
-  - Bank interest rate, can receive money weekly based on saved money, to promote having money on bank
   - Benefits for daily usage of the bot

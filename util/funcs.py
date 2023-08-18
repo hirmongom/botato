@@ -16,4 +16,5 @@ def make_data(user: str) -> None:
   economy_data["max_withdrawal"] = 500
   economy_data["withdrawn_money"] = 0
   economy_data["bank_upgrade"] = 0
+  economy_data["interest_rate"] = 1
   save_json(economy_data, user, "economy")

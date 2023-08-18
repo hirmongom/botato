@@ -25,6 +25,7 @@ class Economy(commands.Cog):
       data["daily_pay"] = 1
       if self.week_day == 0:
         data["withdrawn_money"] = 0
+        data["bank_balance"] = data["bank_balance"] * data["interest_rate"]
       save_json(data, file[:-5], "economy")
 
 
@@ -66,6 +67,7 @@ class Economy(commands.Cog):
     bank_balance = economy_data["bank_balance"]
     max_withdrawal = economy_data["max_withdrawal"]
     withdrawn_money = economy_data["withdrawn_money"]
+    interest_rate = economy_data["interest_rate"]
     user_data = load_json(interaction.user.name, "user")
 
     embed = discord.Embed(
@@ -80,7 +82,9 @@ class Economy(commands.Cog):
     if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
       upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
       embed.add_field(name = f"💰 You can upgrade your bank for {upgrade_cost}€", 
-                      value = f"Withdrawal limit from {max_withdrawal}€ to {max_withdrawal + 500}€", inline = False)
+                      value = f"Withdrawal limit from {max_withdrawal}€ to {max_withdrawal + 500}€\n"
+                              f"Interest rate from {int((interest_rate - 1) * 100)}% to {int((interest_rate - 1) * 100 + 1)}%", 
+                      inline = False)
 
     embed.set_footer(text = "Secure Banking | Botato Bank", icon_url = self.bot.user.display_avatar.url)
     
