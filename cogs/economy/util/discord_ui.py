@@ -24,7 +24,7 @@ class BankUpgradeButton(discord.ui.Button):
     else:
       self.economy_data["hand_balance"] = self.economy_data["hand_balance"] - upgrade_cost
       self.economy_data["bank_upgrade"] = self.economy_data["bank_upgrade"] + 1
-      self.economy_data["max_withdrawal"] = self.economy_data["max_withdrawal"] + 500
+      self.economy_data["max_withdrawal"] = self.economy_data["max_withdrawal"] + 2500
       self.economy_data["interest_rate"] = self.economy_data["interest_rate"] + 0.01
       save_json(self.economy_data, interaction.user.name, "economy")
       
