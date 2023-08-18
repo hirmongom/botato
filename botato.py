@@ -54,24 +54,30 @@ class Botato(commands.Bot):
 
 
   @tasks.loop(hours = 1)
-  async def hourly_task(self) -> None:
-    daily_trigger_hour = 0
+  async def hourly_loop(self) -> None:
+    daily_task_hour = 0
 
+    # Run daily cog tasks
     now = datetime.now()
-    if now.hour == daily_trigger_hour:
+    if now.hour == daily_task_hour:
       for cog in self.cogs.values():
-        if hasattr(cog, "daily_trigger"):
-          await cog.daily_trigger()
+        if hasattr(cog, "daily_task"):
+          await cog.daily_task()
+
+    # Run hourly cog tasks
+    for cog in self.cogs.values():
+      if hasattr(cog, "hourly_task"):
+        await cog.hourly_task()
 
 
-  @hourly_task.before_loop
-  async def before_hourly_task(self):
+  @hourly_loop.before_loop
+  async def before_hourly_loop(self):
     await self.wait_until_next_hour()
 
 
   async def wait_until_next_hour(self):
     now = datetime.now()
-    future = datetime(now.year, now.month, now.day, now.hour + 1, 0)
+    future = datetime(now.year, now.month, now.day, (now.hour + 1) % 24 , 0)
     await discord.utils.sleep_until(future)
 
 
