@@ -50,7 +50,7 @@ class Economy(commands.Cog):
 
   @app_commands.command(
     name = "bank",
-    description = "Bank stuff"
+    description = "Check your account balance and perform opperations"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|bank| from {interaction.user.name}")
