@@ -69,13 +69,13 @@ class WebScrapper():
 
 
   def scrap_f1(self) -> str:
-    url = "https://pitwall.app/seasons/2023-formula-1-world-championship"
-    html = BeautifulSoup(requests.get(url).text, "lxml")
-
-    sections = html.find_all("div", class_ = "section")
-    
     now = datetime.datetime.now()
 
+    url = f"https://pitwall.app/seasons/{now.year}-formula-1-world-championship"
+    html = BeautifulSoup(requests.get(url).text, "lxml")
+    sections = html.find_all("div", class_ = "section")
+
+    # Find the table with the races and winners    
     table = None
     for section in sections:
       h3_element = section.find("h3", class_ = "block-title")
@@ -83,15 +83,21 @@ class WebScrapper():
         table = section
         break
 
+    # Get the race date column
     races = []
-
     html_dates = table.find_all("td", class_ = "nowrap")
     for date in html_dates:
       races.append(date.get_text())
 
+    # Get the race name column
+    html_names = table.find_all("td", class_ = "title")
+    # Skip the class="minmd title" that it finds
+    for i, k in zip(range(0, len(races), 1), range(0, len(html_names), 2)):
+      races[i] += f" | {html_names[k].get_text(strip = True)}"
+
+    # Get the race winner column
     pattern = re.compile(r'#\d+\s*(.*)')
     html_winners = table.find_all("td", class_ = "minmd title")
-
     for i, winner in enumerate(html_winners):
       driver_name = winner.get_text(strip = True)
       if  driver_name == "":
@@ -99,6 +105,7 @@ class WebScrapper():
       driver_name = pattern.match(driver_name).group(1)
       races[i] += f" -> {driver_name}"
 
+    # Form response
     response = ""
     for race in races:
       response += race + "\n"
