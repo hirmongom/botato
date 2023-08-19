@@ -86,15 +86,5 @@ class Test(commands.Cog):
     await interaction.response.send_message(embed = embed)
 
 
-  @app_commands.command(
-    name = "f1_test",
-    description = "Testing the fastF1 API"
-  )
-  async def f1_test(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|f1_test| from {interaction.user.name}")
-    self.bot.web_scrapper.get_f1_data()
-    await interaction.followup.send("Data created")
-
-
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Test(bot))
