@@ -38,7 +38,7 @@ class Debug(commands.Cog):
 
   @app_commands.command(
     name = "reload",
-    description = "Reload all cogs")
+    description = "(ADMIN) Reload all cogs")
   async def reload(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|reload| from {interaction.user.name}")
 
@@ -55,7 +55,7 @@ class Debug(commands.Cog):
 
   @app_commands.command(
     name = "sync",
-    description = "Syncs tree commands")
+    description = "(ADMIN) Syncs tree commands")
   async def sync(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|sync| from {interaction.user.name}")
 
@@ -74,7 +74,7 @@ class Debug(commands.Cog):
 
   @app_commands.command(
     name = "run_daily_task",
-    description = "Executes daily_task() for all cogs")
+    description = "(ADMIN) Executes daily_task() for all cogs")
   async def run_daily_task(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|run_daily_task| from {interaction.user.name}")
     await interaction.response.defer()
