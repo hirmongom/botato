@@ -1,9 +1,9 @@
 import os
 import json
 
-def load_json(user: str, cog: str) -> dict[str, str]:
+def load_json(sub_path: str, cog: str) -> dict[str, str]:
   data = {}
-  filePath = f"data/{cog}/{user}.json"
+  filePath = f"data/{cog}/{sub_path}.json"
   
   if not os.path.isfile(filePath):
     with open(filePath, "w") as file:
