@@ -92,9 +92,8 @@ class Test(commands.Cog):
   )
   async def f1_test(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|f1_test| from {interaction.user.name}")
-    await interaction.response.defer()
-    response = self.bot.web_scrapper.scrap_f1()
-    await interaction.followup.send(response)
+    self.bot.web_scrapper.get_f1_data()
+    await interaction.followup.send("Data created")
 
 
 async def setup(bot: commands.Bot) -> None:
