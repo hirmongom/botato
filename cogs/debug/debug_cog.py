@@ -10,7 +10,7 @@ class Debug(commands.Cog):
     self.bot = bot
 
 
-  async def daily_trigger(self) -> None:
+  async def daily_task(self) -> None:
     time = datetime.now()
     self.bot.interaction_logger.info(f"Automatic cog daily trigger has started at "
           f"{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)} " 
@@ -70,6 +70,22 @@ class Debug(commands.Cog):
       self.bot.logger.error(f"Failed to sync commands: {e}")
 
     await interaction.response.send_message("Synced tree commands")
+
+
+  @app_commands.command(
+    name = "run_daily_trigger",
+    description = "Executes daily_trigger() for all cogs")
+  async def run_daily_trigger(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|run_daily_trigger| from {interaction.user.name}")
+
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
+    for cog in self.bot.cogs.values():
+      if hasattr(cog, "daily_task"):
+        cog.daily_task()
+        print(cog)
 
 
 async def setup(bot: commands.Bot) -> None:

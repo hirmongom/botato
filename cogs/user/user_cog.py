@@ -14,7 +14,7 @@ class User(commands.Cog):
     self.bot = bot
 
 
-  async def daily_trigger(self) -> None:
+  async def daily_task(self) -> None:
     self.bot.interaction_logger.info("User daily trigger")
     for file in os.listdir("data/user/"):
       data = load_json(file[:-5], "user")

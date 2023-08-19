@@ -21,7 +21,7 @@ class Economy(commands.Cog):
     self.week_day = 0
 
 
-  async def daily_trigger(self) -> None:
+  async def daily_task(self) -> None:
     self.bot.interaction_logger.info("Economy daily trigger")
     self.week_day = (self.week_day + 1) % 8
 
