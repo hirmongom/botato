@@ -1,15 +1,10 @@
-@todo more detailed logs
+@todo Casino (blackjack, poker, roulette, coin flip)
+        * Limit gains: Based of amount of money earned in a span of time, there is an increasing
+          chance of an event happens with x options to choose from and 1 correct, the others have
+          varying degrees of negativity, and make you lose money.
+          The values of the choices are randomly based
+        * The higher the level of the user, the higher bets he can make
 
-@todo economy expansion:
-  - Casino (blackjack, poker, roulette, coin flip)
-      * Limit gains: Based of amount of money earned in a span of time, there is an increasing
-        chance of an event happens with x options to choose from and 1 correct, the others have
-        varying degrees of negativity, and make you lose money.
-        The values of the choices are randomly based
-      * The higher the level of the user, the higher bets he can make
-  - Bets on real events (f1, lol)
-  - Weekly lottery, minimum of players
-  - Purchasable:
-      Custom name color
-      Custom rol
-  - Benefits for daily usage of the bot
+@todo Benefits for daily usage of the bot
+
+@todo more detailed logs

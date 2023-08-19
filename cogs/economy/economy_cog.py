@@ -9,6 +9,11 @@ import random
 from util.json import load_json, save_json
 from .util.discord_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 
+# @todo Weekly lottery, minimum of players
+# @todo Purchasable itmes:
+#        * Custom name color
+#        * Custom rol
+
 
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
