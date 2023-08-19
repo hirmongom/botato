@@ -133,7 +133,7 @@ class WebScrapper():
       }
       data.append(entry)
 
-    with open("data/bets/f1_data.csv", mode = "w", newline = "") as file:
+    with open("data/bets/f1/f1_data.csv", mode = "w", newline = "") as file:
       fieldnames = ["day", "month", "race", "winner"]
       writer = csv.DictWriter(file, fieldnames = fieldnames)
 
