@@ -123,7 +123,11 @@ class Botato(commands.Bot):
       self.logger.info("--wipe")
       for category in os.listdir("data/"):
         for data_file in os.listdir(f"data/{category}/"):
-          if data_file != ".gitkeep":
+          if os.path.isdir(f"data/{category}/{data_file}"):
+            for sub_data_file in os.listdir(f"data/{category}/{data_file}"):
+              if sub_data_file != ".gitkeep":
+                os.remove(f"data/{category}/{data_file}/{sub_data_file}")
+          elif data_file != ".gitkeep":
             os.remove(f"data/{category}/{data_file}")
       self.logger.info("Data wipe completed")
 
