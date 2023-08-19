@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.service import Service
 import logging
 import datetime
 import re
+import csv
 
 
 class WebScrapper():
@@ -68,12 +69,31 @@ class WebScrapper():
     return content
 
 
-  def scrap_f1(self) -> str:
+  def get_f1_data(self) -> None:
+    month_mapping = {
+      'Jan': 1,
+      'Feb': 2,
+      'Mar': 3,
+      'Apr': 4,
+      'May': 5,
+      'Jun': 6,
+      'Jul': 7,
+      'Aug': 8,
+      'Sep': 9,
+      'Oct': 10,
+      'Nov': 11,
+      'Dec': 12
+    }
     now = datetime.datetime.now()
 
     url = f"https://pitwall.app/seasons/{now.year}-formula-1-world-championship"
     html = BeautifulSoup(requests.get(url).text, "lxml")
     sections = html.find_all("div", class_ = "section")
+
+    days = []
+    months = []
+    races = []
+    winners = []    
 
     # Find the table with the races and winners    
     table = None
@@ -84,30 +104,40 @@ class WebScrapper():
         break
 
     # Get the race date column
-    races = []
     html_dates = table.find_all("td", class_ = "nowrap")
     for date in html_dates:
-      races.append(date.get_text())
+      split_date = date.get_text().split(" ")
+      days.append(re.findall(r"\d+", split_date[1])[0])
+      months.append(str(month_mapping[split_date[0]]))
 
     # Get the race name column
     html_names = table.find_all("td", class_ = "title")
     # Skip the class="minmd title" that it finds
-    for i, k in zip(range(0, len(races), 1), range(0, len(html_names), 2)):
-      races[i] += f" | {html_names[k].get_text(strip = True)}"
+    for i in range(0, len(html_names), 2):
+      races.append(html_names[i].get_text(strip = True))
 
     # Get the race winner column
     pattern = re.compile(r'#\d+\s*(.*)')
     html_winners = table.find_all("td", class_ = "minmd title")
-    for i, winner in enumerate(html_winners):
+    for winner in html_winners:
       driver_name = winner.get_text(strip = True)
-      if  driver_name == "":
-        break
-      driver_name = pattern.match(driver_name).group(1)
-      races[i] += f" -> {driver_name}"
+      winners.append(pattern.match(driver_name).group(1) if driver_name is not "" else "")
 
-    # Form response
-    response = ""
-    for race in races:
-      response += race + "\n"
+    data = []
+    for i in range(len(days)):
+      entry = {
+        "day": days[i],
+        "month": months[i],
+        "race": races[i],
+        "winner": winners[i]
+      }
+      data.append(entry)
 
-    return response
+    with open("data/economy/f1_data.csv", mode = "w", newline = "") as file:
+      fieldnames = ["day", "month", "race", "winner"]
+      writer = csv.DictWriter(file, fieldnames = fieldnames)
+
+      writer.writeheader()
+
+      for entry in data:
+        writer.writerow(entry)
