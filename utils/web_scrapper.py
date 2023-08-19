@@ -126,6 +126,7 @@ class WebScrapper():
     data = []
     for i in range(len(days)):
       entry = {
+        "ix": i,
         "day": days[i],
         "month": months[i],
         "race": races[i],
@@ -134,7 +135,7 @@ class WebScrapper():
       data.append(entry)
 
     with open("data/bets/f1/f1_data.csv", mode = "w", newline = "") as file:
-      fieldnames = ["day", "month", "race", "winner"]
+      fieldnames = ["ix", "day", "month", "race", "winner"]
       writer = csv.DictWriter(file, fieldnames = fieldnames)
 
       writer.writeheader()
