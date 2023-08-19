@@ -90,7 +90,7 @@ class Bets(commands.Cog):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       emoji = emoji_mapping[sport]
       embed.add_field(name = f"📅 {data['day']}/{data['month']} {sport.upper()}",
-                      value = f"{emoji} {data['event']} ➡️ Current pool = {data['pool']}€",
+                      value = f"{emoji} {data['event']}\n💵 Current pool = {data['pool']}€",
                       inline = False)
     embed.set_footer(text = "Lucky Betting | Botato Bets", icon_url = self.bot.user.display_avatar.url)
 
