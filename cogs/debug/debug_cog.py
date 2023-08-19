@@ -77,6 +77,7 @@ class Debug(commands.Cog):
     description = "Executes daily_task() for all cogs")
   async def run_daily_task(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|run_daily_task| from {interaction.user.name}")
+    await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
@@ -85,7 +86,8 @@ class Debug(commands.Cog):
     for cog in self.bot.cogs.values():
       if hasattr(cog, "daily_task"):
         await cog.daily_task()
-        print(cog)
+    
+    await interaction.followup.send("daily_task() triggered for all cogs") 
 
 
 async def setup(bot: commands.Bot) -> None:
