@@ -1,6 +1,6 @@
 import discord
 
-from util.json import load_json, save_json
+from utils.json import load_json, save_json
 
 
 class BankUpgradeButton(discord.ui.Button):

@@ -3,8 +3,8 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Select, View
 
-from .util.game_data import store_game, get_game_list, remove_games, get_following_list_size
-from util.json import load_json, save_json
+from .utils.game_data import store_game, get_game_list, remove_games, get_following_list_size
+from utils.json import load_json, save_json
 
 
 class Keys(commands.Cog):

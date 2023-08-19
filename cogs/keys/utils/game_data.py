@@ -1,4 +1,4 @@
-from util.json import load_json, save_json
+from utils.json import load_json, save_json
 
 def store_game(user: str, title: str, link: str) -> None:
   data = load_json(user, "keys")

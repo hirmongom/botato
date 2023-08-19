@@ -18,8 +18,8 @@ def load_json(user: str, cog: str) -> dict[str, str]:
 
   return data
   
-def save_json(data: dict[str, str], user: str, cog: str) -> None:
-  filePath = f"data/{cog}/{user}.json"
+def save_json(data: dict[str, str], sub_path: str, cog: str) -> None:
+  filePath = f"data/{cog}/{sub_path}.json"
 
   with open(filePath, "w") as file:
     json.dump(data, file)

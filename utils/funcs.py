@@ -1,4 +1,4 @@
-from util.json import save_json
+from utils.json import save_json
 
 def make_data(user: str) -> None:
   user_data = {}

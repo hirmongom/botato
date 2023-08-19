@@ -6,7 +6,7 @@ from discord.ext import commands
 
 import random
 
-from util.json import load_json, save_json
+from utils.json import load_json, save_json
 
 
 class User(commands.Cog):
