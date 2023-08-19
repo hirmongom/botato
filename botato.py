@@ -138,7 +138,7 @@ class Botato(commands.Bot):
     self.hourly_loop.start()
     for cog in self.cogs.values():
         if hasattr(cog, "on_bot_run"):
-          self.logger.info(f"on_bot_run() for cog {cog}")
+          self.logger.info(f"on_bot_run() for cog {cog.qualified_name}")
           await cog.on_bot_run()
     self.logger.info(f"{bot.user} is ready")
 
