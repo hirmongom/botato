@@ -132,6 +132,10 @@ class Botato(commands.Bot):
 
   async def on_ready(self) -> None:
     self.hourly_loop.start()
+    for cog in self.cogs.values():
+        if hasattr(cog, "on_bot_run"):
+          self.logger.info(f"on_bot_run() for cog {cog}")
+          await cog.on_bot_run()
     self.logger.info(f"{bot.user} is ready")
 
   @commands.Cog.listener()
