@@ -12,7 +12,7 @@ class Debug(commands.Cog):
 
   async def daily_task(self) -> None:
     time = datetime.now()
-    self.bot.interaction_logger.info(f"Automatic cog daily trigger has started at "
+    self.bot.interaction_logger.info(f"Automatic cog daily task has started at "
           f"{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)} " 
           f"{time.day}/{time.month}/{time.year}")
 
@@ -73,10 +73,10 @@ class Debug(commands.Cog):
 
 
   @app_commands.command(
-    name = "run_daily_trigger",
-    description = "Executes daily_trigger() for all cogs")
-  async def run_daily_trigger(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|run_daily_trigger| from {interaction.user.name}")
+    name = "run_daily_task",
+    description = "Executes daily_task() for all cogs")
+  async def run_daily_task(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|run_daily_task| from {interaction.user.name}")
 
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
@@ -84,7 +84,7 @@ class Debug(commands.Cog):
 
     for cog in self.bot.cogs.values():
       if hasattr(cog, "daily_task"):
-        cog.daily_task()
+        await cog.daily_task()
         print(cog)
 
 
