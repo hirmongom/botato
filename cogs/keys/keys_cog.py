@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Select, View
 
-from .util.game_data import storeGame, getGameList, removeGames, getFollowingSize
+from .util.game_data import store_game, get_game_list, remove_games, get_following_list_size
 from util.json import load_json, save_json
 
 
@@ -72,7 +72,7 @@ class Keys(commands.Cog):
   async def follow(self, interaction: discord.Interaction, game : str) -> None:
     self.bot.interaction_logger.info(f"|follow| from {interaction.user.name} with game |{game}|")
 
-    if getFollowingSize(interaction.user.name) >= 25:
+    if get_following_list_size(interaction.user.name) >= 25:
       await interaction.response.send_message("You have reached the maximum of following games")
       return
 
@@ -86,7 +86,7 @@ class Keys(commands.Cog):
       await interaction.followup.send(f"No results found")
       return
   
-    storeGame(interaction.user.name, title, link)
+    store_game(interaction.user.name, title, link)
 
     await interaction.followup.send(f"You are now following {title}\n{link}")
 
@@ -98,7 +98,7 @@ class Keys(commands.Cog):
   async def list(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|list| from {interaction.user.name}")
 
-    games = getGameList(interaction.user.name)   
+    games = get_game_list(interaction.user.name)   
 
     if len(games) == 0:
       await interaction.response.send_message("You are not following any games")
@@ -119,7 +119,7 @@ class Keys(commands.Cog):
     self.bot.interaction_logger.info(f"|unfollow| from {interaction.user.name}")
     await interaction.response.defer()
 
-    games = getGameList(interaction.user.name)
+    games = get_game_list(interaction.user.name)
 
     if len(games) == 0:
       await interaction.followup.send("You are not following any games")
@@ -136,7 +136,7 @@ class Keys(commands.Cog):
 
     async def menu_callback(interaction: discord.Interaction) -> None:
       to_remove = [games[int(i)] for i in menu.values]
-      removeGames(interaction.user.name, to_remove)
+      remove_games(interaction.user.name, to_remove)
 
       response = ""
       for game in to_remove:
