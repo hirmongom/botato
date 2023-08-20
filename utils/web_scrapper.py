@@ -10,6 +10,8 @@ import datetime
 import re
 import csv
 
+from utils.json import save_json
+
 
 class WebScrapper():
   def __init__(self, logger: logging.Logger, browserPath: str) -> None:
@@ -121,7 +123,7 @@ class WebScrapper():
     html_winners = table.find_all("td", class_ = "minmd title")
     for winner in html_winners:
       driver_name = winner.get_text(strip = True)
-      winners.append(pattern.match(driver_name).group(1) if driver_name is not "" else "")
+      winners.append(pattern.match(driver_name).group(1) if driver_name != "" else "")
 
     data = []
     for i in range(len(days)):
@@ -142,3 +144,25 @@ class WebScrapper():
 
       for entry in data:
         writer.writerow(entry)
+  
+
+  def get_f1_pilots(self) -> None:
+    now = datetime.datetime.now()
+
+    url = f"https://pitwall.app/seasons/{now.year}-formula-1-world-championship"
+    html = BeautifulSoup(requests.get(url).text, "lxml")
+    sections = html.find_all("div", class_ = "section")
+
+    pilots_dir = {}
+    for section in sections:
+      h3_element = section.find("h3", class_ = "block-title")
+      if h3_element.get_text() == f"{now.year} standings":
+        pilots = section.find_all("td", class_ = "title")
+        for html_pilot in pilots:
+          pilot = html_pilot.get_text(strip = True)
+          if pilot[0] == "#":
+            match = re.match(r"#(\d+)(\D+)", pilot)
+            if match:
+              number, name = match.groups()
+              pilots_dir[number] = name
+              save_json(pilots_dir, "f1/bet_possibilites", "bets")
