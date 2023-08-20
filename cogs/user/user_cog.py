@@ -17,7 +17,7 @@ class User(commands.Cog):
   async def daily_task(self) -> None:
     self.bot.interaction_logger.info("User daily task")
     for file in os.listdir("data/user/"):
-      if not file.endswith("_ids.json"):
+      if file != ".gitkeep":
         data = load_json(file[:-5], "user")
         data["daily_xp"] = 5
         data["xp_probabiliy"] = 5

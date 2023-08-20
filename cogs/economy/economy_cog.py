@@ -26,12 +26,13 @@ class Economy(commands.Cog):
     self.week_day = (self.week_day + 1) % 8
 
     for file in os.listdir("data/economy/"):
-      data = load_json(file[:-5], "economy")
-      data["daily_pay"] = 1
-      if self.week_day == 0:
-        data["withdrawn_money"] = 0
-        data["bank_balance"] = data["bank_balance"] * data["interest_rate"]
-      save_json(data, file[:-5], "economy")
+      if file != ".gitkeep":
+        data = load_json(file[:-5], "economy")
+        data["daily_pay"] = 1
+        if self.week_day == 0:
+          data["withdrawn_money"] = 0
+          data["bank_balance"] = data["bank_balance"] * data["interest_rate"]
+        save_json(data, file[:-5], "economy")
 
 
   @commands.Cog.listener()
