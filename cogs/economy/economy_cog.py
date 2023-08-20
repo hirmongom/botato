@@ -9,8 +9,8 @@ import random
 from utils.json import load_json, save_json
 from .utils.custom_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 
-# @todo Weekly lottery, minimum of players
-# @todo Purchasable itmes:
+# @idea Weekly lottery, minimum of players
+# @idea Purchasable itmes:
 #        * Custom name color
 #        * Custom rol
 

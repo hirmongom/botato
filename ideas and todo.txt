@@ -1,10 +1,10 @@
-@todo Casino (blackjack, poker, roulette, coin flip)
+@idea Casino (blackjack, poker, roulette, coin flip)
         * Limit gains: Based of amount of money earned in a span of time, there is an increasing
           chance of an event happens with x options to choose from and 1 correct, the others have
           varying degrees of negativity, and make you lose money.
           The values of the choices are randomly based
         * The higher the level of the user, the higher bets he can make
 
-@todo Benefits for daily usage of the bot
-@todo Custom info when bot command exception
-@todo more detailed logs 
+@idea Benefits for daily usage of the bot
+@idea Custom info when bot command exception
+@idea more detailed logs 
