@@ -13,15 +13,14 @@ class Keys(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    # @todo redo with global user ids
     self.bot.interaction_logger.info("Keys daily task")
     channel = self.bot.get_channel(int(self.bot.main_channel))
     data = load_json("autoupdate", "keys")
-    for user_id in data.keys():
-      user = await self.bot.fetch_user(user_id)
-      await channel.send(f"<@{user_id}> Your daily update is ready!")
+    user_ids = load_json("user_ids", "user")
+    for user in data.keys():
+      await channel.send(f"<@{user_ids[user]}> Your daily update is ready!")
 
-      games = load_json(user.name, "keys")
+      games = load_json(user, "keys")
       keys = ""
       try:
         for title in games.keys():
@@ -191,14 +190,15 @@ class Keys(commands.Cog):
     app_commands.Choice(name = "Disable", value = 0)
   ])
   async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
+    self.bot.interaction_logger.info(f"|autoupdate_keys| from {interaction.user.name} and param {option}")
+
     games = load_json(interaction.user.name, "keys")
     if len(games) == 0:
       await interaction.response.send_message("You are not following any games")
       return
     
-    self.bot.interaction_logger.info(f"|autoupdate_keys| from {interaction.user.name} and param {option}")
     data = load_json("autoupdate", "keys")
-    data[interaction.user.id] = option.value
+    data[interaction.user.name] = option.value
 
     save_json(data, "autoupdate", "keys")
 
