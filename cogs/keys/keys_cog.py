@@ -16,7 +16,7 @@ class Keys(commands.Cog):
     self.bot.interaction_logger.info("Keys daily task")
     channel = self.bot.get_channel(int(self.bot.main_channel))
     data = load_json("autoupdate", "keys")
-    user_ids = load_json("user_ids", "user")
+    user_ids = load_json("user_ids", "other")
     for user in data.keys():
       await channel.send(f"<@{user_ids[user]}> Your daily update is ready!")
 

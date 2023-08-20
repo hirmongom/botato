@@ -20,6 +20,6 @@ def make_data(user: str) -> None:
   save_json(economy_data, user, "economy")
 
 def save_user_id(user_name: str, user_id: int) -> None:
-  user_ids = load_json("user_ids", "user")
+  user_ids = load_json("user_ids", "other")
   user_ids[user_name] = user_id
-  save_json(user_ids, "user_ids", "user")
+  save_json(user_ids, "user_ids", "other")

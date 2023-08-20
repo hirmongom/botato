@@ -70,7 +70,7 @@ class Bets(commands.Cog):
         winner_bettors = []
         winner_bettors_amount = 0  
         event_winner = ""
-        user_ids = load_json("user_ids", "user")
+        user_ids = load_json("user_ids", "other")
         with open(f"data/bets/{sport}/{sport}_data.csv", mode = "r", newline = "") as file:
           reader = csv.reader(file)
           for row in reader:
