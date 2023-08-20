@@ -8,3 +8,4 @@
 @idea Benefits for daily usage of the bot
 @idea Custom info when bot command exception
 @idea more detailed logs 
+@idea update commands to make use of embeds
