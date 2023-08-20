@@ -109,6 +109,7 @@ class Botato(commands.Bot):
     parser = argparse.ArgumentParser()
     parser.add_argument("--setup", action = "store_true", help = "Run setup_hook on startup")
     parser.add_argument("--wipe", action = "store_true", help = "Wipe all data")
+    parser.add_argument("--fetch", action = "store_true", help = "Fetch all data by running fetch_data() for all cogs")
     args = parser.parse_args()
 
     if args.setup:
@@ -130,6 +131,13 @@ class Botato(commands.Bot):
           elif data_file != ".gitkeep":
             os.remove(f"data/{category}/{data_file}")
       self.logger.info("Data wipe completed")
+
+    if args.fetch:
+      self.logger.info("--fetch")
+      for cog in self.cogs.values():
+        if hasattr(cog, "fetch_data"):
+          self.logger.info(f"fetch_data() for cog {cog.qualified_name}")
+          await cog.fetch_data()
 
     self.logger.info("Finished argument parsing")
 
