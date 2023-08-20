@@ -23,14 +23,14 @@ class EventBetSelect(discord.ui.Select):
     if interaction.user.id != self.user_id:
         return # User not authorized
 
+    await interaction.response.defer()
+
     self.disabled = True
     await self.message.edit(view = self.view)
 
-    new_view = discord.ui.View()
     value_bet_select = ValueBetSelect(user_id = self.user_id, message = self.message, 
                                       embed = self.embed, sport = self.values[0]) 
-    new_view.add_item(value_bet_select)
-    await interaction.response.send_message(view = new_view)
+    await value_bet_select.setup(self.view)
 
 
 class ValueBetSelect(discord.ui.Select):
@@ -49,6 +49,11 @@ class ValueBetSelect(discord.ui.Select):
       self.menu_choices.append(discord.SelectOption(label = self.selections[key], value = key))
 
     self.options = self.menu_choices
+
+
+  async def setup(self, view: discord.ui.View):
+    view.add_item(self)
+    await self.message.edit(view = view)
 
 
   async def callback(self, interaction: discord.Interaction) -> None:
