@@ -17,10 +17,11 @@ class User(commands.Cog):
   async def daily_task(self) -> None:
     self.bot.interaction_logger.info("User daily task")
     for file in os.listdir("data/user/"):
-      data = load_json(file[:-5], "user")
-      data["daily_xp"] = 5
-      data["xp_probabiliy"] = 5
-      save_json(data, file[:-5], "user")
+      if not file.endswith("_ids.json"):
+        data = load_json(file[:-5], "user")
+        data["daily_xp"] = 5
+        data["xp_probabiliy"] = 5
+        save_json(data, file[:-5], "user")
 
 
   @commands.Cog.listener()
