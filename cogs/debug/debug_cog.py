@@ -10,6 +10,10 @@ class Debug(commands.Cog):
     self.bot = bot
 
 
+  async def on_bot_run(self) -> None:
+    pass
+
+
   async def daily_task(self) -> None:
     time = datetime.now()
     self.bot.interaction_logger.info(f"Automatic cog daily task has started at "
