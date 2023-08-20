@@ -7,7 +7,7 @@ from discord.ext import commands
 import random
 
 from utils.json import load_json, save_json
-from .util.discord_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
+from .util.custom_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 
 # @todo Weekly lottery, minimum of players
 # @todo Purchasable itmes:
