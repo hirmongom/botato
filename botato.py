@@ -10,7 +10,7 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 
-from utils.funcs import make_data
+from utils.funcs import make_data, save_user_id
 from utils.web_scrapper import WebScrapper
     
 
@@ -108,7 +108,7 @@ class Botato(commands.Bot):
     self.logger.info("Started argument parsing")
     parser = argparse.ArgumentParser()
     parser.add_argument("--setup", action = "store_true", help = "Run setup_hook on startup")
-    parser.add_argument("--wipe", action = "store_true", help = "Wipe all data")
+    parser.add_argument("--wipe", action = "store_true", help = "Wipe all json data (only)")
     parser.add_argument("--fetch", action = "store_true", help = "Fetch all data by running fetch_data() for all cogs")
     args = parser.parse_args()
 
@@ -126,11 +126,11 @@ class Botato(commands.Bot):
         for data_file in os.listdir(f"data/{category}/"):
           if os.path.isdir(f"data/{category}/{data_file}"):
             for sub_data_file in os.listdir(f"data/{category}/{data_file}"):
-              if sub_data_file != ".gitkeep":
+              if sub_data_file.endswith(".json"):
                 os.remove(f"data/{category}/{data_file}/{sub_data_file}")
-          elif data_file != ".gitkeep":
+          elif data_file.endswith(".json"):
             os.remove(f"data/{category}/{data_file}")
-      self.logger.info("Data wipe completed")
+      self.logger.info("Json data wipe completed")
 
     if args.fetch:
       self.logger.info("--fetch")
@@ -160,6 +160,7 @@ class Botato(commands.Bot):
       self.interaction_logger.info(f"First interaction of |{interaction.user.name}|")
       # First interaction for user -> create data
       make_data(interaction.user.name)
+      save_user_id(interaction.user.name, interaction.user.id)
       
 
 if __name__ == "__main__":  
