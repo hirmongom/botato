@@ -13,6 +13,7 @@ class Keys(commands.Cog):
 
 
   async def daily_task(self) -> None:
+    # @todo redo with global user ids
     self.bot.interaction_logger.info("Keys daily task")
     channel = self.bot.get_channel(int(self.bot.main_channel))
     data = load_json("autoupdate", "keys")
