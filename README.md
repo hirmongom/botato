@@ -18,8 +18,6 @@
 
   (As of today 13/08/2023, this is only used in the ```daily_trigger()``` function in keys_cog.py)
 
-### ./cogs/keys/util/.env ###
-
 * BROWSERPATH
 
   This should represent the full path to a Chromium based browser.
@@ -27,7 +25,8 @@
   or ```BROWSERPATH=/usr/bin/google-chrome```,
   or ```BROWSERPATH=/usr/bin/brave-browser```)
 
-./cogs/keys/chromedriver/
+
+### ./utils/keys/chromedriver/ ###
 --------------
 
   The execution might fail depending on the version compatibility between the webdriver and the browser, and/or the OS where it is being executed. To get the appropiate webdriver visit https://chromedriver.chromium.org/
