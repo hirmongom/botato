@@ -8,6 +8,8 @@ import csv
 from datetime import datetime
 
 from utils.json import save_json, load_json
+from .utils.custom_ui import EventBetSelect, emoji_mapping
+
 
 class Bets(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -19,8 +21,13 @@ class Bets(commands.Cog):
   def update_data(self, sport: str) -> None:
     if sport == "f1":
       self.bot.logger.info("Fetching F1 data")
+
       self.bot.web_scrapper.get_f1_data()
-      self.bot.logger.info("Fetched F1 data")
+      self.bot.logger.info("Fetched events")
+      self.bot.web_scrapper.get_f1_pilots()
+      self.bot.logger.info("Fetched pilots")
+
+      self.bot.logger.info("Finished fetching F1 data")
 
 
   def get_next_f1_event(self) -> None:
@@ -39,15 +46,9 @@ class Bets(commands.Cog):
           break
 
 
-  async def on_bot_run(self) -> None:
-    # @todo F1 Bets
-    self.bot.logger.info("Fetching F1 data")
-    self.bot.web_scrapper.get_f1_data()
-    self.bot.logger.info("Fetched F1 data")
-    self.get_next_f1_event()
-
-    # @todo debug
-    await self.daily_task()
+  async def fetch_data(self) -> None:
+    # F1 Data
+    self.update_data("f1")
 
 
   async def daily_task(self) -> None:
@@ -77,24 +78,36 @@ class Bets(commands.Cog):
     self.bot.interaction_logger.info(f"|bet| from {interaction.user.name}")
     await interaction.response.defer()
 
-    emoji_mapping = {
-      "f1": "🏎️"
-    }
-
+    select_choices = []
     embed = discord.Embed(
       title = "💰 Betting House",
       description = f"Check the next events and place bets on them!",
       color = discord.Colour.teal()
     )
-    for sport in os.listdir("data/bets/"):
+    embed.set_footer(text = "Lucky Betting | Botato Bets", icon_url = self.bot.user.display_avatar.url)
+    message = await interaction.followup.send(embed = embed)
+
+    for i, sport in enumerate(os.listdir("data/bets/")):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       emoji = emoji_mapping[sport]
-      embed.add_field(name = f"📅 {data['day']}/{data['month']} {sport.upper()}",
-                      value = f"{emoji} {data['event']}\n💵 Current pool = {data['pool']}€",
-                      inline = False)
-    embed.set_footer(text = "Lucky Betting | Botato Bets", icon_url = self.bot.user.display_avatar.url)
+      embed.add_field(name = "", value = "", inline = False) # Separator
+      embed.add_field(name = f"📅 {data['day']}/{data['month']}", value = "", inline = False),
+      embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
+      embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
+      select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
+    embed.add_field(name = "", value = "", inline = False) # Separator
 
-    await interaction.followup.send(embed = embed)
+    select_menu = EventBetSelect(
+      user_id = interaction.user.id,
+      placeholder = "Select an event",
+      options = select_choices,
+      message = message,
+      embed = embed)
+
+    view = discord.ui.View()
+    view.add_item(select_menu)
+
+    await message.edit(embed = embed, view = view)
     
 
 async def setup(bot: commands.Bot) -> None:
