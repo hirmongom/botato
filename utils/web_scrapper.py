@@ -165,4 +165,4 @@ class WebScrapper():
             if match:
               number, name = match.groups()
               pilots_dir[number] = name
-              save_json(pilots_dir, "f1/bet_possibilites", "bets")
+              save_json(pilots_dir, "f1/f1_possibilities", "bets")
