@@ -61,10 +61,9 @@ class Bets(commands.Cog):
   async def daily_task(self) -> None:
     self.bot.interaction_logger.info("Bets daily task")
 
-    # @todo If an event was completed yesterday process the bet
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
-        # @todo self.update_data(sport)
+        self.update_data(sport) # To get the winner
         bet_data = load_json(f"{sport}/{sport}_bet", "bets")
         bettors = load_json(f"{sport}/{sport}_bettors", "bets")
         bet_selections = load_json(f"{sport}/{sport}_selections", "bets")
