@@ -19,8 +19,8 @@ class Botato(commands.Bot):
     super().__init__(
       command_prefix = "~", 
       intents = discord.Intents.all(),
-      activity = discord.Activity(type = discord.ActivityType.watching, 
-                                  name = "lo tonto que eres"))
+      activity = discord.Activity(type = discord.ActivityType.playing, 
+                                  name = "The loading game (I'm loading)"))
     self.set_up_loggers()
     self.logger.info("********************** RUN **********************")
 
@@ -141,6 +141,9 @@ class Botato(commands.Bot):
           self.logger.info(f"on_bot_run() for cog {cog.qualified_name}")
           await cog.on_bot_run()
     self.logger.info(f"{bot.user} is ready")
+    activity = discord.Activity(type = discord.ActivityType.watching, 
+                                name = "lo tonto que eres")
+    await self.change_presence(activity = activity)
 
 
   @commands.Cog.listener()
