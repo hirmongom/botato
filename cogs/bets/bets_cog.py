@@ -30,20 +30,21 @@ class Bets(commands.Cog):
       self.bot.logger.info("Finished fetching F1 data")
 
 
-  def get_next_f1_event(self) -> None:
-    with open(f"data/bets/f1/f1_data.csv", mode = "r", newline = "") as file:
-      race_data = {}
-      reader = csv.reader(file)
-      for row in reader:
-        if row[4] == "":
-          race_data["ix"] = row[0]
-          race_data["day"] = row[1]
-          race_data["month"] = row[2]
-          race_data["event"] = row[3]
-          race_data["pool"] = 500
-          race_data["status"] = "open"
-          save_json(race_data, "f1/f1_bet", "bets")
-          break
+  def get_next_event(self, sport: str) -> None:
+    if sport == "f1":
+      with open(f"data/bets/f1/f1_data.csv", mode = "r", newline = "") as file:
+        race_data = {}
+        reader = csv.reader(file)
+        for row in reader:
+          if row[4] == "":
+            race_data["ix"] = row[0]
+            race_data["day"] = row[1]
+            race_data["month"] = row[2]
+            race_data["event"] = row[3]
+            race_data["pool"] = 500
+            race_data["status"] = "open"
+            save_json(race_data, "f1/f1_bet", "bets")
+            break
 
 
   async def fetch_data(self) -> None:
@@ -51,22 +52,58 @@ class Bets(commands.Cog):
     self.update_data("f1")
 
 
+  async def on_bot_run(self) -> None:
+    for sport in os.listdir("data/bets"):
+      self.bot.interaction_logger.info(f"Loaded event {sport}")
+      self.get_next_event(sport)
+
+
   async def daily_task(self) -> None:
     self.bot.interaction_logger.info("Bets daily task")
 
-    # If an event was completed yesterday process the bet
+    # @todo If an event was completed yesterday process the bet
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
-        self.bot.interaction_logger.info(f"Processing bet for {sport}")
-        self.update_data(sport)
+        # @todo self.update_data(sport)
+        bet_data = load_json(f"{sport}/{sport}_bet", "bets")
+        bettors = load_json(f"{sport}/{sport}_bettors", "bets")
+        bet_selections = load_json(f"{sport}/{sport}_selections", "bets")
+        winner_bettors = []
+        winner_bettors_amount = 0  
+        event_winner = ""
+        user_ids = load_json("user_ids", "user")
+        with open(f"data/bets/{sport}/{sport}_data.csv", mode = "r", newline = "") as file:
+          reader = csv.reader(file)
+          for row in reader:
+            if row[0] == bet_data["ix"]:
+              event_winner = row[4]
+
+              # Notify
+              channel = self.bot.get_channel(int(self.bot.main_channel))
+              await channel.send(f"{event_winner} won {sport.upper()} {bet_data['event']}")
+
+              for key in bettors.keys():
+                if bet_selections[bettors[key][0]] == event_winner:
+                  winner_bettors_amount += bettors[key][1]
+                  winner_bettors.append(key)
+              for bettor in winner_bettors:
+                economy_data = load_json(bettor, "economy")
+                percentage = bettors[bettor][1] / winner_bettors_amount
+                increase = int(bet_data["pool"] * percentage)
+                economy_data["bank_balance"] += increase
+                await channel.send(f"<@{user_ids[bettor]}> You've won {increase}€ from the pool of {bet_data['pool']}€")
+                save_json(economy_data, bettor, "economy")
+              break
+        self.get_next_event(sport)
+        
       self.ready_bets = []
         
-
     # If an event happens today, mark it to process it tomorrow
     now = datetime.now()
     for sport in os.listdir("data/bets/"):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       if int(data["day"]) == now.day and int(data["month"]) == now.month:
+        data["status"] = "closed"
         self.ready_bets.append("f1")
 
 
