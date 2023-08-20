@@ -61,6 +61,7 @@ class Bets(commands.Cog):
   async def daily_task(self) -> None:
     self.bot.interaction_logger.info("Bets daily task")
 
+    # @todo extract into functions for the close_bet command
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
         self.update_data(sport) # To get the winner
@@ -144,7 +145,33 @@ class Bets(commands.Cog):
     view.add_item(select_menu)
 
     await message.edit(embed = embed, view = view)
+
+  
+  @app_commands.command(
+    name = "create_bet",
+    description = "(ADMIN) Create a custom event for users to bet on"
+  )
+  async def create_bet(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger(f"|create_bet| from {interaction.user.name}")
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
+    await interaction.response.send("@todo")
+
     
+  @app_commands.command(
+    name = "close_bet",
+    description = "(ADMIN) Set the winner and close a custom made bet"
+  )
+  async def close_bet(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger(f"|close_bet| from {interaction.user.name}")
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
+    await interaction.response.send("@todo")
+
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Bets(bot))
