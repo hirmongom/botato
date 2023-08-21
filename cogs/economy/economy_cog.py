@@ -22,7 +22,6 @@ class Economy(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    self.bot.interaction_logger.info("Economy daily task")
     self.week_day = (self.week_day + 1) % 8
 
     for file in os.listdir("data/economy/"):

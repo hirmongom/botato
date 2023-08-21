@@ -15,10 +15,7 @@ class Debug(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    time = datetime.now()
-    self.bot.interaction_logger.info(f"Automatic cog daily task has started at "
-          f"{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)} " 
-          f"{time.day}/{time.month}/{time.year}")
+    pass
 
 
   @app_commands.command(

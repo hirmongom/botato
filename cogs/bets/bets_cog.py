@@ -59,8 +59,6 @@ class Bets(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    self.bot.interaction_logger.info("Bets daily task")
-
     # @todo extract into functions for the close_bet command
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
