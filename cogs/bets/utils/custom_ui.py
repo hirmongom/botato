@@ -117,6 +117,7 @@ class PlaceBetModal(discord.ui.Modal):
         save_json(bet, f"{self.sport}/{self.sport}_bet", "bets")
         save_json(bettors, f"{self.sport}/{self.sport}_bettors", "bets")
         save_json(economy_data, interaction.user.name, "economy")
+        sport_nbame = "a custom event" if self.sport.startswith("custom") else self.sport.upper()
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
                                                 f"on {self.bet_choices[self.bet_choice]} "
                                                 f"in {self.sport.upper()}")
