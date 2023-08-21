@@ -123,11 +123,11 @@ class Bets(commands.Cog):
     # If an event happens today, mark it to process it tomorrow
     now = datetime.now()
     for sport in os.listdir("data/bets/"):
+      data = load_json(f"{sport}/{sport}_bet", "bets")
+      if int(data["day"]) == now.day and int(data["month"]) == now.month:
+        data["status"] = "closed"
       if not sport.startswith("custom"):
-        data = load_json(f"{sport}/{sport}_bet", "bets")
-        if int(data["day"]) == now.day and int(data["month"]) == now.month:
-          data["status"] = "closed"
-          self.ready_bets.append(sport)
+        self.ready_bets.append(sport)
 
 
   @app_commands.command(
