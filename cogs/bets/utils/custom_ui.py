@@ -1,4 +1,5 @@
 import os
+import asyncio
 
 import discord
 
@@ -9,6 +10,9 @@ emoji_mapping = {
   "test": "🛝",
   "f1": "🏎️"
 }
+
+
+# ************************** bet() command **************************
 
 
 class EventBetSelect(discord.ui.Select):
@@ -58,10 +62,10 @@ class ValueBetSelect(discord.ui.Select):
     self.sport = sport
 
     self.menu_choices = []
-    self.selections = load_json(f"{sport}/{sport}_selections", "bets")
+    self.bet_choices = load_json(f"{sport}/{sport}_selections", "bets")
 
-    for key in self.selections.keys():
-      self.menu_choices.append(discord.SelectOption(label = self.selections[key], value = key))
+    for key in self.bet_choices.keys():
+      self.menu_choices.append(discord.SelectOption(label = self.bet_choices[key], value = key))
 
     self.options = self.menu_choices
 
@@ -79,19 +83,19 @@ class ValueBetSelect(discord.ui.Select):
     await interaction.message.edit(view = self.view)
 
     modal = PlaceBetModal(message = self.message, embed = self.embed, sport = self.sport, 
-                          bet_selection = self.values[0], selections = self.selections)
+                          bet_choice = self.values[0], bet_choices = self.bet_choices)
     await interaction.response.send_modal(modal)
 
 
 class PlaceBetModal(discord.ui.Modal):
   def __init__(self, message: discord.Message, embed: discord.Embed, 
-              sport: str, bet_selection: int, selections: dict[int, str]) -> None:
+              sport: str, bet_choice: int, bet_choices: dict[int, str]) -> None:
     super().__init__(title = "Bet amount")
     self.message = message
     self.embed = embed
     self.sport = sport
-    self.bet_selection = bet_selection
-    self.selections = selections
+    self.bet_choice = bet_choice
+    self.bet_choices = bet_choices
     self.add_item(discord.ui.TextInput(label = "Amount"))
 
   async def on_submit(self, interaction: discord.Interaction) -> None:
@@ -107,16 +111,13 @@ class PlaceBetModal(discord.ui.Modal):
         bettors = load_json(f"{self.sport}/{self.sport}_bettors", "bets")
 
         bet["pool"] += form_value
-        bettors[interaction.user.name] = (self.bet_selection, form_value)
+        bettors[interaction.user.name] = (self.bet_choice, form_value)
         economy_data["hand_balance"] -= form_value
-        # add the user and its placed bet and the player
-        #   {user: "user", bet: "123", bet_on: "player"}
-        # withdraw amount to user
         save_json(bet, f"{self.sport}/{self.sport}_bet", "bets")
         save_json(bettors, f"{self.sport}/{self.sport}_bettors", "bets")
         save_json(economy_data, interaction.user.name, "economy")
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
-                                                f"on {self.selections[self.bet_selection]} "
+                                                f"on {self.bet_choices[self.bet_choice]} "
                                                 f"in {self.sport.upper()}")
     else:
       await interaction.response.send_message(f"Must be a number")
@@ -134,3 +135,58 @@ async def update_embed(message: discord.Message, embed: discord.Embed) -> None:
       embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
   embed.add_field(name = "", value = "", inline = False) # Separator
   await message.edit(embed = embed, view = None)
+
+
+# ************************** create_event() command **************************
+
+
+def create_choice_button(user_id: int, future: asyncio.Future) -> None:
+  return FutureModalCallbackButton(user_id = user_id,
+                                  label = "Add choice",
+                                  style = discord.ButtonStyle.primary,
+                                  future = future,
+                                  modal_title = "Add a choice for the event bet",
+                                  modal_label = "Choice")
+
+class FutureModalCallbackButton(discord.ui.Button):
+  def __init__(self, user_id: int, future: asyncio.Future, modal_title: str, 
+              modal_label: str, *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+    self.modal_title = modal_title
+    self.modal_label = modal_label
+
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+        return # User not authorized
+
+    modal = FutureCallbackModal(title = self.modal_title, label = self.modal_label, 
+                                future = self.future)
+    await interaction.response.send_modal(modal)
+
+
+class FutureCallbackModal(discord.ui.Modal):
+  def __init__(self, title: str, label: str, future: asyncio.Future) -> None:
+    super().__init__(title = title)
+    self.future = future
+    self.add_item(discord.ui.TextInput(label = label))
+
+  async def on_submit(self, interaction: discord.Interaction) -> None:
+    await interaction.response.defer()
+    form_value = str(self.children[0])
+    self.future.set_result(form_value)
+
+
+class FutureSimpleButton(discord.ui.Button):
+  def __init__(self, user_id: int, future: asyncio.Event,  *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+        return # User not authorized
+    self.future.set()
