@@ -13,10 +13,10 @@ class Test(commands.Cog):
 
 
   @app_commands.command(
-    name = "step_test",
+    name = "test_step",
     description = "Test for multiple-step (?) commands"
   )
-  async def step_test(self, interaction: discord.Interaction) -> None:
+  async def test_step(self, interaction: discord.Interaction) -> None:
     def check(message: str) -> bool:
       return message.author == interaction.user and message.channel == interaction.channel
 
@@ -35,10 +35,10 @@ class Test(commands.Cog):
 
 
   @app_commands.command(
-    name = "cpp_test",
+    name = "test_cpp",
     description = "Test execution of C++ script from python"
   )
-  async def cpp_test(self, interaction: discord.Interaction) -> None:
+  async def test_cpp(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|test_cpp| from {interaction.user.name}")
 
     lib = ctypes.CDLL("./cpp/test/test.so")
@@ -48,10 +48,10 @@ class Test(commands.Cog):
 
 
   @app_commands.command(
-     name = "embed_test",
+     name = "test_embed",
      description = "Test embed creation and design"
   )
-  async def embed_test(self, interaction: discord.Interaction) -> None:
+  async def test_embed(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|test_embed| from {interaction.user.name}")
 
     embed = discord.Embed(
