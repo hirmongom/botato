@@ -219,3 +219,18 @@ async def choice_handler(user_id: int, choices: list[str], embed: discord.Embed,
     choice_button = create_choice_button(user_id = user_id, future = choice_future)
 
     await message.edit(embed = embed, view = view)
+
+
+# ************************** close_event() command **************************
+
+
+class CustomFutureSelect(discord.ui.Select):
+  def __init__(self, user_id: int, future: asyncio.Event, *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    await interaction.response.defer()
+    self.disabled = True
+    self.future.set_result(self.values[0])

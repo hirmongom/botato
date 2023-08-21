@@ -1,5 +1,6 @@
 import os
 import asyncio
+import shutil
 
 import discord
 from discord import app_commands
@@ -17,6 +18,7 @@ from .utils.custom_ui import (
   FutureSimpleButton, 
   create_choice_button,
   choice_handler,
+  CustomFutureSelect
 )
 
 
@@ -66,6 +68,29 @@ class Bets(commands.Cog):
     self.update_data("f1")
 
 
+  async def bet_winner_process(self, bet_data: dict[str, str], bettors: dict[str, list[str, int]], 
+                              bet_choices: dict[str, str], event_winner: str) -> None:
+    channel = self.bot.get_channel(int(self.bot.main_channel))
+    await channel.send(f"{event_winner} won {bet_data['event']}")
+
+    user_ids = load_json("user_ids", "other")
+    winner_bettors_amount = 0
+    winner_bettors = []
+
+    for key in bettors.keys():
+      if bet_choices[bettors[key][0]] == event_winner:
+        winner_bettors_amount += bettors[key][1]
+        winner_bettors.append(key)
+    for bettor in winner_bettors:
+      economy_data = load_json(bettor, "economy")
+      percentage = bettors[bettor][1] / winner_bettors_amount
+      increase = int(bet_data["pool"] * percentage)
+      economy_data["bank_balance"] += increase
+      await channel.send(f"<@{user_ids[bettor]}> You've won {increase}€ from" 
+                        f" the pool of {bet_data['pool']}€")
+      save_json(economy_data, bettor, "economy")
+
+
   async def on_bot_run(self) -> None:
     for sport in os.listdir("data/bets"):
       self.bot.interaction_logger.info(f"Loaded event {sport}")
@@ -75,36 +100,18 @@ class Bets(commands.Cog):
   async def daily_task(self) -> None:
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
-        self.update_data(sport) # To get the winner
+        # @todo self.update_data(sport) # To get the winner
         bet_data = load_json(f"{sport}/{sport}_bet", "bets")
         bettors = load_json(f"{sport}/{sport}_bettors", "bets")
-        bet_choices = load_json(f"{sport}/{sport}_choices", "bets")
-        winner_bettors = []
-        winner_bettors_amount = 0  
+        bet_choices = load_json(f"{sport}/{sport}_choices", "bets") 
         event_winner = ""
-        user_ids = load_json("user_ids", "other")
         with open(f"data/bets/{sport}/{sport}_data.csv", mode = "r", newline = "") as file:
           reader = csv.reader(file)
           for row in reader:
             if row[0] == bet_data["ix"]:
               event_winner = row[4]
 
-              # Notify
-              channel = self.bot.get_channel(int(self.bot.main_channel))
-              await channel.send(f"{event_winner} won {sport.upper()} {bet_data['event']}")
-
-              for key in bettors.keys():
-                if bet_choices[bettors[key][0]] == event_winner:
-                  winner_bettors_amount += bettors[key][1]
-                  winner_bettors.append(key)
-              for bettor in winner_bettors:
-                economy_data = load_json(bettor, "economy")
-                percentage = bettors[bettor][1] / winner_bettors_amount
-                increase = int(bet_data["pool"] * percentage)
-                economy_data["bank_balance"] += increase
-                await channel.send(f"<@{user_ids[bettor]}> You've won {increase}€ from" 
-                                  f" the pool of {bet_data['pool']}€")
-                save_json(economy_data, bettor, "economy")
+              await self.bet_winner_process(bet_data, bettors, bet_choices, event_winner)
               break
 
         bettors = {}
@@ -311,18 +318,70 @@ class Bets(commands.Cog):
     description = "(ADMIN) Set the winner and close a custom made bet"
   )
   async def close_event(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger(f"|close_event| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|close_event| from {interaction.user.name}")
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
       return
 
-    # load Choices
-    menu_choices = []
+    await interaction.response.defer()
+
+    event_select_choices = []
+    for bet in os.listdir("data/bets"):
+      if bet.startswith("custom"):
+        bet_data = load_json(f"{bet}/{bet}_bet", "bets")
+        event_select_choices.append(discord.SelectOption(label = bet_data["event"], value = bet))
+
+    if len(event_select_choices) == 0:
+      await interaction.followup.send("There are no events going on")
+      return
+
+    event_select_future = asyncio.Future()
+    event_select = CustomFutureSelect(
+      placeholder = "Select an event",
+      options = event_select_choices,
+      user_id = interaction.user.id,
+      future = event_select_future
+    )
+
+    view = discord.ui.View()
+    view.add_item(event_select)
+    message = await interaction.followup.send(view = view)
+
+    event_select_result = await event_select_future
+
     # choose winner
+    winner_select_future = asyncio.Future()
+    winner_select_choices = []
+    bet_choices = load_json(f"{event_select_result}/{event_select_result}_choices", "bets")
 
-    # process bet
+    for key in bet_choices:
+      winner_select_choices.append(discord.SelectOption(label = bet_choices[key], value = key))
 
-    await interaction.response.send_message("@todo")
+    winner_select = CustomFutureSelect(
+      placeholder = "Select a winner",
+      options = winner_select_choices,
+      user_id = interaction.user.id,
+      future = winner_select_future
+    )
+    view.add_item(winner_select)
+    await message.edit(view = view)
+
+    winner_select_result = await winner_select_future
+
+    await message.edit(view = view) # Select menu disabled
+
+    bet_data = load_json(f"{event_select_result}/{event_select_result}_bet", "bets")
+    bettors = load_json(f"{event_select_result}/{event_select_result}_bettors", "bets")
+    bet_choices = load_json(f"{event_select_result}/{event_select_result}_choices", "bets")
+    winner = bet_choices[winner_select_result]
+    await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
+
+    folder_path = f"data/bets/{event_select_result}"
+    try:
+      shutil.rmtree(folder_path)
+      self.bot.interaction_logger.info(f"Folder '{folder_path}' and its contents deleted successfully.")
+    except OSError as e:
+      self.bot.interaction_logger.error(f"Error deleting folder '{folder_path}: {e}")
 
 
 async def setup(bot: commands.Bot) -> None:
