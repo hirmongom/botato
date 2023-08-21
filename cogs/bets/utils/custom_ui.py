@@ -67,7 +67,7 @@ class ChoiceBetSelect(discord.ui.Select):
 
     for key in self.bet_choices.keys():
       self.menu_choices.append(discord.SelectOption(label = self.bet_choices[key], value = key))
-
+    
     self.options = self.menu_choices
 
 
@@ -117,10 +117,10 @@ class PlaceBetModal(discord.ui.Modal):
         save_json(bet, f"{self.sport}/{self.sport}_bet", "bets")
         save_json(bettors, f"{self.sport}/{self.sport}_bettors", "bets")
         save_json(economy_data, interaction.user.name, "economy")
-        sport_nbame = "a custom event" if self.sport.startswith("custom") else self.sport.upper()
+        sport_name = "a custom event" if self.sport.startswith("custom") else self.sport.upper()
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
                                                 f"on {self.bet_choices[self.bet_choice]} "
-                                                f"in {self.sport.upper()}")
+                                                f"in {sport_name}")
     else:
       await interaction.response.send_message(f"Must be a number")
     await update_embed(message = self.message, embed = self.embed)
