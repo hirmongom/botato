@@ -48,12 +48,12 @@ class EventBetSelect(discord.ui.Select):
       await interaction.followup.send(f"Bets for {bet_data['event']} are closed")
       return
 
-    value_bet_select = ValueBetSelect(user_id = self.user_id, message = self.message, 
+    choice_bet_select = ChoiceBetSelect(user_id = self.user_id, message = self.message, 
                                       embed = self.embed, sport = choice)
-    await value_bet_select.setup(self.view)
+    await choice_bet_select.setup(self.view)
 
 
-class ValueBetSelect(discord.ui.Select):
+class ChoiceBetSelect(discord.ui.Select):
   def __init__(self, user_id: int, message: discord.Message, embed: discord.Embed, 
               sport: str,  *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
@@ -63,7 +63,7 @@ class ValueBetSelect(discord.ui.Select):
     self.sport = sport
 
     self.menu_choices = []
-    self.bet_choices = load_json(f"{sport}/{sport}_selections", "bets")
+    self.bet_choices = load_json(f"{sport}/{sport}_choices", "bets")
 
     for key in self.bet_choices.keys():
       self.menu_choices.append(discord.SelectOption(label = self.bet_choices[key], value = key))
@@ -111,7 +111,7 @@ class PlaceBetModal(discord.ui.Modal):
         bet = load_json(f"{self.sport}/{self.sport}_bet", "bets")
         bettors = load_json(f"{self.sport}/{self.sport}_bettors", "bets")
 
-        bet["pool"] += form_value
+        bet["pool"] = int(bet["pool"]) + form_value
         bettors[interaction.user.name] = (self.bet_choice, form_value)
         economy_data["hand_balance"] -= form_value
         save_json(bet, f"{self.sport}/{self.sport}_bet", "bets")
@@ -129,10 +129,16 @@ async def update_embed(message: discord.Message, embed: discord.Embed) -> None:
   embed.clear_fields()
   for i, sport in enumerate(os.listdir("data/bets/")):
       data = load_json(f"{sport}/{sport}_bet", "bets")
-      emoji = emoji_mapping[sport]
+      try:
+        emoji = emoji_mapping[sport]
+      except Exception:
+        emoji = "🎫"
       embed.add_field(name = "", value = "", inline = False) # Separator
       embed.add_field(name = f"📅 {data['day']}/{data['month']}", value = "", inline = False),
-      embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
+      if sport.startswith("custom"):
+        embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
+      else:
+        embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
       embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
   embed.add_field(name = "", value = "", inline = False) # Separator
   await message.edit(embed = embed, view = None)

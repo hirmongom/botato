@@ -73,13 +73,12 @@ class Bets(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    # @todo extract into functions for the close_bet command
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
         self.update_data(sport) # To get the winner
         bet_data = load_json(f"{sport}/{sport}_bet", "bets")
         bettors = load_json(f"{sport}/{sport}_bettors", "bets")
-        bet_choices = load_json(f"{sport}/{sport}_chioces", "bets")
+        bet_choices = load_json(f"{sport}/{sport}_choices", "bets")
         winner_bettors = []
         winner_bettors_amount = 0  
         event_winner = ""
@@ -95,7 +94,7 @@ class Bets(commands.Cog):
               await channel.send(f"{event_winner} won {sport.upper()} {bet_data['event']}")
 
               for key in bettors.keys():
-                if bet_chioces[bettors[key][0]] == event_winner:
+                if bet_choices[bettors[key][0]] == event_winner:
                   winner_bettors_amount += bettors[key][1]
                   winner_bettors.append(key)
               for bettor in winner_bettors:
@@ -107,6 +106,9 @@ class Bets(commands.Cog):
                                   f" the pool of {bet_data['pool']}€")
                 save_json(economy_data, bettor, "economy")
               break
+
+        bettors = {}
+        save_json(bettors, f"{sport}/{sport}_bettors", "bets")
         self.get_next_event(sport)
         
       self.ready_bets = []
@@ -114,10 +116,11 @@ class Bets(commands.Cog):
     # If an event happens today, mark it to process it tomorrow
     now = datetime.now()
     for sport in os.listdir("data/bets/"):
-      data = load_json(f"{sport}/{sport}_bet", "bets")
-      if int(data["day"]) == now.day and int(data["month"]) == now.month:
-        data["status"] = "closed"
-        self.ready_bets.append("f1")
+      if not sport.startswith("custom"):
+        data = load_json(f"{sport}/{sport}_bet", "bets")
+        if int(data["day"]) == now.day and int(data["month"]) == now.month:
+          data["status"] = "closed"
+          self.ready_bets.append(sport)
 
 
   @app_commands.command(
@@ -128,7 +131,6 @@ class Bets(commands.Cog):
     self.bot.interaction_logger.info(f"|bet| from {interaction.user.name}")
     await interaction.response.defer()
 
-    select_choices = []
     embed = discord.Embed(
       title = "💰 Betting House",
       description = f"Check the next events and place bets on them!",
@@ -138,12 +140,19 @@ class Bets(commands.Cog):
                     icon_url = self.bot.user.display_avatar.url)
     message = await interaction.followup.send(embed = embed)
 
+    select_choices = []
     for i, sport in enumerate(os.listdir("data/bets/")):
       data = load_json(f"{sport}/{sport}_bet", "bets")
-      emoji = emoji_mapping[sport]
+      try:
+        emoji = emoji_mapping[sport]
+      except Exception:
+        emoji = "🎫"
       embed.add_field(name = "", value = "", inline = False) # Separator
       embed.add_field(name = f"📅 {data['day']}/{data['month']}", value = "", inline = False),
-      embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
+      if sport.startswith("custom"):
+        embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
+      else:
+        embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
       embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
       select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
     embed.add_field(name = "", value = "", inline = False) # Separator
@@ -198,8 +207,8 @@ class Bets(commands.Cog):
                                               f" ({now.month}) for this year ({now.year})")
       return
 
-    if month == now.month and day <= now.day:
-      await interaction.response.send_message(f"Day ({day}) must be greater than today ({now.day})"
+    if month == now.month and day < now.day:
+      await interaction.response.send_message(f"Day ({day}) cannot be lower than today ({now.day})"
                                               f" for this month ({now.month})")
       return
 
@@ -215,15 +224,10 @@ class Bets(commands.Cog):
       title = "New event",
       description = "",
       color = discord.Color.blue())
-
     embed.add_field(name = f"📅 {day}/{month}", value = "", inline = True)
-    # @todo I need:
-    # bet.json and selections.json
-
-    future = asyncio.Future()
-
     message = await interaction.followup.send(embed = embed)
 
+    future = asyncio.Future()
     # Get event name
     view = discord.ui.View()
     event_button = FutureModalCallbackButton(user_id = interaction.user.id,
@@ -237,13 +241,27 @@ class Bets(commands.Cog):
     await message.edit(embed = embed, view = view)
     event_name = await future
     view.clear_items()
-    embed.add_field(name = f"🎫 {event_name}", value = "", inline = True)
+    embed.add_field(name = f"🎫 {event_name}", value = "", inline = False)
 
-    # LOOP
-    # Get event selections
+    pool_future = asyncio.Future()
+    pool_button = FutureModalCallbackButton(user_id = interaction.user.id,
+                                            label = "Event pool", 
+                                            style = discord.ButtonStyle.primary,
+                                            future = pool_future,
+                                            modal_title = "Set Event Pool",
+                                            modal_label = "€")
+    view.add_item(pool_button)
+    await message.edit(embed = embed, view = view)
+    pool = await pool_future
+    view.clear_items()
+    if not pool.isdigit():
+      await message.edit(embed = embed, view = view)
+      await interaction.followup.send("Pool must be a number")
+      return
+    embed.add_field(name = f"💵 Pool of {pool}€", value = "", inline = False)
+
+
     event_confirmed = asyncio.Event()
-    choices = []
-
     event_confirmed_button =FutureSimpleButton(user_id = interaction.user.id,
                                                 label = "Confirm Event",
                                                 style = discord.ButtonStyle.primary,
@@ -253,21 +271,39 @@ class Bets(commands.Cog):
     embed.add_field(name = "📋 Choices:", value = "", inline = False)
     await message.edit(embed = embed, view = view)
 
+    choices = []
     task = asyncio.create_task(choice_handler(interaction.user.id, choices, embed, message, view))
 
     while not event_confirmed.is_set():
       await asyncio.sleep(0.5)
 
-    # On confirm event, add pool
-
     task.cancel()
     await message.edit(embed = embed, view = None)
-    await interaction.followup.send("Event created!")
     
-    # @debug
-    print(f"{day}/{month}/{year} {event_name}")
-    for choice in choices:
-      print(choice)
+    if len(choices) < 2:
+      await interaction.followup.send("The bet needs a minimum of 2 choices")
+      return
+
+    bet_identifier = f"{now.month}{now.day}{now.minute}"
+
+    os.mkdir(f"data/bets/custom{bet_identifier}")
+    bet_data = {
+      "ix": bet_identifier,
+      "day": day,
+      "month": month,
+      "year": year,
+      "event": event_name,
+      "pool": pool,
+      "status": "open"
+    }
+    save_json(bet_data, f"custom{bet_identifier}/custom{bet_identifier}_bet", "bets")
+
+    bet_choices = {}
+    for i, choice in enumerate(choices):
+      bet_choices[i] = choice
+    save_json(bet_choices, f"custom{bet_identifier}/custom{bet_identifier}_choices", "bets")
+
+    await interaction.followup.send("Event created!")
 
 
   @app_commands.command(
@@ -279,6 +315,12 @@ class Bets(commands.Cog):
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
       return
+
+    # load Choices
+    menu_choices = []
+    # choose winner
+
+    # process bet
 
     await interaction.response.send_message("@todo")
 
