@@ -15,7 +15,8 @@ from .utils.custom_ui import (
   EventBetSelect, 
   FutureModalCallbackButton, 
   FutureSimpleButton, 
-  create_choice_button
+  create_choice_button,
+  choice_handler,
 )
 
 
@@ -238,38 +239,36 @@ class Bets(commands.Cog):
     view.clear_items()
     embed.add_field(name = f"🎫 {event_name}", value = "", inline = True)
 
-
     # LOOP
     # Get event selections
-    choice_future = asyncio.Future()
     event_confirmed = asyncio.Event()
+    choices = []
 
     event_confirmed_button =FutureSimpleButton(user_id = interaction.user.id,
                                                 label = "Confirm Event",
                                                 style = discord.ButtonStyle.primary,
                                                 future = event_confirmed)
-    choice_button = create_choice_button(user_id = interaction.user.id, future = choice_future)
-
     view.add_item(event_confirmed_button)
-    view.add_item(choice_button)
     embed.add_field(name = "", value = "", inline = False) # Separator
     embed.add_field(name = "📋 Choices:", value = "", inline = False)
     await message.edit(embed = embed, view = view)
 
-    choices = []
+    task = asyncio.create_task(choice_handler(interaction.user.id, choices, embed, message, view))
+
     while not event_confirmed.is_set():
-      choice = await choice_future
-      choices.append(choice)
-      embed.add_field(name = choice, value = "", inline = False)
+      await asyncio.sleep(0.5)
 
-      choice_future = asyncio.Future()
-      view.remove_item(choice_button)
-      choice_button = create_choice_button(user_id = interaction.user.id, future = choice_future)
-      view.add_item(choice_button)
-      await message.edit(embed = embed, view = view)
+    # On confirm event, add pool
 
+    task.cancel()
+    await message.edit(embed = embed, view = None)
     await interaction.followup.send("Event created!")
     
+    # @debug
+    print(f"{day}/{month}/{year} {event_name}")
+    for choice in choices:
+      print(choice)
+
 
   @app_commands.command(
     name = "close_event",

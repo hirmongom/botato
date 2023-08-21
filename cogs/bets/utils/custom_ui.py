@@ -1,5 +1,6 @@
 import os
 import asyncio
+import ctypes
 
 import discord
 
@@ -189,4 +190,26 @@ class FutureSimpleButton(discord.ui.Button):
   async def callback(self, interaction: discord.Interaction) -> None:
     if interaction.user.id != self.user_id:
         return # User not authorized
+    await interaction.response.defer()
     self.future.set()
+
+
+async def choice_handler(user_id: int, choices: list[str], embed: discord.Embed, 
+                          message :discord.Message, view: discord.ui.View) -> None:
+  while True:
+    choice_future = asyncio.Future()
+    choice_button = create_choice_button(user_id = user_id, future = choice_future)
+    view.add_item(choice_button)
+    await message.edit(embed = embed, view = view)
+
+    choice = await choice_future
+
+    choices.append(choice)
+    embed.add_field(name = choice, value = "", inline = False)
+
+    choice_future = asyncio.Future()
+    view.remove_item(view.children[1])
+
+    choice_button = create_choice_button(user_id = user_id, future = choice_future)
+
+    await message.edit(embed = embed, view = view)
