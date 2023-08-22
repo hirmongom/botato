@@ -100,7 +100,7 @@ class User(commands.Cog):
     embed.add_field(name = "Experience", value = f"{experience} XP", inline = True)
     embed.add_field(name = "Next Level In", value = f"{level * 100 + (level - 1) * 50} XP")
     embed.set_thumbnail(url = user.display_avatar.url)
-    
+
     await interaction.response.send_message(embed = embed)
 
 
@@ -149,13 +149,14 @@ class User(commands.Cog):
       "economy": {"title": "Money", "field": "total"}
     }
     category_mapped = category_map[category]
-
+    user_ids = load_json("user_ids", "other")
     all_data = {}
     for file in os.listdir(f"data/{category}"):
       if file != ".gitkeep":
         user = file[:-5]
         user_data = load_json(user, category)
-        user_data["user"] = user # @todo get user display name (use user_ids.json)
+        user_info = await self.bot.fetch_user(user_ids[user])
+        user_data["user"] = user_info.display_name
         if category == "economy":
           user_data["total"] = user_data["hand_balance"] + user_data["bank_balance"]
         all_data[user] = user_data
