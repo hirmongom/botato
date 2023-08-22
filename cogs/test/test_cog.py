@@ -6,7 +6,6 @@ import ctypes
 import datetime
 
 
-
 class Test(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
@@ -84,6 +83,17 @@ class Test(commands.Cog):
     embed.timestamp = datetime.datetime.utcnow()
 
     await interaction.response.send_message(embed = embed)
+
+
+  @app_commands.command(
+    name = "test_role",
+    description = "Test the creation and customization of roles"
+  )
+  async def test_role(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|test_role| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    await interaction.followup.send("@todo Work in progress")
 
 
 async def setup(bot: commands.Bot) -> None:
