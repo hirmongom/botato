@@ -40,7 +40,7 @@ class Economy(commands.Cog):
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     if type(interaction.command) == type(None) or interaction.command.name == "bank":
       # Shouldn't trigger after checking the current XP
-      # Excluede certain interactions that are not commands
+      # Excludee certain interactions that are not commands
       return
 
     data = load_json(interaction.user.name, "economy")
