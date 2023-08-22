@@ -62,28 +62,45 @@ class User(commands.Cog):
 
   @app_commands.command(
     name = "profile",
-    description = "Check your profile"
+    description = "Review your own or others' profile"
   )
-  async def profile(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}")
+  @app_commands.describe(
+    mention = "Mention a user to check its profile"
+  )
+  async def profile(self, interaction: discord.Interaction, mention: str = "") -> None:
+    self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}" + 
+                                    (f" with |mention| {mention}" if mention != "" else ""))
 
-    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
-      await interaction.response.send_message("It seems this is your first interaction with this " + 
-                                              "bot, so I don't have any data, please check again")
+    if mention != "":
+      if mention.startswith("<@") and mention.endswith(">"):
+        user_id = ''.join(filter(str.isdigit, mention))
+        user = await self.bot.fetch_user(user_id)
+      else:
+        await interaction.response.send_message(f"Invalid mention <{mention}>")
+        return
+    else:
+      user = interaction.user
+
+    if not os.path.isfile(f"data/user/{user.name}.json"):
+      if user.name == interaction.user.name:
+        await interaction.response.send_message("It seems this is your first interaction with this " + 
+                                                "bot, so I don't have any data, please check again")
+      else:
+        await interaction.response.send_message(f"It seems {user.display_name} hasn't interacted "
+                                                "with me yet, so I don't have any data")
       return
-      
-    data = load_json(interaction.user.name, "user")
+
+    data = load_json(user.name, "user")
     level = data["level"]
     experience = data["experience"]
     description = data["user_description"]
 
-    embed = discord.Embed(title = interaction.user.display_name, description = str(description), color = discord.Color.pink())
+    embed = discord.Embed(title = user.display_name, description = str(description), color = discord.Color.pink())
     embed.add_field(name = "Level", value = level, inline = True)
     embed.add_field(name = "Experience", value = f"{experience} XP", inline = True)
     embed.add_field(name = "Next Level In", value = f"{level * 100 + (level - 1) * 50} XP")
-    embed.set_thumbnail(url = interaction.user.display_avatar.url)
-    #embed.set_image(url = self.bot.user.display_avatar.url)
-
+    embed.set_thumbnail(url = user.display_avatar.url)
+    
     await interaction.response.send_message(embed = embed)
 
 
