@@ -74,7 +74,7 @@ class User(commands.Cog):
     if mention != "":
       if mention.startswith("<@") and mention.endswith(">"):
         user_id = ''.join(filter(str.isdigit, mention))
-        user = await self.bot.fetch_user(user_id)
+        user = interaction.guild.get_member(user_id)
       else:
         await interaction.response.send_message(f"Invalid mention <{mention}>")
         return
