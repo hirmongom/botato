@@ -182,5 +182,6 @@ class User(commands.Cog):
   
     await interaction.followup.send(embed = embed)
 
+
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(User(bot))
