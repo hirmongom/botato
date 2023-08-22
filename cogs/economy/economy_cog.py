@@ -13,7 +13,7 @@ from .utils.custom_ui import BankOperationModal, BankOperationSelect, BankUpgrad
 # @idea Purchasable itmes:
 #        * Custom name color
 #        * Custom rol
-
+# @idea Benefits for daily usage of the bot
 
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
