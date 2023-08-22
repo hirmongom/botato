@@ -130,8 +130,9 @@ class User(commands.Cog):
     description = "Check the leaderboard"
   )
   @app_commands.choices(category = [
-    app_commands.Choice(name = "Money", value = "economy"),
-    app_commands.Choice(name = "Level", value = "user")
+    app_commands.Choice(name = "Level", value = "user"),
+    app_commands.Choice(name = "Money", value = "economy")
+
   ])
   async def leaderboard(self, interaction: discord.Interaction, category: str) -> None:
     self.bot.interaction_logger.info(f"|leaderboard| from {interaction.user.name}")
