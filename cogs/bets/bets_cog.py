@@ -101,7 +101,7 @@ class Bets(commands.Cog):
   async def daily_task(self) -> None:
     if len(self.ready_bets) > 0:
       for sport in self.ready_bets:
-        # @todo self.update_data(sport) # To get the winner
+        self.update_data(sport) # To get the winner
         bet_data = load_json(f"{sport}/{sport}_bet", "bets")
         bettors = load_json(f"{sport}/{sport}_bettors", "bets")
         bet_choices = load_json(f"{sport}/{sport}_choices", "bets") 
