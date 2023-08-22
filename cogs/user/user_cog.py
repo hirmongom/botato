@@ -110,13 +110,57 @@ class User(commands.Cog):
 
   @app_commands.command(
     name = "leaderboard",
-    description = "Chech the leaderboard of the users with the highest level on the server"
+    description = "Check the leaderboard"
   )
-  async def leaderboard(self, interaction: discord.Interaction) -> None:
-    # @todo leaderboard
+  @app_commands.choices(category = [
+    app_commands.Choice(name = "Money", value = "economy"),
+    app_commands.Choice(name = "Level", value = "user")
+  ])
+  async def leaderboard(self, interaction: discord.Interaction, category: str) -> None:
     self.bot.interaction_logger.info(f"|leaderboard| from {interaction.user.name}")
-    await interaction.response.send_message("Unimplemented")
+    await interaction.response.defer()
+
+    rank_map = {
+      1: "🏆 🥇",
+      2: "🏆 🥈",
+      3: "🏆 🥉",
+      **{i: f"🏅  {i}  " for i in range(4, 100)} # Adjust based on max possible value
+    }
+
+    category_map = {
+      "user": {"title": "Level", "field": "experience"},
+      "economy": {"title": "Money", "field": "total"}
+    }
+    category_mapped = category_map[category]
+
+    all_data = {}
+    for file in os.listdir(f"data/{category}"):
+      if file != ".gitkeep":
+        user = file[:-5]
+        user_data = load_json(user, category)
+        user_data["user"] = user # @todo get user display name (use user_ids.json)
+        if category == "economy":
+          user_data["total"] = user_data["hand_balance"] + user_data["bank_balance"]
+        all_data[user] = user_data
+    sorted_data = dict(sorted(all_data.items(), key = lambda item: item[1][category_mapped["field"]], reverse=True))
+    
+
+    embed = discord.Embed(
+      title = "🏆 Leaderboard 🏆",
+      description = f"All the users ranked by {category_mapped['title']}",
+      color = discord.Color.blue() if category == "user" else discord.Color.green())
+
+    for i, key in enumerate(sorted_data.keys(), start = 1):
+      if category == "economy":
+        embed_value = f"➜ Total Money: {sorted_data[key]['total']}€"
+      elif category == "user":
+        embed_value = f"➜ Level {sorted_data[key]['level']} with {sorted_data[key]['experience']} XP"
+      embed.add_field(name = f"{rank_map[i]}   ***{sorted_data[key]['user']}***",
+                    value = embed_value, inline = False)
+
+    embed.set_footer(text = "Precise Ranking | Botato Leaderboard", icon_url = self.bot.user.display_avatar.url)
   
-  
+    await interaction.followup.send(embed = embed)
+
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(User(bot))
