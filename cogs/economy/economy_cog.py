@@ -99,7 +99,7 @@ class Economy(commands.Cog):
                       value = f"Withdrawal limit from {max_withdrawal}€ to {max_withdrawal + 500}€\n"
                               f"Interest rate from {int((interest_rate - 1) * 100)}% to {int((interest_rate - 1) * 100 + 1)}%", 
                       inline = False)
-
+    embed.add_field(name = "", value = "", inline = False) # pre-footer separator
     embed.set_footer(text = "Secure Banking | Botato Bank", icon_url = self.bot.user.display_avatar.url)
     
     message = await interaction.followup.send(embed = embed, ephemeral = True)

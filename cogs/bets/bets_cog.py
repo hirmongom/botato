@@ -159,14 +159,14 @@ class Bets(commands.Cog):
         emoji = emoji_mapping[sport]
       except Exception:
         emoji = "🎫"
-      embed.add_field(name = f"📅 {data['day']}/{data['month']}", value = "", inline = False),
+      embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
       if sport.startswith("custom"):
         embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
       else:
         embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
       embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
       select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
-
+    embed.add_field(name = "", value = "", inline = False) # pre-footer separator
     select_menu = EventBetSelect(
       user_id = interaction.user.id,
       placeholder = "Select an event",

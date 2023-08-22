@@ -117,5 +117,5 @@ async def update_embed(message: discord.Message, embed: discord.Embed,
                           value = f"{max_withdrawal - withdrawn_money}€", inline = False)
   if was_upgrade:
     embed.remove_field(3)
-
+  embed.add_field(name = "", value = "", inline = False) # pre-footer separator
   await message.edit(embed = embed, view = None)

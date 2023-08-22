@@ -95,13 +95,21 @@ class User(commands.Cog):
     level = data["level"]
     experience = data["experience"]
     description = data["user_description"]
+    
+    user_badges = ""
+    if user.premium_since:
+      user_badges += "  💎"
 
-    embed = discord.Embed(title = user.display_name, description = str(description), color = discord.Color.pink())
-    embed.add_field(name = "Level", value = level, inline = True)
-    embed.add_field(name = "Experience", value = f"{experience} XP", inline = True)
-    embed.add_field(name = "Next Level In", value = f"{level * 100 + (level - 1) * 50} XP")
+    embed = discord.Embed(title = f"{user.display_name}{user_badges}", color = discord.Color.pink())
+
+    if description != "":
+      embed.description = f"""```fix
+{str(description)} ```""" # Use code formatting and fix syntax highlighting to customize description
+
+    embed.add_field(name = "*Level*", value = level, inline = True)
+    embed.add_field(name = "*Experience*", value = f"{experience} XP", inline = True)
+    embed.add_field(name = "*Next Level In*", value = f"{level * 100 + (level - 1) * 50} XP")
     embed.set_thumbnail(url = user.display_avatar.url)
-
     await interaction.response.send_message(embed = embed)
 
 
@@ -177,7 +185,7 @@ class User(commands.Cog):
         embed_value = f"➜ Level {sorted_data[key]['level']} with {sorted_data[key]['experience']} XP"
       embed.add_field(name = f"{rank_map[i]}   ***{sorted_data[key]['user']}***",
                     value = embed_value, inline = False)
-
+    embed.add_field(name = "", value = "", inline = False) # pre-footer separator
     embed.set_footer(text = "Precise Ranking | Botato Leaderboard", icon_url = self.bot.user.display_avatar.url)
   
     await interaction.followup.send(embed = embed)
