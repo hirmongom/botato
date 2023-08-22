@@ -25,7 +25,8 @@ class User(commands.Cog):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
-    if type(interaction.command) == type(None) or interaction.command.name == "profile":
+    excluded_commands = ["profile", "leaderboard"]
+    if type(interaction.command) == type(None) or interaction.command.name in excluded_commands:
       # Shouldn't trigger after checking the current XP
       # Excluede certain interactions that are not commands
       return
