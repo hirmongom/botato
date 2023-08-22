@@ -12,7 +12,7 @@ import random
 #           varying degrees of negativity, and make you lose money.
 #           The values of the choices are randomly based
 #         * The higher the level of the user, the higher bets he can make
-
+# @idea Daily roulette
 
 class Casino(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
