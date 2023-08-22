@@ -30,6 +30,7 @@ class Bets(commands.Cog):
 
 
   def update_data(self, sport: str) -> None:
+    self.bot.interaction_logger.info(f"bets_cog: Updating data for {sport.upper()}")
     if sport == "f1":
       self.bot.logger.info("Fetching F1 data")
 
@@ -42,6 +43,7 @@ class Bets(commands.Cog):
 
 
   def get_next_event(self, sport: str) -> None:
+    self.bot.interaction_logger.info(f"bets_cog: Getting next {sport.upper()} event")
     if sport == "f1":
       with open(f"data/bets/f1/f1_data.csv", mode = "r", newline = "") as file:
         race_data = {}
@@ -127,8 +129,10 @@ class Bets(commands.Cog):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       if int(data["day"]) == now.day and int(data["month"]) == now.month:
         data["status"] = "closed"
-      if not sport.startswith("custom"):
-        self.ready_bets.append(sport)
+        self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
+        if not sport.startswith("custom"):
+          self.ready_bets.append(sport)
+          
 
 
   @app_commands.command(
