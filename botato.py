@@ -108,13 +108,13 @@ class Botato(commands.Bot):
 
     self.logger.info("Started argument parsing")
     parser = argparse.ArgumentParser()
-    parser.add_argument("--setup", action = "store_true", help = "Run setup_hook on startup")
+    parser.add_argument("--sync", action = "store_true", help = "Run setup_hook on startup to sync commands")
     parser.add_argument("--wipe", action = "store_true", help = "Wipe all json data (only)")
     parser.add_argument("--fetch", action = "store_true", help = "Fetch all data by running fetch_data() for all cogs")
     args = parser.parse_args()
 
-    if args.setup:
-      self.logger.info("--setup")
+    if args.sync:
+      self.logger.info("--sync")
       try:
         sync = await self.tree.sync()
         self.logger.info(f"Synced {len(sync)} commands")
