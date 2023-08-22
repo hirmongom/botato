@@ -171,13 +171,12 @@ class User(commands.Cog):
           user_data["total"] = user_data["hand_balance"] + user_data["bank_balance"]
         all_data[user] = user_data
     sorted_data = dict(sorted(all_data.items(), key = lambda item: item[1][category_mapped["field"]], reverse=True))
-    
 
     embed = discord.Embed(
       title = "🏆 Leaderboard 🏆",
       description = f"All the users ranked by {category_mapped['title']}",
       color = discord.Color.blue() if category == "user" else discord.Color.green())
-
+    embed.add_field(name = "", value = "", inline = False) # post-title separator
     for i, key in enumerate(sorted_data.keys(), start = 1):
       if category == "economy":
         embed_value = f"➜ Total Money: {sorted_data[key]['total']}€"
