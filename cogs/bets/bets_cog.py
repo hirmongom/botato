@@ -155,7 +155,6 @@ class Bets(commands.Cog):
         emoji = emoji_mapping[sport]
       except Exception:
         emoji = "🎫"
-      embed.add_field(name = "", value = "", inline = False) # Separator
       embed.add_field(name = f"📅 {data['day']}/{data['month']}", value = "", inline = False),
       if sport.startswith("custom"):
         embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
@@ -163,7 +162,6 @@ class Bets(commands.Cog):
         embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
       embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
       select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
-    embed.add_field(name = "", value = "", inline = False) # Separator
 
     select_menu = EventBetSelect(
       user_id = interaction.user.id,
@@ -275,7 +273,6 @@ class Bets(commands.Cog):
                                                 style = discord.ButtonStyle.primary,
                                                 future = event_confirmed)
     view.add_item(event_confirmed_button)
-    embed.add_field(name = "", value = "", inline = False) # Separator
     embed.add_field(name = "📋 Choices:", value = "", inline = False)
     await message.edit(embed = embed, view = view)
 

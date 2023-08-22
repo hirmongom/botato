@@ -117,10 +117,10 @@ class PlaceBetModal(discord.ui.Modal):
         save_json(bet, f"{self.sport}/{self.sport}_bet", "bets")
         save_json(bettors, f"{self.sport}/{self.sport}_bettors", "bets")
         save_json(economy_data, interaction.user.name, "economy")
-        sport_name = "a custom event" if self.sport.startswith("custom") else self.sport.upper()
+        sport_name = "CUSTOM" if self.sport.startswith("custom") else self.sport.upper()
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
                                                 f"on {self.bet_choices[self.bet_choice]} "
-                                                f"in {sport_name}")
+                                                f"in {sport_name} {bet['event']}")
     else:
       await interaction.response.send_message(f"Must be a number")
     await update_embed(message = self.message, embed = self.embed)
@@ -134,14 +134,12 @@ async def update_embed(message: discord.Message, embed: discord.Embed) -> None:
         emoji = emoji_mapping[sport]
       except Exception:
         emoji = "🎫"
-      embed.add_field(name = "", value = "", inline = False) # Separator
       embed.add_field(name = f"📅 {data['day']}/{data['month']}", value = "", inline = False),
       if sport.startswith("custom"):
         embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
       else:
         embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
       embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
-  embed.add_field(name = "", value = "", inline = False) # Separator
   await message.edit(embed = embed, view = None)
 
 
