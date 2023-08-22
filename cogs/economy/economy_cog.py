@@ -54,7 +54,9 @@ class Economy(commands.Cog):
         increase = random.randint(50, 150)
       data["bank_balance"] = data["bank_balance"] + increase
       data["daily_pay"] = 0
-      await interaction.channel.send(f"(*) You received {increase}€ on your bank")
+
+      streak_msg = f" (Current streak = {data['streak']} days)" if int(data["streak"]) != 0 else ""
+      await interaction.channel.send(f"(*) You received {increase}€ on your bank{streak_msg}")
       self.bot.interaction_logger.info(f"Money increase on first interaction for {interaction.user.name} with {increase}€")
 
     save_json(data, interaction.user.name, "economy")
