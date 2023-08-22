@@ -9,11 +9,11 @@ import random
 from utils.json import load_json, save_json
 from .utils.custom_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 
-# @idea Weekly lottery, minimum of players
+# @idea Weekly lottery, minimum of players (or not, just max of tickets)
 # @idea Purchasable itmes:
 #        * Custom name color
 #        * Custom rol
-# @idea Benefits for daily usage of the bot
+
 
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -22,12 +22,14 @@ class Economy(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    self.week_day = (self.week_day + 1) % 8
-
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         data = load_json(file[:-5], "economy")
-        data["daily_pay"] = 1
+        if data["daily_pay"] == 0:
+          data["streak"] = data["streak"] + 1
+          data["daily_pay"] = 1
+        else:
+          data["streak"] = 0
         if self.week_day == 0:
           data["withdrawn_money"] = 0
           data["bank_balance"] = data["bank_balance"] * data["interest_rate"]
@@ -45,7 +47,11 @@ class Economy(commands.Cog):
     daily_pay = data["daily_pay"]
 
     if daily_pay == 1:
-      increase = random.randint(50, 150)
+      if data["streak"] == 7:
+        increase = random.randint(750, 1000)
+        data["streak"] = 0
+      else:
+        increase = random.randint(50, 150)
       data["bank_balance"] = data["bank_balance"] + increase
       data["daily_pay"] = 0
       await interaction.channel.send(f"(*) You received {increase}€ on your bank")
