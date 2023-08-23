@@ -22,6 +22,7 @@ class Economy(commands.Cog):
 
 
   async def daily_task(self) -> None:
+    week_day = (week_day + 1) % 7
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         data = load_json(file[:-5], "economy")
