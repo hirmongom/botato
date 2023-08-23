@@ -1,2 +1,8 @@
 @idea PET
   you gotta buy food, train them and stuff
+
+@idea per-cog help commands:
+  help_user
+  help_economy
+  help_bets
+  help_keys
