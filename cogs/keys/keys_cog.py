@@ -10,31 +10,34 @@ from utils.json import load_json, save_json
 class Keys(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
+    self.week_day = 0
 
 
   async def daily_task(self) -> None:
-    channel = self.bot.get_channel(int(self.bot.main_channel))
-    data = load_json("autoupdate", "keys")
-    user_ids = load_json("user_ids", "other")
-    for user in data.keys():
-      await channel.send(f"<@{user_ids[user]}> Your daily update is ready!")
+    week_day = (week_day + 1) % 7
+    if week_day == 0:
+      channel = self.bot.get_channel(int(self.bot.main_channel))
+      data = load_json("autoupdate", "keys")
+      user_ids = load_json("user_ids", "other")
+      for user in data.keys():
+        await channel.send(f"<@{user_ids[user]}> Your daily update is ready!")
 
-      games = load_json(user, "keys")
-      keys = ""
-      try:
-        for title in games.keys():
-          while True:
-            keys = self.bot.web_scrapper.get_game_keys(games[title])
-            if len(keys) != 0:
-              break
-            self.bot.web_scrapper.restart_driver()
-          await channel.send(
-            f"**{title}**\n<{games[title]}>\n{keys}")
-        await channel.send("------------------------------------------------------------")
-      except Exception as e:
-        self.bot.logger(f"Error on Keys daily trigger for {user}\n{e}")
-        await channel.send(content = "An error ocurred")
-        return
+        games = load_json(user, "keys")
+        keys = ""
+        try:
+          for title in games.keys():
+            while True:
+              keys = self.bot.web_scrapper.get_game_keys(games[title])
+              if len(keys) != 0:
+                break
+              self.bot.web_scrapper.restart_driver()
+            await channel.send(
+              f"**{title}**\n<{games[title]}>\n{keys}")
+          await channel.send("------------------------------------------------------------")
+        except Exception as e:
+          self.bot.logger(f"Error on Keys daily trigger for {user}\n{e}")
+          await channel.send(content = "An error ocurred")
+          return
 
 
   @app_commands.command(
@@ -182,7 +185,7 @@ class Keys(commands.Cog):
 
   @app_commands.command(
     name = "autoupdate_keys",
-    description = "Enable or disable the autoupdate keys function"
+    description = "Enable or disable the weekly autoupdate keys function"
   )
   @app_commands.choices(option = [
     app_commands.Choice(name = "Enable", value = 1),
