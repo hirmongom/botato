@@ -370,7 +370,7 @@ class Bets(commands.Cog):
     await message.edit(view = view)
 
     winner_select_result = await winner_select_future
-
+    winner_select_result = int(winner_select_result)
     await message.edit(view = view) # Select menu disabled
 
     bet_data = load_json(f"{event_select_result}/{event_select_result}_bet", "bets")
