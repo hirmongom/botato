@@ -87,13 +87,26 @@ class Test(commands.Cog):
 
   @app_commands.command(
     name = "test_role",
-    description = "Test the creation and customization of roles"
+    description = "(ADMIN) Test the creation and customization of roles"
   )
   async def test_role(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|test_role| from {interaction.user.name}")
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
     await interaction.response.defer()
 
-    await interaction.followup.send("@todo Work in progress")
+    new_role = await interaction.guild.create_role(
+      name = "Test role",
+      colour = discord.Colour.from_rgb(45, 240, 221),
+      hoist = True,
+      reason = "This shows in audit log"
+    )
+
+    await interaction.user.add_roles(new_role)
+
+    await interaction.followup.send("Role created and given")
 
 
 async def setup(bot: commands.Bot) -> None:
