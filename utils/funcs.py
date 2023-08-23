@@ -7,6 +7,8 @@ def make_data(user: str) -> None:
   user_data["xp_probabiliy"] = 5
   user_data["daily_xp"] = 5
   user_data["user_description"] = ""
+  user_data["role_name"] = ""
+  user_data["role_colour"] = ""
   save_json(user_data, user, "user")
 
   economy_data = {}
