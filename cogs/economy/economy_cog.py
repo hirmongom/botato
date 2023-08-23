@@ -7,7 +7,10 @@ from discord.ext import commands
 import random
 
 from utils.json import load_json, save_json
-from .utils.custom_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
+from .utils.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
+from .utils.shop_ui import ShopItemSelect
+from .utils.shop_funcs import create_role
+
 
 # @idea Weekly lottery, minimum of players (or not, just max of tickets)
 
@@ -141,8 +144,53 @@ class Economy(commands.Cog):
 #        * Custom name color
 #        * Custom rol
     self.bot.interaction_logger.info(f"|shop| from {interaction.user.name}")
+    await interaction.response.defer()
+    
+    user_data = load_json(interaction.user.name, "user")
+    if user_data["role_name"] == "":
+      await create_role(interaction) # First interaction with the shop will create the custom role
 
-    await interaction.response.send_message("@todo")
+    shop_items = [ 
+      # <id> refers to its position in the list
+      {"emoji": "📛", "name": "Role Name", 
+                    "description": "Create a personalized role with a name that sets you apart in the server.", 
+                    "price": 150000, 
+                    "id": 0},
+      {"emoji": "🎨", "name": "Name Colour", 
+                    "description": "Add a splash of colour to your name in the server.", 
+                    "price": 100000, 
+                    "id": 1}
+    ]
+
+    item_menu_choices = []
+
+    embed = discord.Embed(
+      title = "🏪 Botato Shop",
+      description = "With the best prices for all products available in the server!",
+      color = discord.Color.blue()
+    )
+
+    for item in shop_items:
+      item_menu_choices.append(discord.SelectOption(label = item["name"], value = item["id"]))
+
+      embed.add_field(name = "", value = f"```{item['emoji']} {item['name']}```")
+      embed.add_field(name = f"💶 {item['price']}€", value = item["description"], inline = False)
+
+    embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+    embed.set_footer(text = "Cheap Shopping | Botato Shop", icon_url = self.bot.user.display_avatar.url)
+
+    message = await interaction.followup.send(embed = embed)
+
+    item_menu = ShopItemSelect(
+      user_id = interaction.user.id,
+      shop_items = shop_items,
+      placeholder = "Purchase an item",
+      options = item_menu_choices)
+
+    view = discord.ui.View()
+    view.add_item(item_menu)
+    
+    await message.edit(embed = embed, view = view)
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Economy(bot))
