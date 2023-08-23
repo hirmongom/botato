@@ -376,7 +376,6 @@ class Bets(commands.Cog):
     bet_data = load_json(f"{event_select_result}/{event_select_result}_bet", "bets")
     bettors = load_json(f"{event_select_result}/{event_select_result}_bettors", "bets")
     bet_choices = load_json(f"{event_select_result}/{event_select_result}_choices", "bets")
-    winner = bet_choices[winner_select_result]
 
     if winner_select_result == -1:
       for bettor in bettors.keys():
@@ -385,6 +384,7 @@ class Bets(commands.Cog):
         save_json(economy_data, bettor, "economy")
       await interaction.followup.send(f"Bet {bet_data['event']} has been cancelled")
     else:
+      winner = bet_choices[winner_select_result]
       await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
 
     folder_path = f"data/bets/{event_select_result}"
