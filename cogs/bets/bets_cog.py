@@ -11,7 +11,7 @@ from datetime import datetime
 import calendar
 
 from utils.json import save_json, load_json
-from .utils.custom_ui import (
+from .utils.bets_ui import (
   emoji_mapping, 
   EventBetSelect, 
   FutureModalCallbackButton, 
