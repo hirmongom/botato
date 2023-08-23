@@ -20,7 +20,7 @@ class Keys(commands.Cog):
       data = load_json("autoupdate", "keys")
       user_ids = load_json("user_ids", "other")
       for user in data.keys():
-        await channel.send(f"<@{user_ids[user]}> Your daily update is ready!")
+        await channel.send(f"<@{user_ids[user]}> Your weekly update is ready!")
 
         games = load_json(user, "keys")
         keys = ""
@@ -35,7 +35,7 @@ class Keys(commands.Cog):
               f"**{title}**\n<{games[title]}>\n{keys}")
           await channel.send("------------------------------------------------------------")
         except Exception as e:
-          self.bot.logger(f"Error on Keys daily trigger for {user}\n{e}")
+          self.bot.logger(f"Error on Keys weekly trigger for {user}\n{e}")
           await channel.send(content = "An error ocurred")
           return
 
@@ -205,9 +205,9 @@ class Keys(commands.Cog):
     save_json(data, "autoupdate", "keys")
 
     if option.value == 1:
-      await interaction.response.send_message("You have opted in to receive daily updates for your followed games")
+      await interaction.response.send_message("You have opted in to receive weekly updates for your followed games")
     else:
-      await interaction.response.send_message("You have opted out to receive daily updates for your followed games")
+      await interaction.response.send_message("You have opted out to receive weekly updates for your followed games")
 
 
 async def setup(bot: commands.Bot) -> None:
