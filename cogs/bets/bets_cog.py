@@ -194,6 +194,7 @@ class Bets(commands.Cog):
   )
   async def create_event(self, interaction: discord.Interaction, day: int, month: int, 
                       year: int = datetime.now().year) -> None:
+    # @todo add choice to cancel event
     self.bot.interaction_logger.info(f"|create_event| from {interaction.user.name} with day |{day}|" 
                                       f" month |{month}| and year |{year}|")
 
@@ -357,6 +358,7 @@ class Bets(commands.Cog):
 
     for key in bet_choices:
       winner_select_choices.append(discord.SelectOption(label = bet_choices[key], value = key))
+    winner_select_choices.append(discord.SelectOption(label = "Cancel", value = -1))
 
     winner_select = CustomFutureSelect(
       placeholder = "Select a winner",
@@ -375,7 +377,15 @@ class Bets(commands.Cog):
     bettors = load_json(f"{event_select_result}/{event_select_result}_bettors", "bets")
     bet_choices = load_json(f"{event_select_result}/{event_select_result}_choices", "bets")
     winner = bet_choices[winner_select_result]
-    await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
+
+    if winner_select_result == -1:
+      for bettor in bettors.keys():
+        economy_data = load_json(bettor, "economy")
+        economy_data["hand_balance"] += bettors[bettor][1]
+        save_json(economy_data, bettor, "economy")
+      await interaction.followup.send(f"Bet {bet_data['event']} has been cancelled")
+    else:
+      await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
 
     folder_path = f"data/bets/{event_select_result}"
     try:
