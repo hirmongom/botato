@@ -10,9 +10,6 @@ from utils.json import load_json, save_json
 from .utils.custom_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 
 # @idea Weekly lottery, minimum of players (or not, just max of tickets)
-# @idea Purchasable itmes:
-#        * Custom name color
-#        * Custom rol
 
 
 class Economy(commands.Cog):
@@ -134,6 +131,18 @@ class Economy(commands.Cog):
 
     await message.edit(embed = embed, view = view)
 
+
+  @app_commands.command(
+    name = "shop",
+    description = "Check the shop idk, will change this later @todo"
+  )
+  async def shop(self, interaction: discord.Interaction) -> None:
+    # @idea Purchasable itmes:
+#        * Custom name color
+#        * Custom rol
+    self.bot.interaction_logger.info(f"|shop| from {interaction.user.name}")
+
+    await interaction.response.send_message("@todo")
 
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Economy(bot))
