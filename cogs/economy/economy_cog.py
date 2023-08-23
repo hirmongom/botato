@@ -137,12 +137,9 @@ class Economy(commands.Cog):
 
   @app_commands.command(
     name = "shop",
-    description = "Check the shop idk, will change this later @todo"
+    description = "Check all items available in the shop"
   )
   async def shop(self, interaction: discord.Interaction) -> None:
-    # @idea Purchasable itmes:
-#        * Custom name color
-#        * Custom rol
     self.bot.interaction_logger.info(f"|shop| from {interaction.user.name}")
     await interaction.response.defer()
     
