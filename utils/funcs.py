@@ -21,6 +21,13 @@ def make_data(user: str) -> None:
   economy_data["streak"] = 1
   save_json(economy_data, user, "economy")
 
+  casino_data = {}
+  casino_data["hands_played"] = 0
+  casino_data["hands_won"] = 0
+  casino_data["total_winnings"] = 0
+  save_json(casino_data, user, "casino")
+
+
 def save_user_id(user_name: str, user_id: int) -> None:
   user_ids = load_json("user_ids", "other")
   user_ids[user_name] = user_id
