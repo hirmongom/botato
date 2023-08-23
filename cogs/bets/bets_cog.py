@@ -25,7 +25,6 @@ from .utils.bets_ui import (
 class Bets(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
-    self.week_day = 0
     self.ready_bets = []
 
 
