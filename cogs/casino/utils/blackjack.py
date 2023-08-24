@@ -2,6 +2,7 @@ import asyncio
 import random
 import discord
 
+from utils.json import save_json
 
 kDeck = [
   "Ace of Hearts", "2 of Hearts", "3 of Hearts", "4 of Hearts", "5 of Hearts",
@@ -111,6 +112,25 @@ def draw_card(hand, deck) -> int:
   return total
 
 
+
+# **************************************************************************************************
+def dealer_turn(hand: dict, deck: dict, dealer_total) -> int:
+  total = dealer_total
+  while total < 17:
+    total = draw_card(hand, deck)
+  return total
+
+
+# **************************************************************************************************
+def blackjack_winnings(winnings: int, economy_data: dict, casino_data: dict, 
+                          interaction: discord.Interaction) -> None:
+  economy_data["bank_balance"] += winnings
+  casino_data["total_blackjack_winnings"] += winnings
+  casino_data["total_casino_winnings"] += winnings
+  save_json(economy_data, interaction.user.name, "economy")
+  save_json(casino_data, interaction.user.name, "casino")
+
+
 # **************************************************************************************************
 class BlackjackButton(discord.ui.Button):
   def __init__(self, user_id: int, future: asyncio.Future, button_id: int, *args, **kwargs)-> None:
@@ -121,13 +141,16 @@ class BlackjackButton(discord.ui.Button):
 
 
   async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+      return # User not authorized
     await interaction.response.defer()
     self.future.set_result(self.id)
 
 
 # **************************************************************************************************
 def get_embed(player_hand: dict, player_total: int, 
-              dealer_hand: dict, dealer_total: int) -> discord.Embed:
+              dealer_hand: dict, dealer_total: int,
+              dealer_turn: bool = False) -> discord.Embed:
   embed = discord.Embed(
     title = "♠️♥️ Blackjack ♦️♣️",
     description = "",
@@ -135,10 +158,16 @@ def get_embed(player_hand: dict, player_total: int,
   )
 
   embed.add_field(name = "", value = f"```Dealer's hand```", inline = False)
-  embed.add_field(name = f"{dealer_hand[0]['emote']}{dealer_hand[0]['name']}",
-                  value = "", inline = True)
-  embed.add_field(name = f"🂠", value = "", inline = True)
-  embed.add_field(name = f"TOTAL: {dealer_hand[0]['value']}", value = "", inline = False)
+  if not dealer_turn:
+    embed.add_field(name = f"{dealer_hand[0]['emote']}{dealer_hand[0]['name']}",
+                    value = "", inline = True)
+    embed.add_field(name = f"🂠", value = "", inline = True)
+    embed.add_field(name = f"TOTAL: {dealer_hand[0]['value']}", value = "", inline = False)
+  else:
+    for i in range(len(dealer_hand)):
+      embed.add_field(name = f"{dealer_hand[i]['emote']}{dealer_hand[i]['name']}", 
+                      value = "", inline = True)
+    embed.add_field(name = f"TOTAL: {dealer_total}", value = "", inline = False)
 
   embed.add_field(name = "", value = f"```Your hand```", inline = False)
   for i in range(len(player_hand)):

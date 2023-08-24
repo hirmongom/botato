@@ -9,7 +9,9 @@ import random
 
 
 from utils.json import load_json, save_json
-from .utils.blackjack import blackjack_start, get_deck, draw_card, BlackjackButton, get_embed
+from utils.funcs import make_casino_data
+from .utils.blackjack import (
+  blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
 
 
 class Casino(commands.Cog):
@@ -27,6 +29,12 @@ class Casino(commands.Cog):
   async def blackjack(self, interaction: discord.Interaction, bet: int) -> None:
     self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name}")
     economy_data = load_json(interaction.user.name, "economy")
+    casino_data = load_json(interaction.user.name, "casino")
+    try:
+      casino_data["total_casino_winnings"]
+    except:
+      make_casino_data(interaction.user.name)
+      casino_data = load_json(interaction.user.name, "casino")
 
     if bet > economy_data["hand_balance"]:
       await interaction.response.send_message("You do not have enough money in hand")
@@ -36,6 +44,10 @@ class Casino(commands.Cog):
 
     economy_data["hand_balance"] -= bet
     save_json(economy_data, interaction.user.name, "economy")
+    casino_data["blackjack_hands_played"] += 1
+    casino_data["total_blackjack_winnings"] -= bet
+    casino_data["total_casino_winnings"] -= bet
+    save_json(casino_data, interaction.user.name, "casino")
 
     deck = get_deck()
     player_hand, dealer_hand = blackjack_start(deck)
@@ -70,20 +82,40 @@ class Casino(commands.Cog):
 
     # Handle game
     while True:
-      if player_total != 21:
-        try:
-          result = await asyncio.wait_for(future_button, timeout = 60)
-          await interaction.followup.send(f"Pressed {result}")
-        except asyncio.TimeoutError:
-          await interaction.followup.send("Stop loop")
+      # Case of 2 ACES count as 22
+      if player_total == 22:
+        while total > 21 and any(card['name'] == 'Ace' and card['value'] == 11 for card in hand):
+          # Find the first Ace with value 11 and change its value to 1
+          for card in hand:
+            if card['name'] == 'Ace' and card['value'] == 11:
+              card['value'] = 1
+              break
+          player_total = sum(card['value'] for card in hand)
+
+      if player_total == 21:
+        dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
+        embed = get_embed(player_hand, player_total, dealer_hand, dealer_total, dealer_turn = True)
+        await message.edit(embed = embed, view = None)
+        if dealer_total == 21:
+          blackjack_winnings(bet, economy_data, casino_data, interaction)
+          await interaction.followup.send("It's a draw")
           return
-        # Reset state
-        future_button = asyncio.Future()
-        hit_button.future = future_button
-        stand_button.future = future_button
-        double_button.future = future_button
-      else:
-        result = 0
+        else:
+          winnings = bet + bet * 1.5
+          blackjack_winnings(winnings, economy_data, casino_data, interaction)
+          await interaction.followup.send(f"You've won {winnings}€")
+        return
+  
+      try:
+        result = await asyncio.wait_for(future_button, timeout = 60)
+      except asyncio.TimeoutError:
+        await interaction.followup.send("Timeout: Blackjack game has been canceled")
+        return    
+      # Reset state
+      future_button = asyncio.Future()
+      hit_button.future = future_button
+      stand_button.future = future_button
+      double_button.future = future_button
 
       # Handle button press
       if result == 0: # Hit button
@@ -92,17 +124,71 @@ class Casino(commands.Cog):
         await message.edit(embed = embed, view = view)
 
         if player_total == 21:
-          pass # auto stand
+          dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
+          embed = get_embed(player_hand, player_total, dealer_hand, dealer_total, dealer_turn = True)
+          await message.edit(embed = embed, view = None)
+          if dealer_total == 21:
+            blackjack_winnings(bet, economy_data, casino_data, interaction)
+            await interaction.followup.send("It's a draw")
+          else:
+            winnings = bet * 2
+            blackjack_winnings(winnings, economy_data, casino_data, interaction)
+            await interaction.followup.send(f"You've won {winnings}€")
+          return
         elif player_total > 21:
           await message.edit(embed = embed, view = None)
-          await interaction.followup.send("You went bust!")
+          await interaction.followup.send("You went bust")
           return
 
       elif result == 1: # Stand button
-        pass
+        dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
+        embed = get_embed(player_hand, player_total, dealer_hand, dealer_total, dealer_turn = True)
+        await message.edit(embed = embed, view = None)
+        if dealer_total > 21 or dealer_total < player_total:
+          winnings = bet * 2
+          blackjack_winnings(winnings, economy_data, casino_data, interaction)
+          await interaction.followup.send(f"You've won {winnings}€")
+        elif dealer_total == player_total:
+          blackjack_winnings(bet, economy_data, casino_data, interaction)
+          await interaction.followup.send("It's a draw")
+        else:
+          await interaction.followup.send("You've lost")
+        return
 
       elif result == 2: # Double down button
-        pass
+        if economy_data["hand_balance"] < bet:
+          await interaction.followup.send("You do not have enough money in hand to Double Down")
+        else:
+          economy_data["hand_balance"] -= bet
+          save_json(economy_data, interaction.user.name, "economy")
+          casino_data["total_blackjack_winnings"] -= bet
+          casino_data["total_casino_winnings"] -= bet
+          save_json(casino_data, interaction.user.name, "casino")
+
+          bet += bet  
+          player_total = draw_card(player_hand, deck)
+          embed = get_embed(player_hand, player_total, dealer_hand, dealer_total)
+          await message.edit(embed = embed, view = None)
+
+          if player_total > 21:
+            await message.edit(embed = embed, view = None)
+            await interaction.followup.send("You went bust")
+            return
+
+          dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
+          embed = get_embed(player_hand, player_total, dealer_hand, dealer_total, dealer_turn = True)
+          await message.edit(embed = embed, view = None)
+
+          if dealer_total > 21 or dealer_total < player_total:
+            winnings = bet * 2
+            blackjack_winnings(winnings, economy_data, casino_data, interaction)
+            await interaction.followup.send(f"You've won {winnings}€")
+          elif dealer_total == player_total:
+            blackjack_winnings(bet, economy_data, casino_data, interaction)
+            await interaction.followup.send("It's a draw")
+          else:
+            await interaction.followup.send("You've lost")
+          return
 
 
   @app_commands.command(
