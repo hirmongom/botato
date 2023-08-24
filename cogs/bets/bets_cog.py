@@ -383,6 +383,9 @@ class Bets(commands.Cog):
         save_json(economy_data, bettor, "economy")
       await interaction.followup.send(f"Bet {bet_data['event']} has been cancelled")
     else:
+      print(f"winner_select_result {winner_select_result}")
+      print(f"type: {type(winner_select_result)}")
+      print(f"keys {bet_choices.keys()}")
       winner = bet_choices[winner_select_result]
       await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
 
