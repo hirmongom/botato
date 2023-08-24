@@ -27,7 +27,7 @@ class Casino(commands.Cog):
     bet = "Bet amount (€)"
   )
   async def blackjack(self, interaction: discord.Interaction, bet: int) -> None:
-    self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name}")
+    self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name} with bet |{bet}|")
     economy_data = load_json(interaction.user.name, "economy")
     casino_data = load_json(interaction.user.name, "casino")
     try:
