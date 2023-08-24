@@ -25,16 +25,16 @@ class Economy(commands.Cog):
     self.week_day = (self.week_day + 1) % 7
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
-        data = load_json(file[:-5], "economy")
-        if data["daily_pay"] == 0:
-          data["streak"] = data["streak"] + 1
-          data["daily_pay"] = 1
+        economy_data = load_json(file[:-5], "economy")
+        if economy_data["daily_pay"] == 0:
+          economy_data["streak"] = economy_data["streak"] + 1
+          economy_data["daily_pay"] = 1
         else:
-          data["streak"] = 0
+          economy_data["streak"] = 0
         if self.week_day == 0:
-          data["withdrawn_money"] = 0
-          data["bank_balance"] = data["bank_balance"] * data["interest_rate"]
-        save_json(data, file[:-5], "economy")
+          economy_data["withdrawn_money"] = 0
+          economy_data["bank_balance"] = economy_data["bank_balance"] * economy_data["interest_rate"]
+        save_json(economy_data, file[:-5], "economy")
 
 
   @commands.Cog.listener()
@@ -45,23 +45,27 @@ class Economy(commands.Cog):
       # Excludee certain interactions that are not commands
       return
 
-    data = load_json(interaction.user.name, "economy")
-    daily_pay = data["daily_pay"]
+    economy_data = load_json(interaction.user.name, "economy")
+    user_data = load_json(interaction.user.name, "user")
+    daily_pay = economy_data["daily_pay"]
 
     if daily_pay == 1:
-      if data["streak"] == 7:
-        increase = random.randint(750, 1000)
-        data["streak"] = 0
+      if economy_data["streak"] == 7:
+        lower_bound = user_data["level"] * 100 + 500
+        upper_bound = user_data["level"] * 100 + 1000
+        economy_data["streak"] = 0
       else:
-        increase = random.randint(50, 150)
-      data["bank_balance"] = data["bank_balance"] + increase
-      data["daily_pay"] = 0
+        lower_bound = user_data["level"] * 10 + 50
+        upper_bound = user_data["level"] * 10 + 150
+      increase = random.randint(lower_bound, upper_bound)
+      economy_data["bank_balance"] = economy_data["bank_balance"] + increase
+      economy_data["daily_pay"] = 0
 
-      streak_msg = f" (Current streak = {data['streak']} days)" if int(data["streak"]) != 0 else ""
+      streak_msg = f" (Current streak = {economy_data['streak']} days)" if int(economy_data["streak"]) != 0 else ""
       await interaction.channel.send(f"(*) You received {increase}€ on your bank{streak_msg}")
       self.bot.interaction_logger.info(f"Money increase on first interaction for {interaction.user.name} with {increase}€")
 
-    save_json(data, interaction.user.name, "economy")
+    save_json(economy_data, interaction.user.name, "economy")
 
 
   @app_commands.command(
