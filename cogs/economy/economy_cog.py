@@ -97,7 +97,7 @@ class Economy(commands.Cog):
     if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
       upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
       embed.add_field(name = f"💰 You can upgrade your bank for {upgrade_cost}€", 
-                      value = f"Withdrawal limit from {max_withdrawal}€ to {max_withdrawal + 500}€\n"
+                      value = f"Withdrawal limit from {max_withdrawal}€ to {max_withdrawal + 5000}€\n"
                               f"Interest rate from {int((interest_rate - 1) * 100)}% to {int((interest_rate - 1) * 100 + 1)}%", 
                       inline = False)
     embed.add_field(name = "", value = "", inline = False) # pre-footer separator
