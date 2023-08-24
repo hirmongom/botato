@@ -14,8 +14,8 @@ class Keys(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    week_day = (week_day + 1) % 7
-    if week_day == 0:
+    self.week_day = (self.week_day + 1) % 7
+    if self.week_day == 0:
       channel = self.bot.get_channel(int(self.bot.main_channel))
       data = load_json("autoupdate", "keys")
       user_ids = load_json("user_ids", "other")
