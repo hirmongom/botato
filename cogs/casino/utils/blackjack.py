@@ -1,8 +1,9 @@
 import asyncio
 import random
+import discord
 
 
-deck = [
+kDeck = [
   "Ace of Hearts", "2 of Hearts", "3 of Hearts", "4 of Hearts", "5 of Hearts",
   "6 of Hearts", "7 of Hearts", "8 of Hearts", "9 of Hearts", "10 of Hearts",
   "Jack of Hearts", "Queen of Hearts", "King of Hearts",
@@ -22,14 +23,18 @@ deck = [
 
 
 # **************************************************************************************************
-def blackjack_start() -> tuple[list[dict]]:
-  mapped_deck = [map_card(card) for card in deck]
-  random.shuffle(mapped_deck)
-
-  player_hand = deal_player_hand(mapped_deck)
-  dealer_hand = deal_dealer_hand(mapped_deck)
+def blackjack_start(deck) -> tuple[list[dict]]:
+  player_hand = deal_player_hand(deck)
+  dealer_hand = deal_dealer_hand(deck)
 
   return(player_hand, dealer_hand)
+
+
+# **************************************************************************************************
+def get_deck() -> dict:
+  mapped_deck = [map_card(card) for card in kDeck]
+  random.shuffle(mapped_deck)
+  return mapped_deck
 
 
 # **************************************************************************************************
@@ -85,3 +90,60 @@ def deal_dealer_hand(mapped_deck: dict) -> list[dict]:
     mapped_deck.remove(card)
   
   return dealer_hand
+
+
+# **************************************************************************************************
+def draw_card(hand, deck) -> int:
+  card = random.choice(deck)
+  hand.append(card)
+  deck.remove(card)
+  total = sum(card['value'] for card in hand)
+
+  # Check if total is over 21 and there's an Ace in the hand
+  while total > 21 and any(card['name'] == 'Ace' and card['value'] == 11 for card in hand):
+    # Find the first Ace with value 11 and change its value to 1
+    for card in hand:
+      if card['name'] == 'Ace' and card['value'] == 11:
+        card['value'] = 1
+        break
+    total = sum(card['value'] for card in hand)
+
+  return total
+
+
+# **************************************************************************************************
+class BlackjackButton(discord.ui.Button):
+  def __init__(self, user_id: int, future: asyncio.Future, button_id: int, *args, **kwargs)-> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+    self.id = button_id
+
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    await interaction.response.defer()
+    self.future.set_result(self.id)
+
+
+# **************************************************************************************************
+def get_embed(player_hand: dict, player_total: int, 
+              dealer_hand: dict, dealer_total: int) -> discord.Embed:
+  embed = discord.Embed(
+    title = "♠️♥️ Blackjack ♦️♣️",
+    description = "",
+    color = discord.Color.red()
+  )
+
+  embed.add_field(name = "", value = f"```Dealer's hand```", inline = False)
+  embed.add_field(name = f"{dealer_hand[0]['emote']}{dealer_hand[0]['name']}",
+                  value = "", inline = True)
+  embed.add_field(name = f"🂠", value = "", inline = True)
+  embed.add_field(name = f"TOTAL: {dealer_hand[0]['value']}", value = "", inline = False)
+
+  embed.add_field(name = "", value = f"```Your hand```", inline = False)
+  for i in range(len(player_hand)):
+    embed.add_field(name = f"{player_hand[i]['emote']}{player_hand[i]['name']}", 
+                    value = "", inline = True)
+  embed.add_field(name = f"TOTAL: {player_total}", value = "", inline = False)
+
+  return embed

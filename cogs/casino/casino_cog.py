@@ -9,10 +9,8 @@ import random
 
 
 from utils.json import load_json, save_json
-from .utils.blackjack import blackjack_start
+from .utils.blackjack import blackjack_start, get_deck, draw_card, BlackjackButton, get_embed
 
-# @idea Casino (blackjack, poker, roulette, coin flip)
-# @idea Daily roulette
 
 class Casino(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -34,44 +32,86 @@ class Casino(commands.Cog):
       await interaction.response.send_message("You do not have enough money in hand")
       return
 
+    await interaction.response.defer()
+
     economy_data["hand_balance"] -= bet
     save_json(economy_data, interaction.user.name, "economy")
 
-    player_hand, dealer_hand = blackjack_start()
+    deck = get_deck()
+    player_hand, dealer_hand = blackjack_start(deck)
     player_total = sum(card['value'] for card in player_hand)
     dealer_total = sum(card['value'] for card in dealer_hand)
 
-    embed = discord.Embed(
-      title = "♠️♥️ Blackjack ♦️♣️",
-      description = "",
-      color = discord.Color.red()
-    )
+    embed = get_embed(player_hand, player_total, dealer_hand, dealer_total)
 
-    embed.add_field(name = "", value = f"```Dealer's hand```", inline = False)
-    embed.add_field(name = f"{dealer_hand[0]['emote']}{dealer_hand[0]['name']}",
-                    value = "", inline = True)
-    embed.add_field(name = f"🂠", value = "", inline = True)
-    embed.add_field(name = f"TOTAL: {dealer_hand[0]['value']}", value = "", inline = False)
-
-    embed.add_field(name = "", value = f"```Your hand```", inline = False)
-    embed.add_field(name = f"{player_hand[0]['emote']}{player_hand[0]['name']}", 
-                    value = "", inline = True)
-    embed.add_field(name = f"{player_hand[1]['emote']}{player_hand[1]['name']}",
-                    value = "", inline = True)
-    embed.add_field(name = f"TOTAL: {player_total}", value = "", inline = False)
-
+    future_button = asyncio.Future()
     view = discord.ui.View()
 
-    hit_button = discord.ui.Button(style = discord.ButtonStyle.primary, label = "Hit")
-    stand_button = discord.ui.Button(style = discord.ButtonStyle.secondary, label = "Stand")
-    double_button = discord.ui.Button(style = discord.ButtonStyle.red, label = "Double Down")
+    hit_button = BlackjackButton(style = discord.ButtonStyle.primary, 
+                                 label = "Hit",
+                                 user_id = interaction.user.id,
+                                 future = future_button,
+                                 button_id = 0)
+    stand_button = BlackjackButton(style = discord.ButtonStyle.secondary, 
+                                   label = "Stand",
+                                   user_id = interaction.user.id,
+                                   future = future_button,
+                                   button_id = 1)
+    double_button = BlackjackButton(style = discord.ButtonStyle.red, 
+                                    label = "Double Down",
+                                    user_id = interaction.user.id,
+                                    future = future_button,
+                                    button_id = 2)
     
     view.add_item(hit_button)
     view.add_item(stand_button)
     view.add_item(double_button)
+    message = await interaction.followup.send(embed = embed, view = view)
 
-    await interaction.response.send_message(embed = embed, view = view)
-    await interaction.followup.send("@todo - Work in Progress")
+    # Handle game
+    while True:
+      if player_total != 21:
+        try:
+          result = await asyncio.wait_for(future_button, timeout = 60)
+          await interaction.followup.send(f"Pressed {result}")
+        except asyncio.TimeoutError:
+          await interaction.followup.send("Stop loop")
+          return
+        # Reset state
+        future_button = asyncio.Future()
+        hit_button.future = future_button
+        stand_button.future = future_button
+        double_button.future = future_button
+      else:
+        result = 0
+
+      # Handle button press
+      if result == 0: # Hit button
+        player_total = draw_card(player_hand, deck)
+        embed = get_embed(player_hand, player_total, dealer_hand, dealer_total)
+        await message.edit(embed = embed, view = view)
+
+        if player_total == 21:
+          pass # auto stand
+        elif player_total > 21:
+          await message.edit(embed = embed, view = None)
+          await interaction.followup.send("You went bust!")
+          return
+
+      elif result == 1: # Stand button
+        pass
+
+      elif result == 2: # Double down button
+        pass
+
+
+  @app_commands.command(
+    name = "roulette",
+    description = "@todo"
+  )
+  async def roulette(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|roulette| from {interaction.user.name}")
+    await interaction.response.send_message("Unimplemented")
 
 
 async def setup(bot: commands.Bot) -> None:
