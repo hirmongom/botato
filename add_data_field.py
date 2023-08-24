@@ -4,7 +4,7 @@ import argparse
 
 from utils.json import load_json, save_json
 
-valid_cog_names = ["economy", "user"]
+valid_cog_names = ["economy", "user", "casino"]
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--cog", required = True, choices = valid_cog_names, help = "Cog where you want to add a field to its data")
