@@ -369,7 +369,6 @@ class Bets(commands.Cog):
     await message.edit(view = view)
 
     winner_select_result = await winner_select_future
-    winner_select_result = int(winner_select_result)
     await message.edit(view = view) # Select menu disabled
 
     bet_data = load_json(f"{event_select_result}/{event_select_result}_bet", "bets")
@@ -383,11 +382,11 @@ class Bets(commands.Cog):
         save_json(economy_data, bettor, "economy")
       await interaction.followup.send(f"Bet {bet_data['event']} has been cancelled")
     else:
-      print(f"winner_select_result {winner_select_result}")
-      print(f"type: {type(winner_select_result)}")
-      for key in bet_choices.keys():
-        print(f"key {key} of type {type(key)}")
-      winner = bet_choices[winner_select_result]
+      try:
+        winner = bet_choices[winner_select_result]
+      except KeyError:
+        winner_select_result = int(winner_select_result)
+        winner = bet_choices[winner_select_result]
       await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
 
     folder_path = f"data/bets/{event_select_result}"
