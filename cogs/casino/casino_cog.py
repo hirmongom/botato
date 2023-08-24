@@ -64,7 +64,7 @@ class Casino(commands.Cog):
                                  user_id = interaction.user.id,
                                  future = future_button,
                                  button_id = 0)
-    stand_button = BlackjackButton(style = discord.ButtonStyle.secondary, 
+    stand_button = BlackjackButton(style = discord.ButtonStyle.green, 
                                    label = "Stand",
                                    user_id = interaction.user.id,
                                    future = future_button,
@@ -74,10 +74,16 @@ class Casino(commands.Cog):
                                     user_id = interaction.user.id,
                                     future = future_button,
                                     button_id = 2)
+    retire_button = BlackjackButton(style = discord.ButtonStyle.secondary, 
+                                    label = "Retire",
+                                    user_id = interaction.user.id,
+                                    future = future_button,
+                                    button_id = 3)
     
     view.add_item(hit_button)
     view.add_item(stand_button)
     view.add_item(double_button)
+    view.add_item(retire_button)
     message = await interaction.followup.send(embed = embed, view = view)
 
     # Handle game
@@ -109,6 +115,7 @@ class Casino(commands.Cog):
       try:
         result = await asyncio.wait_for(future_button, timeout = 60)
       except asyncio.TimeoutError:
+        await message.edit(embed = embed, view = None)
         await interaction.followup.send("Timeout: Blackjack game has been canceled")
         return    
       # Reset state
@@ -189,6 +196,12 @@ class Casino(commands.Cog):
           else:
             await interaction.followup.send("You've lost")
           return
+      elif result == 3:
+        winnings = int(bet / 2)
+        blackjack_winnings(winnings, economy_data, casino_data, interaction)
+        await message.edit(embed = embed, view = None)
+        await interaction.followup.send(f"You retired, you've received half your bet: {winnings}€")
+        return
 
 
   @app_commands.command(
