@@ -385,7 +385,8 @@ class Bets(commands.Cog):
     else:
       print(f"winner_select_result {winner_select_result}")
       print(f"type: {type(winner_select_result)}")
-      print(f"keys {type(bet_choices.keys()[0])}")
+      keys = bet_choices.keys()
+      print(f"keys {type(keys[0])}")
       winner = bet_choices[winner_select_result]
       await self.bet_winner_process(bet_data, bettors, bet_choices, winner)
 
