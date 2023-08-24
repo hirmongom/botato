@@ -194,7 +194,6 @@ class Bets(commands.Cog):
   )
   async def create_event(self, interaction: discord.Interaction, day: int, month: int, 
                       year: int = datetime.now().year) -> None:
-    # @todo add choice to cancel event
     self.bot.interaction_logger.info(f"|create_event| from {interaction.user.name} with day |{day}|" 
                                       f" month |{month}| and year |{year}|")
 
