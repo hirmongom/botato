@@ -119,7 +119,7 @@ class PlaceBetModal(discord.ui.Modal):
     form_value = str(self.children[0])
 
     if form_value.isdigit():
-      form_value = round(form_value, 2)
+      form_value = round(int(form_value), 2)
       if form_value > economy_data["hand_balance"]:
         await interaction.response.send_message("You do not have enough money in hand")
       else:
