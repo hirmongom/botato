@@ -278,13 +278,13 @@ class Bets(commands.Cog):
     await message.edit(embed = embed, view = view)
     pool = await pool_future
     view.clear_items()
-    if not pool.isdigit():
+    try:
+      pool = round(float(pool, 2))
+    except:
       await message.edit(embed = embed, view = view)
       await interaction.followup.send("Pool must be a number")
       return
-    pool = round(pool, 2)
     embed.add_field(name = f"💵 Pool of {pool}€", value = "", inline = False)
-
 
     event_confirmed = asyncio.Event()
     event_confirmed_button =FutureSimpleButton(user_id = interaction.user.id,
