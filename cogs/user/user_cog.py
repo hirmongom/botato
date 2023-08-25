@@ -187,7 +187,7 @@ class User(commands.Cog):
     embed.add_field(name = "", value = "", inline = False) # post-title separator
     for i, key in enumerate(sorted_data.keys(), start = 1):
       if category == "economy":
-        embed_value = f"➜ Total Money: {sorted_data[key]['total']}€"
+        embed_value = f"➜ Total Money: {round(float(sorted_data[key]['total']))}€"
       elif category == "user":
         embed_value = f"➜ Level {sorted_data[key]['level']} with {sorted_data[key]['experience']} XP"
       embed.add_field(name = f"{rank_map[i]}   ***{sorted_data[key]['user']}***",
