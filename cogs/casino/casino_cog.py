@@ -139,7 +139,8 @@ class Casino(commands.Cog):
       hit_button.future = future_button
       stand_button.future = future_button
       double_button.future = future_button
-
+      retire_button.future = future_button
+      
       # Handle button press
       if result == 0: # Hit button
         player_total = draw_card(player_hand, deck)
