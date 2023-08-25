@@ -246,6 +246,8 @@ class Economy(commands.Cog):
     economy_data = load_json(interaction.user.name, "economy")
     if economy_data["bank_balance"] < amount:
       await interaction.response.send_message("You do not have enough money in the bank")
+    elif economy_data["max_withdrawal"] - economy_data["withdrawn_money"] < amount:
+      await interaction.response.send_message("You cannot withdraw that much money")
     else:
       economy_data["bank_balance"] -= amount
       economy_data["hand_balance"] += amount
