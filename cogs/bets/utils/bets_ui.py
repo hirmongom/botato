@@ -118,7 +118,7 @@ class PlaceBetModal(discord.ui.Modal):
     economy_data = load_json(interaction.user.name, "economy")
     form_value = str(self.children[0])
 
-    if form_value.isdigit():
+    try:
       form_value = round(float(form_value), 2)
       if form_value > economy_data["hand_balance"]:
         await interaction.response.send_message("You do not have enough money in hand")
@@ -136,7 +136,7 @@ class PlaceBetModal(discord.ui.Modal):
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
                                                 f"on {self.bet_choices[self.bet_choice]} "
                                                 f"in {sport_name} {bet['event']}")
-    else:
+    except:
       await interaction.response.send_message(f"Must be a number")
     await update_embed(message = self.message, embed = self.embed)
 

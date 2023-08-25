@@ -41,7 +41,7 @@ class Casino(commands.Cog):
   @app_commands.describe(
     bet = "Bet amount (€)"
   )
-  async def blackjack(self, interaction: discord.Interaction, bet: int) -> None:
+  async def blackjack(self, interaction: discord.Interaction, bet: float) -> None:
     self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name} with bet |{bet}|")
     economy_data = load_json(interaction.user.name, "economy")
     casino_data = load_json(interaction.user.name, "casino")
@@ -227,7 +227,7 @@ class Casino(commands.Cog):
   @app_commands.describe(
     bet = "Amount to bet"
   )
-  async def roulette(self, interaction: discord.Interaction, bet: int) -> None:
+  async def roulette(self, interaction: discord.Interaction, bet: float) -> None:
     self.bot.interaction_logger.info(f"|roulette| from {interaction.user.name}")
     await interaction.response.send_message("@todo roulette: Unimplemented")
 
