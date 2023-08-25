@@ -207,11 +207,14 @@ class Casino(commands.Cog):
 
   @app_commands.command(
     name = "roulette",
-    description = "@todo"
+    description = "Spin the wheel and try your luck!"
   )
-  async def roulette(self, interaction: discord.Interaction) -> None:
+  @app_commands.describe(
+    bet = "Amount to bet"
+  )
+  async def roulette(self, interaction: discord.Interaction, bet: int) -> None:
     self.bot.interaction_logger.info(f"|roulette| from {interaction.user.name}")
-    await interaction.response.send_message("Unimplemented")
+    await interaction.response.send_message("@todo roulette: Unimplemented")
 
 
 async def setup(bot: commands.Bot) -> None:

@@ -12,9 +12,6 @@ from .utils.shop_ui import ShopItemSelect
 from .utils.shop_funcs import create_role
 
 
-# @idea Weekly lottery, minimum of players (or not, just max of tickets)
-
-
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
