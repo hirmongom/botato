@@ -12,28 +12,6 @@ class Test(commands.Cog):
 
 
   @app_commands.command(
-    name = "test_step",
-    description = "Test for multiple-step (?) commands"
-  )
-  async def test_step(self, interaction: discord.Interaction) -> None:
-    def check(message: str) -> bool:
-      return message.author == interaction.user and message.channel == interaction.channel
-
-    self.bot.interaction_logger.info(f"|test_step| from {interaction.user.name}")
-    await interaction.response.defer()
-
-    await interaction.followup.send("[y]es or [n]o?")
-    response = await self.bot.wait_for("message", check = check, timeout = 5)
-
-    if response.content.lower()[:1] == "y":
-      await interaction.followup.send("Eres Kenny")
-    elif response.content.lower()[:1] == "n":
-      await interaction.followup.send("No mientas, si que eres Kenny")
-    else:
-      await interaction.followup.send("AAAAAAAAAAAAAAAAAAAAHHH, donde esta Kenny?")
-
-
-  @app_commands.command(
     name = "test_cpp",
     description = "Test execution of C++ script from python"
   )
@@ -83,30 +61,6 @@ class Test(commands.Cog):
     embed.timestamp = datetime.datetime.utcnow()
 
     await interaction.response.send_message(embed = embed)
-
-
-  @app_commands.command(
-    name = "test_role",
-    description = "(ADMIN) Test the creation and customization of roles"
-  )
-  async def test_role(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|test_role| from {interaction.user.name}")
-    if not interaction.user.guild_permissions.administrator:
-      await interaction.response.send_message("Missing Administrator permissions")
-      return
-
-    await interaction.response.defer()
-
-    new_role = await interaction.guild.create_role(
-      name = "Test role",
-      colour = discord.Colour.from_rgb(45, 240, 221),
-      hoist = True,
-      reason = "This shows in audit log"
-    )
-
-    await interaction.user.add_roles(new_role)
-
-    await interaction.followup.send("Role created and given")
 
 
 async def setup(bot: commands.Bot) -> None:
