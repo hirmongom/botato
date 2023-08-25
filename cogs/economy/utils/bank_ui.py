@@ -82,7 +82,7 @@ class BankOperationModal(discord.ui.Modal):
   async def on_submit(self, interaction: discord.Interaction) -> None:
     form_value = str(self.children[0])
 
-    if form_value.isdigit():
+    try:
       form_value = round(float(form_value), 2)
       hand_balance = self.economy_data["hand_balance"]
       bank_balance = self.economy_data["bank_balance"]
@@ -114,7 +114,7 @@ class BankOperationModal(discord.ui.Modal):
       self.economy_data["withdrawn_money"] = withdrawn_money
       save_json(self.economy_data, interaction.user.name, "economy")
       
-    else:
+    except:
       await interaction.response.send_message(f"Must be a number")
 
     await update_embed(self.message, self.embed, self.economy_data)
