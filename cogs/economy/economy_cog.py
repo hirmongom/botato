@@ -251,8 +251,9 @@ class Economy(commands.Cog):
     else:
       economy_data["bank_balance"] -= amount
       economy_data["hand_balance"] += amount
+      economy_data["withdrawn_money"] += amount
       await interaction.response.send_message(f"You withdrew {amount}€")
-    save_json(economy_data, interaction.user.name, "economy")
+      save_json(economy_data, interaction.user.name, "economy")
 
 
   @app_commands.command(
