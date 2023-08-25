@@ -279,7 +279,7 @@ class Bets(commands.Cog):
     pool = await pool_future
     view.clear_items()
     try:
-      pool = round(float(pool, 2))
+      pool = round(float(pool), 2)
     except:
       await message.edit(embed = embed, view = view)
       await interaction.followup.send("Pool must be a number")
