@@ -102,8 +102,9 @@ class Economy(commands.Cog):
     )
     embed.add_field(name = "💰 Hand Balance", value = f"{hand_balance}€", inline = True)
     embed.add_field(name = "🏦 Bank Balance", value = f"{bank_balance}€", inline = True)
-    embed.add_field(name = "📆🔽 Remaining Weekly Withdraw Limit", 
-                    value = f"{max_withdrawal - withdrawn_money}€", inline = False)
+    embed.add_field(name = f"📆🔽 Remaining Weekly Withdraw Limit", 
+                    value = f"{max_withdrawal - withdrawn_money}€ (Resets in {7 - self.week_day} days)", 
+                    inline = False)
     if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
       upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
       embed.add_field(name = f"💰 You can upgrade your bank for {upgrade_cost}€", 
@@ -127,8 +128,9 @@ class Economy(commands.Cog):
       discord.SelectOption(label = "Withdraw", value = 2)]
     menu = BankOperationSelect(
       user_id = interaction.user.id,
+      week_day = self.week_day,
       placeholder = "Choose an operation",
-      options = menu_choice,)
+      options = menu_choice)
     menu.set_modal("1", deposit_modal)
     menu.set_modal("2", withdraw_modal)
 
