@@ -188,5 +188,104 @@ class Economy(commands.Cog):
     
     await message.edit(embed = embed, view = view)
 
+  
+  @app_commands.command(
+    name = "deposit",
+    description = "Deposit money into your bank"
+  )
+  @app_commands.describe(
+    amount = "Amount of money to deposit into the bank"
+  )
+  async def deposit(self, interaction: discord.Interaction, amount: float) -> None:
+    self.bot.interaction_logger.info(f"|deposit| from {interaction.user.name} with amount |{amount}|")
+    amount = round(amount, 2)
+
+    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
+      await interaction.response.send_message("It seems this is your first interaction with this " + 
+                                              "bot, so I don't have any data, please check again")
+      return
+
+    economy_data = load_json(interaction.user.name, "economy")
+    if economy_data["hand_balance"] < amount:
+      await interaction.response.send_message("You do not have enough money in hand")
+    else:
+      economy_data["hand_balance"] -= amount
+      economy_data["bank_balance"] += amount
+      await interaction.response.send_message(f"You deposited {amount}€")
+    save_json(economy_data, interaction.user.name, "economy")
+
+
+  @app_commands.command(
+    name = "withdraw",
+    description = "Withdraw money from your bank"
+  )
+  @app_commands.describe(
+    amount = "Amount of money to withdraw from the bank"
+  )
+  async def withdraw(self, interaction: discord.Interaction, amount: float) -> None:
+    self.bot.interaction_logger.info(f"|withdraw| from {interaction.user.name} with amount |{amount}|")
+    amount = round(amount, 2)
+
+    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
+      await interaction.response.send_message("It seems this is your first interaction with this " + 
+                                              "bot, so I don't have any data, please check again")
+      return
+
+    economy_data = load_json(interaction.user.name, "economy")
+    if economy_data["bank_balance"] < amount:
+      await interaction.response.send_message("You do not have enough money in the bank")
+    else:
+      economy_data["bank_balance"] -= amount
+      economy_data["hand_balance"] += amount
+      await interaction.response.send_message(f"You withdrew {amount}€")
+    save_json(economy_data, interaction.user.name, "economy")
+
+
+  @app_commands.command(
+    name = "transfer",
+    description = "Transfer money to another user's bank"
+  )
+  @app_commands.describe(
+    amount = "Amount of money to transfer"
+  )
+  @app_commands.describe(
+    mention = "Mention of the user who the transfer will go to"
+  )
+  async def transfer(self, interaction: discord.Interaction, amount: float, mention: str) -> None:
+    self.bot.interaction_logger.info(f"|transfer| from {interaction.user.name} with amount "
+                                    f" |{amount}| and mention |{mention}|")
+    amount = round(amount, 2)
+    if mention.startswith("<@") and mention.endswith(">"):
+      user_id = ''.join(filter(str.isdigit, mention))
+      recipient = await interaction.guild.fetch_member(user_id)
+    else:
+      await interaction.response.send_message(f"Invalid mention <{mention}>")
+      return
+
+    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
+      await interaction.response.send_message("It seems this is your first interaction with this " + 
+                                              "bot, so I don't have any data, please check again")
+      return
+    if not os.path.isfile(f"data/user/{recipient.name}.json"):
+      await interaction.response.send_message(f"It seems {recipient.display_name} hasn't interacted "
+                                                "with me yet, so I don't have any data")
+      return
+
+    user_economy_data = load_json(interaction.user.name, "economy")
+    recipient_economy_data = load_json(recipient.name, "economy")
+
+    if user_economy_data["bank_balance"] < amount:
+      await interaction.response.send_message("You do not have enough money in the bank")
+      return
+
+    user_economy_data["bank_balance"] -= amount
+    recipient_economy_data["bank_balance"] += amount
+
+    save_json(user_economy_data, interaction.user.name, "economy")
+    save_json(recipient_economy_data, recipient.name, "economy")
+
+    await interaction.response.send_message(f"You transfered {amount}€ to {recipient.display_name}")
+
+
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Economy(bot))
