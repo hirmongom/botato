@@ -88,8 +88,8 @@ class Economy(commands.Cog):
     await interaction.response.defer()
 
     economy_data = load_json(interaction.user.name, "economy")
-    hand_balance = economy_data["hand_balance"]
-    bank_balance = economy_data["bank_balance"]
+    hand_balance = round(economy_data["hand_balance"], 2)
+    bank_balance = round(economy_data["bank_balance"], 2)
     max_withdrawal = economy_data["max_withdrawal"]
     withdrawn_money = economy_data["withdrawn_money"]
     interest_rate = economy_data["interest_rate"]

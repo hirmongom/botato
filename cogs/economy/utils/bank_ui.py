@@ -106,6 +106,7 @@ class BankOperationModal(discord.ui.Modal):
           bank_balance -= form_value
           hand_balance += form_value
           withdrawn_money += form_value
+          bank_balance = round(bank_balance, 2)
           await interaction.response.send_message(f"You withdrew {form_value}€")
 
       self.economy_data["hand_balance"] = hand_balance
@@ -121,8 +122,8 @@ class BankOperationModal(discord.ui.Modal):
 
 async def update_embed(message: discord.Message, embed: discord.Embed, 
                       economy_data: dict, was_upgrade: bool = False) -> None:
-  hand_balance = economy_data["hand_balance"]
-  bank_balance = economy_data["bank_balance"]
+  hand_balance = round(economy_data["hand_balance"], 2)
+  bank_balance = round(economy_data["bank_balance"], 2)
   max_withdrawal = economy_data["max_withdrawal"]
   withdrawn_money = economy_data["withdrawn_money"]
 
