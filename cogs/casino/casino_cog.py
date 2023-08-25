@@ -30,6 +30,7 @@ class Casino(commands.Cog):
     self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name} with bet |{bet}|")
     economy_data = load_json(interaction.user.name, "economy")
     casino_data = load_json(interaction.user.name, "casino")
+    bet = round(bet, 2)
     try:
       casino_data["total_casino_winnings"]
     except:
@@ -197,7 +198,7 @@ class Casino(commands.Cog):
             await interaction.followup.send("You've lost")
           return
       elif result == 3:
-        winnings = int(bet / 2)
+        winnings = round(bet / 2, 2)
         blackjack_winnings(winnings, economy_data, casino_data, interaction)
         await message.edit(embed = embed, view = None)
         await interaction.followup.send(f"You retired, you've received half your bet: {winnings}€")

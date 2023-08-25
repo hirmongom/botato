@@ -51,7 +51,7 @@ class Economy(commands.Cog):
       else:
         lower_bound = user_data["level"] * 10 + 50
         upper_bound = user_data["level"] * 10 + 150
-      increase = random.randint(lower_bound, upper_bound)
+      increase = round(random.uniform(lower_bound, upper_bound), 2)
       economy_data["bank_balance"] = economy_data["bank_balance"] + increase
       economy_data["daily_pay"] = 0
 
@@ -150,11 +150,11 @@ class Economy(commands.Cog):
       # <id> refers to its position in the list
       {"emoji": "📛", "name": "Role Name", 
                     "description": "Create a personalized role with a name that sets you apart in the server.", 
-                    "price": 150000, 
+                    "price": 149000.99, 
                     "id": 0},
       {"emoji": "🎨", "name": "Name Colour", 
                     "description": "Add a splash of colour to your name in the server.", 
-                    "price": 100000, 
+                    "price": 99000.98, 
                     "id": 1}
     ]
 

@@ -68,7 +68,7 @@ class BankOperationModal(discord.ui.Modal):
     form_value = str(self.children[0])
 
     if form_value.isdigit():
-      form_value = int(form_value)
+      form_value = round(form_value, 2)
       hand_balance = self.economy_data["hand_balance"]
       bank_balance = self.economy_data["bank_balance"]
       withdrawn_money = self.economy_data["withdrawn_money"]

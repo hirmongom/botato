@@ -85,7 +85,7 @@ class Bets(commands.Cog):
     for bettor in winner_bettors:
       economy_data = load_json(bettor, "economy")
       percentage = bettors[bettor][1] / winner_bettors_amount
-      increase = int(bet_data["pool"] * percentage)
+      increase = round(bet_data["pool"] * percentage, 2)
       economy_data["bank_balance"] += increase
       await channel.send(f"<@{user_ids[bettor]}> You've won {increase}€ from" 
                         f" the pool of {bet_data['pool']}€")
@@ -267,6 +267,7 @@ class Bets(commands.Cog):
       await message.edit(embed = embed, view = view)
       await interaction.followup.send("Pool must be a number")
       return
+    pool = round(pool, 2)
     embed.add_field(name = f"💵 Pool of {pool}€", value = "", inline = False)
 
 
