@@ -143,6 +143,7 @@ class Bets(commands.Cog):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       if int(data["day"]) == now.day and int(data["month"]) == now.month:
         data["status"] = "closed"
+        save_json(data, f"{sport}/{sport}_bet", "bets")
         self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
         if not sport.startswith("custom"):
           self.ready_bets.append(sport)
