@@ -103,8 +103,8 @@ class FutureModal(discord.ui.Modal):
 
 
 # **************************************************************************************************
-def process_winnings(economy_data: dict, casino_data: dict, bet_amount: float) -> None:
-  economy_data["bank_balance"] += bet_amount * 2
-  casino_data["total_roulette_winnings"] += bet_amount * 2
+def process_winnings(economy_data: dict, casino_data: dict, winnings: float) -> None:
+  economy_data["bank_balance"] += winnings
+  casino_data["total_roulette_winnings"] += winnings
   casino_data["roulettes_won"] += 1
-  casino_data["total_casino_winnings"] += bet_amount * 2
+  casino_data["total_casino_winnings"] += winnings

@@ -52,16 +52,16 @@ class EventBetSelect(discord.ui.Select):
     bet_data = load_json(f"{choice}/{choice}_bet", "bets")
     bettors = load_json(f"{choice}/{choice}_bettors", "bets")
 
+    # Check if bet is closed
+    if bet_data["status"] == "closed":
+      await interaction.followup.send(f"Bets for {bet_data['event']} are closed")
+      return
+
     # Check if user has already placed a bet in {choice} event
     for key in bettors.keys():
       if key == interaction.user.name:
         await interaction.followup.send("You have already placed a bet on this event")
         return
-
-    # Check if bet is closed
-    if bet_data["status"] == "closed":
-      await interaction.followup.send(f"Bets for {bet_data['event']} are closed")
-      return
 
     choice_bet_select = ChoiceBetSelect(user_id = self.user_id, message = self.message, 
                                       embed = self.embed, sport = choice)
