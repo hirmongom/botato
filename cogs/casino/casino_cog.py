@@ -117,6 +117,10 @@ class Casino(commands.Cog):
               card['value'] = 1
               break
           player_total = sum(card['value'] for card in hand)
+        embed = get_embed(player_hand, player_total, dealer_hand, dealer_total)
+        embed.add_field(name = "", value = "", inline = False) # pre-footer separator
+        embed.set_footer(text = "Lucky Blackjack | Botato Casino", icon_url = self.bot.user.display_avatar.url)
+        await message.edit(embed = embed, view = view)
 
       if player_total == 21:
         dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
