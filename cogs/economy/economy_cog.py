@@ -36,7 +36,6 @@ class Economy(commands.Cog):
   async def daily_task(self) -> None:
     current_date = datetime.date.today()
     day_name = current_date.strftime('%A')
-    print(day_name)
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         economy_data = load_json(file[:-5], "economy")
