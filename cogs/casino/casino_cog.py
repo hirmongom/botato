@@ -383,15 +383,19 @@ class Casino(commands.Cog):
 
     if bet_info[0] == 0: # Bet Type Straight
       if roulette_result == bet_info[1]:
-        process_winnings(economy_data, casino_data, bet_amount * 2)
-        await interaction.followup.send(f"You've won {bet_amount * 2 * 2}")
+        if roulette_result == 0:
+          multiplier = 5
+        else:
+          multiplier = 2
+        process_winnings(economy_data, casino_data, bet_amount * multiplier)
+        await interaction.followup.send(f"You've won {bet_amount * 2 * multiplier}€")
       else:
         await interaction.followup.send("You lost, better luck next time")
 
     elif bet_info[0] == 1: # Bet Type Colour
       if roulette_result in colour_map[bet_info[1]]:
         process_winnings(economy_data, casino_data, bet_amount)
-        await interaction.followup.send(f"You've won {bet_amount * 2}")
+        await interaction.followup.send(f"You've won {bet_amount * 2}€")
       else:
         await interaction.followup.send("You lost, better luck next time")
 
@@ -399,13 +403,13 @@ class Casino(commands.Cog):
       if bet_info[1] == 0:
         if roulette_result % 2 == 0 and roulette_result != 0:
           process_winnings(economy_data, casino_data, bet_amount)
-          await interaction.followup.send(f"You've won {bet_amount * 2}")
+          await interaction.followup.send(f"You've won {bet_amount * 2}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
       else:
         if roulette_result % 2 != 0 and roulette_result != 0:
           process_winnings(economy_data, casino_data, bet_amount)
-          await interaction.followup.send(f"You've won {bet_amount * 2}")
+          await interaction.followup.send(f"You've won {bet_amount * 2}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
 
@@ -413,13 +417,13 @@ class Casino(commands.Cog):
       if bet_info[1] == 0:
         if roulette_result >= 1 and roulette_result <= 18:
           process_winnings(economy_data, casino_data, bet_amount)
-          await interaction.followup.send(f"You've won {bet_amount * 2}")
+          await interaction.followup.send(f"You've won {bet_amount * 2}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
       else:
         if roulette_result >= 19 and roulette_result <= 36:
           process_winnings(economy_data, casino_data, bet_amount)
-          await interaction.followup.send(f"You've won {bet_amount * 2}")
+          await interaction.followup.send(f"You've won {bet_amount * 2}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
 
