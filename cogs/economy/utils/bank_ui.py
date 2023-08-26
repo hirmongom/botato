@@ -53,11 +53,10 @@ class BankUpgradeButton(discord.ui.Button):
     
 
 class BankOperationSelect(discord.ui.Select):
-  def __init__(self, user_id: int, week_day: int, *args, **kwargs) -> None:
+  def __init__(self, user_id: int, *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
     self.user_id = user_id
     self.modals = {}
-    week_day = week_day
 
   def set_modal(self, value: str, modal: discord.ui.Modal) -> None:
     self.modals[value] = modal
@@ -120,7 +119,7 @@ class BankOperationModal(discord.ui.Modal):
 
     await update_embed(self.message, self.embed, self.economy_data)
 
-week_day = 0
+
 async def update_embed(message: discord.Message, embed: discord.Embed, 
                       economy_data: dict, was_upgrade: bool = False) -> None:
   hand_balance = round(economy_data["hand_balance"], 2)
@@ -131,7 +130,7 @@ async def update_embed(message: discord.Message, embed: discord.Embed,
   embed.set_field_at(0, name = "💰 Hand Balance", value = f"{hand_balance}€", inline = True)
   embed.set_field_at(1, name = "🏦 Bank Balance", value = f"{bank_balance}€", inline = True)
   embed.set_field_at(2, name = f"📆🔽 Remaining Weekly Withdraw Limit", 
-                          value = f"{max_withdrawal - withdrawn_money}€ (Resets in {7 - week_day} days)", inline = False)
+                          value = f"{max_withdrawal - withdrawn_money}€", inline = False)
   if was_upgrade:
     embed.remove_field(3)
   embed.add_field(name = "", value = "", inline = False) # pre-footer separator

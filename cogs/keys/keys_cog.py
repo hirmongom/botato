@@ -18,6 +18,8 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ui import Select, View
 
+import datetime
+
 from .utils.game_data import store_game, get_game_list, remove_games, get_following_list_size
 from utils.json import load_json, save_json
 
@@ -25,12 +27,13 @@ from utils.json import load_json, save_json
 class Keys(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
-    self.week_day = 0
 
 
   async def daily_task(self) -> None:
-    self.week_day = (self.week_day + 1) % 7
-    if self.week_day == 0:
+    current_date = datetime.date.today()
+    day_name = current_date.strftime('%A')
+
+    if day_name == "Sunday":
       channel = self.bot.get_channel(int(self.bot.main_channel))
       data = load_json("autoupdate", "keys")
       user_ids = load_json("user_ids", "other")

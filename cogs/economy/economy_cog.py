@@ -20,6 +20,7 @@ from discord import app_commands
 from discord.ext import commands
 
 import random
+import datetime
 
 from utils.json import load_json, save_json
 from .utils.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
@@ -30,11 +31,12 @@ from .utils.shop_funcs import create_role
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
-    self.week_day = 0
 
 
   async def daily_task(self) -> None:
-    self.week_day = (self.week_day + 1) % 7
+    current_date = datetime.date.today()
+    day_name = current_date.strftime('%A')
+    print(day_name)
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         economy_data = load_json(file[:-5], "economy")
@@ -43,9 +45,11 @@ class Economy(commands.Cog):
           economy_data["daily_pay"] = 1
         else:
           economy_data["streak"] = 0
-        if self.week_day == 0:
+
+        if day_name == "Saturday":
           economy_data["withdrawn_money"] = 0
           economy_data["bank_balance"] = economy_data["bank_balance"] * economy_data["interest_rate"]
+
         save_json(economy_data, file[:-5], "economy")
 
 
@@ -103,7 +107,7 @@ class Economy(commands.Cog):
     embed.add_field(name = "💰 Hand Balance", value = f"{hand_balance}€", inline = True)
     embed.add_field(name = "🏦 Bank Balance", value = f"{bank_balance}€", inline = True)
     embed.add_field(name = f"📆🔽 Remaining Weekly Withdraw Limit", 
-                    value = f"{max_withdrawal - withdrawn_money}€ (Resets in {7 - self.week_day} days)", 
+                    value = f"{max_withdrawal - withdrawn_money}€", 
                     inline = False)
     if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
       upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
@@ -128,7 +132,6 @@ class Economy(commands.Cog):
       discord.SelectOption(label = "Withdraw", value = 2)]
     menu = BankOperationSelect(
       user_id = interaction.user.id,
-      week_day = self.week_day,
       placeholder = "Choose an operation",
       options = menu_choice)
     menu.set_modal("1", deposit_modal)
