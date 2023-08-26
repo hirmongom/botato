@@ -41,6 +41,11 @@ def make_casino_data(user: str):
   casino_data["blackjack_hands_played"] = 0
   casino_data["blackjack_hands_won"] = 0
   casino_data["total_blackjack_winnings"] = 0
+
+  casino_data["roulettes_played"] = 0
+  casino_data["roulettes_won"] = 0
+  casino_data["total_roulette_winnings"] = 0
+  
   casino_data["total_casino_winnings"] = 0
   save_json(casino_data, user, "casino")
 
