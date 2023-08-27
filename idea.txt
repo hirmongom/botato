@@ -1,1 +1,2 @@
 @idea game dev tycoon
+@idea command for a user to wipe his data in the bot

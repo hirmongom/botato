@@ -106,7 +106,7 @@ class HelpHandlerSelect(discord.ui.Select):
       # Profile command
       embed.add_field(
         name = "👥 `/profile [mention]`",
-        value = "Review your own or others' profile. Optionally, mention a user to check their profile.",
+        value = "View your own profile or, optionally, mention a user to check their profile.",
         inline = False
       )
       # Description command
