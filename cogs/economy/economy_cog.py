@@ -84,6 +84,7 @@ class Economy(commands.Cog):
     description = "Check your account balance and perform opperations"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
+    # @todo add transfer to operations
     self.bot.interaction_logger.info(f"|bank| from {interaction.user.name}")
     if not os.path.isfile(f"data/economy/{interaction.user.name}.json"):
       await interaction.response.send_message("It seems this is your first interaction with this " + 
