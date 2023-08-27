@@ -77,16 +77,16 @@ class Botato(commands.Bot):
     daily_task_hour = 0
     current_date = date.today()
     day_name = current_date.strftime('%A')
+    now = datetime.now()
 
     # Run weekly cog tasks
-    if day_name == "Sunday":
+    if day_name == "Sunday" and now.hour == daily_task_hour:
       for cog in self.cogs.values():
         if hasattr(cog, "weekly_task"):
           self.interaction_logger.info(f"{cog.qualified_name} weekly_task")
           await cog.weekly_task()
 
     # Run daily cog tasks
-    now = datetime.now()
     if now.hour == daily_task_hour:
       for cog in self.cogs.values():
         if hasattr(cog, "daily_task"):
