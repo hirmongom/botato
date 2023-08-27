@@ -37,7 +37,7 @@ class BankUpgradeButton(discord.ui.Button):
       await update_embed(message = self.message, embed = self.embed, 
                           economy_data = self.economy_data)
     else:
-      self.economy_data["hand_balance"] = self.economy_data["hand_balance"] - upgrade_cost
+      self.economy_data["hand_balance"] = round(self.economy_data["hand_balance"] - upgrade_cost, 2)
       self.economy_data["bank_upgrade"] = self.economy_data["bank_upgrade"] + 1
       self.economy_data["max_withdrawal"] = upgrade_cost + 5000
       self.economy_data["interest_rate"] = self.economy_data["interest_rate"] + 0.01
@@ -95,6 +95,8 @@ class BankOperationModal(discord.ui.Modal):
         else:
           hand_balance -= form_value
           bank_balance += form_value
+          hand_balance = round(hand_balance, 2)
+          bank_balance = round(bank_balance, 2)
           await interaction.response.send_message(f"You deposited {form_value}€")
 
       elif self.operation == 2:
@@ -107,6 +109,8 @@ class BankOperationModal(discord.ui.Modal):
           hand_balance += form_value
           withdrawn_money += form_value
           bank_balance = round(bank_balance, 2)
+          hand_balance = round(hand_balance, 2)
+          withdrawn_money = round(withdrawn_money, 2)
           await interaction.response.send_message(f"You withdrew {form_value}€")
 
       self.economy_data["hand_balance"] = hand_balance

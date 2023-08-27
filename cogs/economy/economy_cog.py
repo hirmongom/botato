@@ -227,8 +227,8 @@ class Economy(commands.Cog):
     if economy_data["hand_balance"] < amount:
       await interaction.response.send_message("You do not have enough money in hand")
     else:
-      economy_data["hand_balance"] -= amount
-      economy_data["bank_balance"] += amount
+      economy_data["hand_balance"] = round(economy_data["hand_balance"] - amount, 2)
+      economy_data["bank_balance"] = round(economy_data["bank_balance"] + amount, 2)
       await interaction.response.send_message(f"You deposited {amount}€")
     save_json(economy_data, interaction.user.name, "economy")
 
@@ -255,9 +255,9 @@ class Economy(commands.Cog):
     elif economy_data["max_withdrawal"] - economy_data["withdrawn_money"] < amount:
       await interaction.response.send_message("You cannot withdraw that much money")
     else:
-      economy_data["bank_balance"] -= amount
-      economy_data["hand_balance"] += amount
-      economy_data["withdrawn_money"] += amount
+      economy_data["hand_balance"] = round(economy_data["hand_balance"] + amount, 2)
+      economy_data["bank_balance"] = round(economy_data["bank_balance"] - amount, 2)
+      economy_data["withdrawn_money"] = round(economy_data["withdrawn_money"] + amount, 2)
       await interaction.response.send_message(f"You withdrew {amount}€")
       save_json(economy_data, interaction.user.name, "economy")
 
@@ -299,8 +299,8 @@ class Economy(commands.Cog):
       await interaction.response.send_message("You do not have enough money in the bank")
       return
 
-    user_economy_data["bank_balance"] -= amount
-    recipient_economy_data["bank_balance"] += amount
+    user_economy_data["bank_balance"] = round(user_economy_data["bank_balance"] - amount, 2)
+    recipient_economy_data["bank_balance"] = round(recipient_economy_data["bank_balance"] + amount, 2)
 
     save_json(user_economy_data, interaction.user.name, "economy")
     save_json(recipient_economy_data, recipient.name, "economy")
