@@ -1,7 +1,1 @@
-@idea per-cog help commands:
-  help_user
-  help_economy
-  help_bets
-  help_keys
-
 @idea game dev tycoon
