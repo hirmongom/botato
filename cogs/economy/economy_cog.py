@@ -33,9 +33,16 @@ class Economy(commands.Cog):
     self.bot = bot
 
 
+  async def weekly_task(self) -> None:
+    for file in os.listdir("data/economy/"):
+      if file != ".gitkeep":
+        economy_data = load_json(file[:-5], "economy")
+        economy_data["withdrawn_money"] = 0
+        economy_data["bank_balance"] = economy_data["bank_balance"] * economy_data["interest_rate"]
+        save_json(economy_data, file[:-5], "economy")
+
+
   async def daily_task(self) -> None:
-    current_date = datetime.date.today()
-    day_name = current_date.strftime('%A')
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         economy_data = load_json(file[:-5], "economy")
@@ -43,12 +50,7 @@ class Economy(commands.Cog):
           economy_data["streak"] = economy_data["streak"] + 1
           economy_data["daily_pay"] = 1
         else:
-          economy_data["streak"] = 0
-
-        if day_name == "Saturday":
-          economy_data["withdrawn_money"] = 0
-          economy_data["bank_balance"] = economy_data["bank_balance"] * economy_data["interest_rate"]
-
+          economy_data["streak"] = 0        
         save_json(economy_data, file[:-5], "economy")
 
 
