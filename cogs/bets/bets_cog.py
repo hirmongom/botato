@@ -109,8 +109,8 @@ class Bets(commands.Cog):
 
   async def on_bot_run(self) -> None:
     for sport in os.listdir("data/bets"):
-      self.bot.interaction_logger.info(f"Loaded event {sport}")
       if not os.path.exists(f"data/bets/{sport}/{sport}_bet.json"):
+        self.bot.interaction_logger.info(f"Loaded event {sport}")
         self.get_next_event(sport)
 
 

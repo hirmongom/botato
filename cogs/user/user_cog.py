@@ -144,7 +144,7 @@ class User(commands.Cog):
 
   @app_commands.command(
     name = "leaderboard",
-    description = "Check the leaderboard"
+    description = "Check the leaderboard across different categories"
   )
   @app_commands.choices(category = [
     app_commands.Choice(name = "Level", value = "user"),
