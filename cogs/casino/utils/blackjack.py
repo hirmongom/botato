@@ -141,6 +141,7 @@ def blackjack_winnings(winnings: int, economy_data: dict, casino_data: dict,
                           interaction: discord.Interaction) -> None:
   economy_data["bank_balance"] += winnings
   casino_data["total_blackjack_winnings"] += winnings
+  casino_data["blackjack_hands_won"] += 1
   casino_data["total_casino_winnings"] += winnings
   save_json(economy_data, interaction.user.name, "economy")
   save_json(casino_data, interaction.user.name, "casino")

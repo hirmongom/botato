@@ -3,3 +3,5 @@
   help_economy
   help_bets
   help_keys
+
+@idea game dev tycoon

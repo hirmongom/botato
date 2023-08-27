@@ -65,5 +65,27 @@ class Misc(commands.Cog):
     await interaction.response.send_message(f"You rolled {rolls}d{dice} and got:{response}")
 
 
+  @app_commands.command(
+    name = "help",
+    description = "Get help and information on the different functionalities provided by the bot"
+  )
+  async def help(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|help| from {interaction.user.name}")
+
+    embed = main_embed
+
+    help_categories = [
+      discord.SelectOption(label = "User", value = 0),
+      discord.SelectOption(label = "Economy", value = 1),
+      discord.SelectOption(label = "Keys", value = 2),
+      discord.SelectOption(label = "Bets", value = 3),
+      discord.SelectOption(label = "Casino", value = 4)
+    ]
+    
+    view = discord.ui.View()
+
+    await interaction.response.send_message("@todo")
+
+
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Misc(bot))

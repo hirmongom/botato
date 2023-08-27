@@ -110,13 +110,17 @@ class Casino(commands.Cog):
     while True:
       # Case of 2 ACES count as 22
       if player_total == 22:
-        while total > 21 and any(card['name'] == 'Ace' and card['value'] == 11 for card in hand):
+        while player_total > 21 and any(card['name'] == 'Ace' and card['value'] == 11 for card in hand):
           # Find the first Ace with value 11 and change its value to 1
           for card in hand:
             if card['name'] == 'Ace' and card['value'] == 11:
               card['value'] = 1
               break
           player_total = sum(card['value'] for card in hand)
+        embed = get_embed(player_hand, player_total, dealer_hand, dealer_total)
+        embed.add_field(name = "", value = "", inline = False) # pre-footer separator
+        embed.set_footer(text = "Lucky Blackjack | Botato Casino", icon_url = self.bot.user.display_avatar.url)
+        await message.edit(embed = embed, view = view)
 
       if player_total == 21:
         dealer_total = dealer_turn(dealer_hand, deck, dealer_total)

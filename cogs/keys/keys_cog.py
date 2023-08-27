@@ -29,33 +29,29 @@ class Keys(commands.Cog):
     self.bot = bot
 
 
-  async def daily_task(self) -> None:
-    current_date = datetime.date.today()
-    day_name = current_date.strftime('%A')
+  async def weekly_task(self) -> None:
+    channel = self.bot.get_channel(int(self.bot.main_channel))
+    data = load_json("autoupdate", "keys")
+    user_ids = load_json("user_ids", "other")
+    for user in data.keys():
+      await channel.send(f"<@{user_ids[user]}> Your weekly update is ready!")
 
-    if day_name == "Sunday":
-      channel = self.bot.get_channel(int(self.bot.main_channel))
-      data = load_json("autoupdate", "keys")
-      user_ids = load_json("user_ids", "other")
-      for user in data.keys():
-        await channel.send(f"<@{user_ids[user]}> Your weekly update is ready!")
-
-        games = load_json(user, "keys")
-        keys = ""
-        try:
-          for title in games.keys():
-            while True:
-              keys = self.bot.web_scrapper.get_game_keys(games[title])
-              if len(keys) != 0:
-                break
-              self.bot.web_scrapper.restart_driver()
-            await channel.send(
-              f"**{title}**\n<{games[title]}>\n{keys}")
-          await channel.send("------------------------------------------------------------")
-        except Exception as e:
-          self.bot.logger(f"Error on Keys weekly trigger for {user}\n{e}")
-          await channel.send(content = "An error ocurred")
-          return
+      games = load_json(user, "keys")
+      keys = ""
+      try:
+        for title in games.keys():
+          while True:
+            keys = self.bot.web_scrapper.get_game_keys(games[title])
+            if len(keys) != 0:
+              break
+            self.bot.web_scrapper.restart_driver()
+          await channel.send(
+            f"**{title}**\n<{games[title]}>\n{keys}")
+        await channel.send("------------------------------------------------------------")
+      except Exception as e:
+        self.bot.logger(f"Error on Keys weekly trigger for {user}\n{e}")
+        await channel.send(content = "An error ocurred")
+        return
 
 
   @app_commands.command(

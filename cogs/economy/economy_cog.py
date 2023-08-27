@@ -33,9 +33,16 @@ class Economy(commands.Cog):
     self.bot = bot
 
 
+  async def weekly_task(self) -> None:
+    for file in os.listdir("data/economy/"):
+      if file != ".gitkeep":
+        economy_data = load_json(file[:-5], "economy")
+        economy_data["withdrawn_money"] = 0
+        economy_data["bank_balance"] = economy_data["bank_balance"] * economy_data["interest_rate"]
+        save_json(economy_data, file[:-5], "economy")
+
+
   async def daily_task(self) -> None:
-    current_date = datetime.date.today()
-    day_name = current_date.strftime('%A')
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         economy_data = load_json(file[:-5], "economy")
@@ -43,12 +50,7 @@ class Economy(commands.Cog):
           economy_data["streak"] = economy_data["streak"] + 1
           economy_data["daily_pay"] = 1
         else:
-          economy_data["streak"] = 0
-
-        if day_name == "Saturday":
-          economy_data["withdrawn_money"] = 0
-          economy_data["bank_balance"] = economy_data["bank_balance"] * economy_data["interest_rate"]
-
+          economy_data["streak"] = 0        
         save_json(economy_data, file[:-5], "economy")
 
 
@@ -225,8 +227,8 @@ class Economy(commands.Cog):
     if economy_data["hand_balance"] < amount:
       await interaction.response.send_message("You do not have enough money in hand")
     else:
-      economy_data["hand_balance"] -= amount
-      economy_data["bank_balance"] += amount
+      economy_data["hand_balance"] = round(economy_data["hand_balance"] - amount, 2)
+      economy_data["bank_balance"] = round(economy_data["bank_balance"] + amount, 2)
       await interaction.response.send_message(f"You deposited {amount}€")
     save_json(economy_data, interaction.user.name, "economy")
 
@@ -253,9 +255,9 @@ class Economy(commands.Cog):
     elif economy_data["max_withdrawal"] - economy_data["withdrawn_money"] < amount:
       await interaction.response.send_message("You cannot withdraw that much money")
     else:
-      economy_data["bank_balance"] -= amount
-      economy_data["hand_balance"] += amount
-      economy_data["withdrawn_money"] += amount
+      economy_data["hand_balance"] = round(economy_data["hand_balance"] + amount, 2)
+      economy_data["bank_balance"] = round(economy_data["bank_balance"] - amount, 2)
+      economy_data["withdrawn_money"] = round(economy_data["withdrawn_money"] + amount, 2)
       await interaction.response.send_message(f"You withdrew {amount}€")
       save_json(economy_data, interaction.user.name, "economy")
 
@@ -297,8 +299,8 @@ class Economy(commands.Cog):
       await interaction.response.send_message("You do not have enough money in the bank")
       return
 
-    user_economy_data["bank_balance"] -= amount
-    recipient_economy_data["bank_balance"] += amount
+    user_economy_data["bank_balance"] = round(user_economy_data["bank_balance"] - amount, 2)
+    recipient_economy_data["bank_balance"] = round(recipient_economy_data["bank_balance"] + amount, 2)
 
     save_json(user_economy_data, interaction.user.name, "economy")
     save_json(recipient_economy_data, recipient.name, "economy")

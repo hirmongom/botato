@@ -28,8 +28,13 @@ class Debug(commands.Cog):
   async def on_bot_run(self) -> None:
     pass
 
+  async def weekly_task(self) -> None:
+    pass
 
   async def daily_task(self) -> None:
+    pass
+
+  async def hourly_task(self) -> None:
     pass
 
 
@@ -89,6 +94,24 @@ class Debug(commands.Cog):
 
 
   @app_commands.command(
+    name = "run_weekly_task",
+    description = "(ADMIN) Executes weekly_task() for all cogs")
+  async def run_weekly_task(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|run_weekly_task| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
+    for cog in self.bot.cogs.values():
+      if hasattr(cog, "weekly_task"):
+        await cog.weekly_task()
+    
+    await interaction.followup.send("weekly_task() triggered for all cogs") 
+
+
+  @app_commands.command(
     name = "run_daily_task",
     description = "(ADMIN) Executes daily_task() for all cogs")
   async def run_daily_task(self, interaction: discord.Interaction) -> None:
@@ -104,6 +127,24 @@ class Debug(commands.Cog):
         await cog.daily_task()
     
     await interaction.followup.send("daily_task() triggered for all cogs") 
+
+
+  @app_commands.command(
+    name = "run_hourly_task",
+    description = "(ADMIN) Executes hourly_task() for all cogs")
+  async def run_hourly_task(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|run_hourly_task| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
+    for cog in self.bot.cogs.values():
+      if hasattr(cog, "hourly_task"):
+        await cog.hourly_task()
+    
+    await interaction.followup.send("hourly_task() triggered for all cogs") 
 
 
 async def setup(bot: commands.Bot) -> None:

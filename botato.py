@@ -18,7 +18,7 @@ import argparse
 import asyncio
 
 from dotenv import load_dotenv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import logging
 
 import discord
@@ -75,6 +75,15 @@ class Botato(commands.Bot):
   @tasks.loop(hours = 1)
   async def hourly_loop(self) -> None:
     daily_task_hour = 0
+    current_date = date.today()
+    day_name = current_date.strftime('%A')
+
+    # Run weekly cog tasks
+    if day_name == "Sunday":
+      for cog in self.cogs.values():
+        if hasattr(cog, "weekly_task"):
+          self.interaction_logger.info(f"{cog.qualified_name} weekly_task")
+          await cog.weekly_task()
 
     # Run daily cog tasks
     now = datetime.now()
