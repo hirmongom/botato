@@ -168,11 +168,11 @@ class Economy(commands.Cog):
       # <id> refers to its position in the list
       {"emoji": "📛", "name": "Role Name", 
                     "description": "Create a personalized role with a name that sets you apart in the server.", 
-                    "price": 149000.99, 
+                    "price": 149999.99, 
                     "id": 0},
       {"emoji": "🎨", "name": "Name Colour", 
                     "description": "Add a splash of colour to your name in the server.", 
-                    "price": 99000.98, 
+                    "price": 99999.98, 
                     "id": 1}
     ]
 
