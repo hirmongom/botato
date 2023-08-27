@@ -65,7 +65,7 @@ class Misc(commands.Cog):
     await interaction.response.send_message(f"You rolled {rolls}d{dice} and got:{response}")
 
 
-  @app_command.command(
+  @app_commands.command(
     name = "help",
     description = "Get help and information on the different functionalities provided by the bot"
   )
