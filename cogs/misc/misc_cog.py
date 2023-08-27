@@ -19,6 +19,8 @@ from discord.ext import commands
 
 import random
 
+from .utils.help_ui import HelpHandlerSelect
+
 class Misc(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
@@ -71,20 +73,13 @@ class Misc(commands.Cog):
   )
   async def help(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|help| from {interaction.user.name}")
+    await interaction.response.defer()
 
-    embed = main_embed
-
-    help_categories = [
-      discord.SelectOption(label = "User", value = 0),
-      discord.SelectOption(label = "Economy", value = 1),
-      discord.SelectOption(label = "Keys", value = 2),
-      discord.SelectOption(label = "Bets", value = 3),
-      discord.SelectOption(label = "Casino", value = 4)
-    ]
     
-    view = discord.ui.View()
+    message = await interaction.followup.send("Loading..")
 
-    await interaction.response.send_message("@todo")
+    help_handler_select = HelpHandlerSelect(interaction.user.id, self.bot, message)
+    await help_handler_select.start()
 
 
 async def setup(bot: commands.Bot) -> None:
