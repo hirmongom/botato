@@ -27,7 +27,6 @@ import calendar
 
 from utils.json import save_json, load_json
 from .utils.bets_ui import (
-  emoji_mapping, 
   EventBetSelect, 
   FutureModalCallbackButton, 
   FutureSimpleButton, 
@@ -74,11 +73,12 @@ class Bets(commands.Cog):
   async def daily_task(self) -> None:
     now = datetime.now()
     for event in os.listdir("data/bets/"):
-      data = load_json(f"{event}/{event}_bet", "bets")
-      if int(data["day"]) == now.day and int(data["month"]) == now.month:
-        data["status"] = "closed"
-        save_json(data, f"{event}/{event}_bet", "bets")
-        self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
+      if event != ".gitkeep":
+        data = load_json(f"{event}/{event}_bet", "bets")
+        if int(data["day"]) == now.day and int(data["month"]) == now.month:
+          data["status"] = "closed"
+          save_json(data, f"{event}/{event}_bet", "bets")
+          self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
 
 
   @app_commands.command(

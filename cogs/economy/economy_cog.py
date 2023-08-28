@@ -23,6 +23,8 @@ import random
 import datetime
 
 from utils.json import load_json, save_json
+from utils.funcs import add_user_stat
+
 from .utils.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 from .utils.shop_ui import ShopItemSelect
 from .utils.shop_funcs import create_role
@@ -61,6 +63,7 @@ class Economy(commands.Cog):
     daily_pay = economy_data["daily_pay"]
 
     if daily_pay == 1:
+      await add_user_stat("days_interacted", interaction)
       if economy_data["streak"] == 7:
         lower_bound = user_data["level"] * 100 + 1000
         upper_bound = user_data["level"] * 100 + 1500

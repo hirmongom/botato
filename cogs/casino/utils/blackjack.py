@@ -18,6 +18,7 @@ import random
 import discord
 
 from utils.json import save_json
+from utils.funcs import add_user_stat
 
 kDeck = [
   "Ace of Hearts", "2 of Hearts", "3 of Hearts", "4 of Hearts", "5 of Hearts",
@@ -137,14 +138,11 @@ def dealer_turn(hand: dict, deck: dict, dealer_total) -> int:
 
 
 # **************************************************************************************************
-def blackjack_winnings(winnings: int, economy_data: dict, casino_data: dict, 
-                          interaction: discord.Interaction) -> None:
+async def blackjack_winnings(winnings: int, economy_data: dict,
+                            interaction: discord.Interaction) -> None:
   economy_data["bank_balance"] += winnings
-  casino_data["total_blackjack_winnings"] += winnings
-  casino_data["blackjack_hands_won"] += 1
-  casino_data["total_casino_winnings"] += winnings
   save_json(economy_data, interaction.user.name, "economy")
-  save_json(casino_data, interaction.user.name, "casino")
+  await add_user_stat("blackjack_hands_won", interaction)
 
 
 # **************************************************************************************************

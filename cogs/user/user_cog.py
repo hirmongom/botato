@@ -78,6 +78,7 @@ class User(commands.Cog):
     mention = "Mention a user to check its profile"
   )
   async def profile(self, interaction: discord.Interaction, mention: str = "") -> None:
+    # @todo Display achievments
     self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}" + 
                                     (f" with |mention| {mention}" if mention != "" else ""))
     if mention != "":

@@ -129,6 +129,7 @@ class PlaceBetModal(discord.ui.Modal):
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
                                                 f"on {self.bet_choices[self.bet_choice]} "
                                                 f"in {bet['event']}")
+        await add_user_stat("bets_placed", interaction)
     except:
       await interaction.response.send_message(f"Must be a number")
     await update_embed(message = self.message, embed = self.embed)
