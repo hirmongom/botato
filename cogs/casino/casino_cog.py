@@ -24,7 +24,7 @@ import random
 
 
 from utils.json import load_json, save_json
-from utils.funcs import make_casino_data
+from utils.funcs import add_user_stat
 
 from .utils.blackjack import (
   blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
@@ -45,27 +45,20 @@ class Casino(commands.Cog):
   )
   async def blackjack(self, interaction: discord.Interaction, bet: float) -> None:
     self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name} with bet |{bet}|")
+    user_data = load_json(interaction.user.name, "user")
     economy_data = load_json(interaction.user.name, "economy")
-    casino_data = load_json(interaction.user.name, "casino")
     bet = round(bet, 2)
-    try:
-      casino_data["total_casino_winnings"]
-    except:
-      make_casino_data(interaction.user.name)
-      casino_data = load_json(interaction.user.name, "casino")
 
     if bet > economy_data["hand_balance"]:
       await interaction.response.send_message("You do not have enough money in hand")
       return
 
     await interaction.response.defer()
-
+    
     economy_data["hand_balance"] -= bet
     save_json(economy_data, interaction.user.name, "economy")
-    casino_data["blackjack_hands_played"] += 1
-    casino_data["total_blackjack_winnings"] -= bet
-    casino_data["total_casino_winnings"] -= bet
-    save_json(casino_data, interaction.user.name, "casino")
+    await add_user_stat("blackjack_hands_played", interaction)
+
 
     deck = get_deck()
     player_hand, dealer_hand = blackjack_start(deck)
@@ -110,13 +103,10 @@ class Casino(commands.Cog):
     while True:
       # Case of 2 ACES count as 22
       if player_total == 22:
-        while player_total > 21 and any(card['name'] == 'Ace' and card['value'] == 11 for card in hand):
-          # Find the first Ace with value 11 and change its value to 1
-          for card in hand:
-            if card['name'] == 'Ace' and card['value'] == 11:
-              card['value'] = 1
-              break
-          player_total = sum(card['value'] for card in hand)
+        for card in hand:
+          card['value'] = 1
+          break
+        player_total = sum(card['value'] for card in hand)
         embed = get_embed(player_hand, player_total, dealer_hand, dealer_total)
         embed.add_field(name = "", value = "", inline = False) # pre-footer separator
         embed.set_footer(text = "Lucky Blackjack | Botato Casino", icon_url = self.bot.user.display_avatar.url)
@@ -129,12 +119,12 @@ class Casino(commands.Cog):
         embed.set_footer(text = "Lucky Blackjack | Botato Casino", icon_url = self.bot.user.display_avatar.url)
         await message.edit(embed = embed, view = None)
         if dealer_total == 21:
-          blackjack_winnings(bet, economy_data, casino_data, interaction)
+          await blackjack_winnings(bet, economy_data, interaction)
           await interaction.followup.send("It's a draw")
           return
         else:
           winnings = bet + bet * 1.5
-          blackjack_winnings(winnings, economy_data, casino_data, interaction)
+          await blackjack_winnings(winnings, economy_data, interaction)
           await interaction.followup.send(f"You've won {winnings}€")
         return
   
@@ -166,11 +156,11 @@ class Casino(commands.Cog):
           embed.set_footer(text = "Lucky Blackjack | Botato Casino", icon_url = self.bot.user.display_avatar.url)
           await message.edit(embed = embed, view = None)
           if dealer_total == 21:
-            blackjack_winnings(bet, economy_data, casino_data, interaction)
+            await blackjack_winnings(bet, economy_data, interaction)
             await interaction.followup.send("It's a draw")
           else:
             winnings = bet * 2
-            blackjack_winnings(winnings, economy_data, casino_data, interaction)
+            await blackjack_winnings(winnings, economy_data, interaction)
             await interaction.followup.send(f"You've won {winnings}€")
           return
         elif player_total > 21:
@@ -186,10 +176,10 @@ class Casino(commands.Cog):
         await message.edit(embed = embed, view = None)
         if dealer_total > 21 or dealer_total < player_total:
           winnings = bet * 2
-          blackjack_winnings(winnings, economy_data, casino_data, interaction)
+          await blackjack_winnings(winnings, economy_data, interaction)
           await interaction.followup.send(f"You've won {winnings}€")
         elif dealer_total == player_total:
-          blackjack_winnings(bet, economy_data, casino_data, interaction)
+          await blackjack_winnings(bet, economy_data, interaction)
           await interaction.followup.send("It's a draw")
         else:
           await interaction.followup.send("You've lost")
@@ -201,9 +191,6 @@ class Casino(commands.Cog):
         else:
           economy_data["hand_balance"] -= bet
           save_json(economy_data, interaction.user.name, "economy")
-          casino_data["total_blackjack_winnings"] -= bet
-          casino_data["total_casino_winnings"] -= bet
-          save_json(casino_data, interaction.user.name, "casino")
 
           bet += bet  
           player_total = draw_card(player_hand, deck)
@@ -225,17 +212,17 @@ class Casino(commands.Cog):
 
           if dealer_total > 21 or dealer_total < player_total:
             winnings = bet * 2
-            blackjack_winnings(winnings, economy_data, casino_data, interaction)
+            await blackjack_winnings(winnings, economy_data, interaction)
             await interaction.followup.send(f"You've won {winnings}€")
           elif dealer_total == player_total:
-            blackjack_winnings(bet, economy_data, casino_data, interaction)
+            await blackjack_winnings(bet, economy_data, interaction)
             await interaction.followup.send("It's a draw")
           else:
             await interaction.followup.send("You've lost")
           return
       elif result == 3:
         winnings = round(bet / 2, 2)
-        blackjack_winnings(winnings, economy_data, casino_data, interaction)
+        await blackjack_winnings(winnings, economy_data, interaction)
         await message.edit(embed = embed, view = None)
         await interaction.followup.send(f"You retired, you've received half your bet: {winnings}€")
         return
@@ -248,13 +235,6 @@ class Casino(commands.Cog):
   async def roulette(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|roulette| from {interaction.user.name}")
     await interaction.response.defer()
-
-    casino_data = load_json(interaction.user.name, "casino")
-    try:
-      casino_data["total_casino_winnings"]
-    except:
-      make_casino_data(interaction.user.name)
-      casino_data = load_json(interaction.user.name, "casino")
 
     bet_type_map = {
       0: "Straight",
@@ -366,11 +346,10 @@ class Casino(commands.Cog):
     if bet_amount > economy_data["hand_balance"]:
       await interaction.followup.send("You do not have enough money in hand")
       
+    await add_user_stat("roulettes_played", interaction)
     economy_data["hand_balance"] -= bet_amount
-    casino_data["roulettes_played"] += 1
-    casino_data["total_roulette_winnings"] -= bet_amount
-    casino_data["total_casino_winnings"] -= bet_amount
     
+
     # Spin
     roulette_result = random.randint(0, 36)
     if roulette_result in colour_map[0]:
@@ -391,14 +370,14 @@ class Casino(commands.Cog):
           multiplier = 5
         else:
           multiplier = 2
-        process_winnings(economy_data, casino_data, bet_amount * 2.5 * multiplier)
+        await process_winnings(economy_data, bet_amount * 2.5 * multiplier, interaction)
         await interaction.followup.send(f"You've won {bet_amount * 2.5 * multiplier}€")
       else:
         await interaction.followup.send("You lost, better luck next time")
 
     elif bet_info[0] == 1: # Bet Type Colour
       if roulette_result in colour_map[bet_info[1]]:
-        process_winnings(economy_data, casino_data, bet_amount * 2.5)
+        await process_winnings(economy_data, bet_amount * 2.5, interaction)
         await interaction.followup.send(f"You've won {bet_amount * 2.5}€")
       else:
         await interaction.followup.send("You lost, better luck next time")
@@ -406,13 +385,13 @@ class Casino(commands.Cog):
     elif bet_info[0] == 2: # Bet Type Even/Odd
       if bet_info[1] == 0:
         if roulette_result % 2 == 0 and roulette_result != 0:
-          process_winnings(economy_data, casino_data, bet_amount * 2.5)
+          await process_winnings(economy_data, bet_amount * 2.5, interaction)
           await interaction.followup.send(f"You've won {bet_amount * 2.5}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
       else:
         if roulette_result % 2 != 0 and roulette_result != 0:
-          process_winnings(economy_data, casino_data, bet_amount * 2.5)
+          await process_winnings(economy_data, bet_amount * 2.5, interaction)
           await interaction.followup.send(f"You've won {bet_amount * 2.5}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
@@ -420,19 +399,18 @@ class Casino(commands.Cog):
     elif bet_info[0] == 3: # Bet Type Low/High
       if bet_info[1] == 0:
         if roulette_result >= 1 and roulette_result <= 18:
-          process_winnings(economy_data, casino_data, bet_amount * 2.5)
+          await process_winnings(economy_data, bet_amount * 2.5, interaction)
           await interaction.followup.send(f"You've won {bet_amount * 2.5}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
       else:
         if roulette_result >= 19 and roulette_result <= 36:
-          process_winnings(economy_data, casino_data, bet_amount * 2.5)
+          await process_winnings(economy_data, bet_amount * 2.5, interaction)
           await interaction.followup.send(f"You've won {bet_amount * 2.5}€")
         else:
           await interaction.followup.send("You lost, better luck next time")
 
     save_json(economy_data, interaction.user.name, "economy")
-    save_json(casino_data, interaction.user.name, "casino")
 
 
 async def setup(bot: commands.Bot) -> None:

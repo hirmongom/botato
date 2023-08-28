@@ -33,7 +33,7 @@ class User(commands.Cog):
     for file in os.listdir("data/user/"):
       if file != ".gitkeep":
         data = load_json(file[:-5], "user")
-        data["daily_xp"] = 5
+        data["daily_xp"] = 10
         data["xp_probabiliy"] = 5
         save_json(data, file[:-5], "user")
 
@@ -48,7 +48,7 @@ class User(commands.Cog):
     
     if daily_xp > 0:
       if random.randint(1, 100) <= xp_probabiliy:
-        increase = random.randint(10, 50)
+        increase = random.randint(20, 50)
         experience += increase
         await interaction.channel.send(f"(*) You received {increase} XP")
 
@@ -64,7 +64,7 @@ class User(commands.Cog):
         
       else:
         if xp_probabiliy < 75:
-          xp_probabiliy += 5
+          xp_probabiliy += 2
           data["xp_probabiliy"] = xp_probabiliy
       
     save_json(data, interaction.user.name, "user")
@@ -78,6 +78,7 @@ class User(commands.Cog):
     mention = "Mention a user to check its profile"
   )
   async def profile(self, interaction: discord.Interaction, mention: str = "") -> None:
+    # @todo Display achievments
     self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}" + 
                                     (f" with |mention| {mention}" if mention != "" else ""))
     if mention != "":

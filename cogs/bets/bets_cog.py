@@ -27,7 +27,6 @@ import calendar
 
 from utils.json import save_json, load_json
 from .utils.bets_ui import (
-  emoji_mapping, 
   EventBetSelect, 
   FutureModalCallbackButton, 
   FutureSimpleButton, 
@@ -40,48 +39,12 @@ from .utils.bets_ui import (
 class Bets(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
-    self.ready_bets = []
-
-
-  def update_data(self, sport: str) -> None:
-    self.bot.interaction_logger.info(f"bets_cog: Updating data for {sport.upper()}")
-    if sport == "f1":
-      self.bot.logger.info("Fetching F1 data")
-
-      self.bot.web_scrapper.get_f1_data()
-      self.bot.logger.info("Fetched events")
-      self.bot.web_scrapper.get_f1_pilots()
-      self.bot.logger.info("Fetched pilots")
-
-      self.bot.logger.info("Finished fetching F1 data")
-
-
-  def get_next_event(self, sport: str) -> None:
-    self.bot.interaction_logger.info(f"bets_cog: Getting next {sport.upper()} event")
-    if sport == "f1":
-      with open(f"data/bets/f1/f1_data.csv", mode = "r", newline = "") as file:
-        race_data = {}
-        reader = csv.reader(file)
-        for row in reader:
-          if row[4] == "":
-            race_data["ix"] = row[0]
-            race_data["day"] = row[1]
-            race_data["month"] = row[2]
-            race_data["event"] = row[3]
-            race_data["pool"] = 500
-            race_data["status"] = "open"
-            save_json(race_data, "f1/f1_bet", "bets")
-            break
 
 
   def get_possible_days(self, year: int, month: int) -> list[int]:
     max_day = calendar.monthrange(year, month)[1]
     possible_days = list(range(1, max_day + 1))
     return possible_days
-
-  async def fetch_data(self) -> None:
-    # F1 Data
-    self.update_data("f1")
 
 
   async def bet_winner_process(self, bet_data: dict[str, str], bettors: dict[str, list[str, int]], 
@@ -107,47 +70,15 @@ class Bets(commands.Cog):
       save_json(economy_data, bettor, "economy")
 
 
-  async def on_bot_run(self) -> None:
-    for sport in os.listdir("data/bets"):
-      if not os.path.exists(f"data/bets/{sport}/{sport}_bet.json"):
-        self.bot.interaction_logger.info(f"Loaded event {sport}")
-        self.get_next_event(sport)
-
-
   async def daily_task(self) -> None:
-    if len(self.ready_bets) > 0:
-      for sport in self.ready_bets:
-        self.update_data(sport) # To get the winner
-        bet_data = load_json(f"{sport}/{sport}_bet", "bets")
-        bettors = load_json(f"{sport}/{sport}_bettors", "bets")
-        bet_choices = load_json(f"{sport}/{sport}_choices", "bets") 
-        event_winner = ""
-        with open(f"data/bets/{sport}/{sport}_data.csv", mode = "r", newline = "") as file:
-          reader = csv.reader(file)
-          for row in reader:
-            if row[0] == bet_data["ix"]:
-              event_winner = row[4]
-
-              await self.bet_winner_process(bet_data, bettors, bet_choices, event_winner)
-              break
-
-        bettors = {}
-        save_json(bettors, f"{sport}/{sport}_bettors", "bets")
-        self.get_next_event(sport)
-        
-      self.ready_bets = []
-        
-    # If an event happens today, mark it to process it tomorrow
     now = datetime.now()
-    for sport in os.listdir("data/bets/"):
-      data = load_json(f"{sport}/{sport}_bet", "bets")
-      if int(data["day"]) == now.day and int(data["month"]) == now.month:
-        data["status"] = "closed"
-        save_json(data, f"{sport}/{sport}_bet", "bets")
-        self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
-        if not sport.startswith("custom"):
-          self.ready_bets.append(sport)
-          
+    for event in os.listdir("data/bets/"):
+      if event != ".gitkeep":
+        data = load_json(f"{event}/{event}_bet", "bets")
+        if int(data["day"]) == now.day and int(data["month"]) == now.month:
+          data["status"] = "closed"
+          save_json(data, f"{event}/{event}_bet", "bets")
+          self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
 
 
   @app_commands.command(
@@ -170,18 +101,11 @@ class Bets(commands.Cog):
     select_choices = []
     for i, sport in enumerate(os.listdir("data/bets/")):
       data = load_json(f"{sport}/{sport}_bet", "bets")
-      try:
-        emoji = emoji_mapping[sport]
-      except Exception:
-        emoji = "🎫"
       embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
-      if sport.startswith("custom"):
-        embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
-      else:
-        embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
-      embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
+      embed.add_field(name = f"🎫{data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
       select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
     embed.add_field(name = "", value = "", inline = False) # pre-footer separator
+
     select_menu = EventBetSelect(
       user_id = interaction.user.id,
       placeholder = "Select an event",

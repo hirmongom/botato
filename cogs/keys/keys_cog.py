@@ -22,6 +22,7 @@ import datetime
 
 from .utils.game_data import store_game, get_game_list, remove_games, get_following_list_size
 from utils.json import load_json, save_json
+from utils.funcs import add_user_stat
 
 
 class Keys(commands.Cog):
@@ -65,6 +66,7 @@ class Keys(commands.Cog):
     self.bot.interaction_logger.info(f"|keys| from {interaction.user.name} with query |{query}|")
 
     await interaction.response.defer()
+    await add_user_stat("gamekeys_searched", interaction)
 
     try:
       link = self.bot.web_scrapper.get_game_link(query)

@@ -16,6 +16,7 @@
 import asyncio
 import discord
 
+from utils.funcs import add_user_stat
 
 # **************************************************************************************************
 class BetTypeSelect(discord.ui.Select):
@@ -103,8 +104,7 @@ class FutureModal(discord.ui.Modal):
 
 
 # **************************************************************************************************
-def process_winnings(economy_data: dict, casino_data: dict, winnings: float) -> None:
+async def process_winnings(economy_data: dict, winnings: float, 
+                          interaction: discord.Interaction) -> None:
   economy_data["bank_balance"] += winnings
-  casino_data["total_roulette_winnings"] += winnings
-  casino_data["roulettes_won"] += 1
-  casino_data["total_casino_winnings"] += winnings
+  await add_user_stat("roulettes_won", interaction)
