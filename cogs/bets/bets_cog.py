@@ -101,7 +101,7 @@ class Bets(commands.Cog):
     for i, sport in enumerate(os.listdir("data/bets/")):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
-      embed.add_field(name = f"🎫{data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
+      embed.add_field(name = f"🎫 {data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
       select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
     embed.add_field(name = "", value = "", inline = False) # pre-footer separator
 
