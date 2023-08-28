@@ -20,7 +20,7 @@ import ctypes
 import discord
 
 from utils.json import load_json, save_json
-
+from utils.funcs import add_user_stat
 
 # ************************** bet() command **************************
 
@@ -140,7 +140,7 @@ async def update_embed(message: discord.Message, embed: discord.Embed) -> None:
   for i, sport in enumerate(os.listdir("data/bets/")):
     data = load_json(f"{sport}/{sport}_bet", "bets")
     embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
-    embed.add_field(name = f"🎫{data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
+    embed.add_field(name = f"🎫 {data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
   embed.add_field(name = "", value = "", inline = False) # pre-footer separator
   await message.edit(embed = embed, view = None)
 

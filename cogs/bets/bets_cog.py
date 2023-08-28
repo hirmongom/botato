@@ -73,12 +73,11 @@ class Bets(commands.Cog):
   async def daily_task(self) -> None:
     now = datetime.now()
     for event in os.listdir("data/bets/"):
-      if event != ".gitkeep":
-        data = load_json(f"{event}/{event}_bet", "bets")
-        if int(data["day"]) == now.day and int(data["month"]) == now.month:
-          data["status"] = "closed"
-          save_json(data, f"{event}/{event}_bet", "bets")
-          self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
+      data = load_json(f"{event}/{event}_bet", "bets")
+      if int(data["day"]) == now.day and int(data["month"]) == now.month:
+        data["status"] = "closed"
+        save_json(data, f"{event}/{event}_bet", "bets")
+        self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
 
 
   @app_commands.command(
@@ -102,7 +101,7 @@ class Bets(commands.Cog):
     for i, sport in enumerate(os.listdir("data/bets/")):
       data = load_json(f"{sport}/{sport}_bet", "bets")
       embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
-      embed.add_field(name = f"🎫{data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
+      embed.add_field(name = f"🎫 {data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
       select_choices.append(discord.SelectOption(label = data["event"], value = sport)) 
     embed.add_field(name = "", value = "", inline = False) # pre-footer separator
 
