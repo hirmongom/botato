@@ -22,12 +22,6 @@ import discord
 from utils.json import load_json, save_json
 
 
-emoji_mapping = {
-  "test": "🛝",
-  "f1": "🏎️"
-}
-
-
 # ************************** bet() command **************************
 
 
@@ -132,10 +126,9 @@ class PlaceBetModal(discord.ui.Modal):
         save_json(bet, f"{self.sport}/{self.sport}_bet", "bets")
         save_json(bettors, f"{self.sport}/{self.sport}_bettors", "bets")
         save_json(economy_data, interaction.user.name, "economy")
-        sport_name = "CUSTOM" if self.sport.startswith("custom") else self.sport.upper()
         await interaction.response.send_message(f"You placed a bet of {form_value}€ " 
                                                 f"on {self.bet_choices[self.bet_choice]} "
-                                                f"in {sport_name} {bet['event']}")
+                                                f"in {bet['event']}")
     except:
       await interaction.response.send_message(f"Must be a number")
     await update_embed(message = self.message, embed = self.embed)
@@ -144,17 +137,9 @@ class PlaceBetModal(discord.ui.Modal):
 async def update_embed(message: discord.Message, embed: discord.Embed) -> None:
   embed.clear_fields()
   for i, sport in enumerate(os.listdir("data/bets/")):
-      data = load_json(f"{sport}/{sport}_bet", "bets")
-      try:
-        emoji = emoji_mapping[sport]
-      except Exception:
-        emoji = "🎫"
-      embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
-      if sport.startswith("custom"):
-        embed.add_field(name = f"{emoji} CUSTOM", value =  f"{data['event']}", inline = True)
-      else:
-        embed.add_field(name = f"{emoji} {sport.upper()}", value =  f"{data['event']}", inline = True)
-      embed.add_field(name = f"💵 Pool", value = f"{data['pool']}€", inline = True)
+    data = load_json(f"{sport}/{sport}_bet", "bets")
+    embed.add_field(name = f"", value = f"```📅 {data['day']}/{data['month']}```", inline = False)
+    embed.add_field(name = f"🎫{data['event']}", value = f"💵 Pool: {data['pool']}€" , inline = False)
   embed.add_field(name = "", value = "", inline = False) # pre-footer separator
   await message.edit(embed = embed, view = None)
 
