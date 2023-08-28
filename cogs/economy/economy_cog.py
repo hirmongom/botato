@@ -62,12 +62,12 @@ class Economy(commands.Cog):
 
     if daily_pay == 1:
       if economy_data["streak"] == 7:
-        lower_bound = user_data["level"] * 100 + 500
-        upper_bound = user_data["level"] * 100 + 1000
+        lower_bound = user_data["level"] * 100 + 1000
+        upper_bound = user_data["level"] * 100 + 1500
         economy_data["streak"] = 0
       else:
-        lower_bound = user_data["level"] * 10 + 50
-        upper_bound = user_data["level"] * 10 + 150
+        lower_bound = user_data["level"] * 10 + 200
+        upper_bound = user_data["level"] * 10 + 250
       increase = round(random.uniform(lower_bound, upper_bound), 2)
       economy_data["bank_balance"] = economy_data["bank_balance"] + increase
       economy_data["daily_pay"] = 0
