@@ -140,6 +140,9 @@ class Bets(commands.Cog):
       await interaction.response.send_message("Missing Administrator permissions")
       return 
 
+    if not os.path.exists("data/bets/"):
+      os.mkdir("data/bets/")
+
     now = datetime.now()
     if year < now.year:
       await interaction.response.send_message(f"Year ({year}) cannot be lower than the current"
