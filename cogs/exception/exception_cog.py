@@ -4,7 +4,7 @@ from discord.ext import commands
 from utils.json import load_json
 from utils.funcs import make_data, save_user_id
 
-class ExceptionHandler(commands.Cog):
+class Exception(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
     bot.tree.error(coro = self.__dispatch_to_app_command_handler)
@@ -30,4 +30,4 @@ class ExceptionHandler(commands.Cog):
 
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(ExceptionHandler(bot))
+    await bot.add_cog(Exception(bot))
