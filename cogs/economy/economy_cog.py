@@ -58,6 +58,11 @@ class Economy(commands.Cog):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
+    if interaction.type != discord.InteractionType.application_command:
+      return
+    if interaction.data["name"] == "wipe":
+      return
+
     economy_data = load_json(interaction.user.name, "economy")
     user_data = load_json(interaction.user.name, "user")
     daily_pay = economy_data["daily_pay"]

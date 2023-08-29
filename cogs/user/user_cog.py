@@ -14,6 +14,7 @@
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
 import os
+import asyncio
 
 import discord
 from discord import app_commands
@@ -40,6 +41,10 @@ class User(commands.Cog):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
+    if interaction.type != discord.InteractionType.application_command:
+      return
+    if interaction.data["name"] == "wipe":
+      return
     data = load_json(interaction.user.name, "user")
     level = data["level"]
     experience = data["experience"]
@@ -197,6 +202,66 @@ class User(commands.Cog):
     embed.set_footer(text = "Precise Ranking | Botato Leaderboard", icon_url = self.bot.user.display_avatar.url)
   
     await interaction.followup.send(embed = embed)
+
+
+  @app_commands.command(
+    name = "wipe",
+    description = "Erease all your data from the bot"
+  )
+  async def wipe(self, interaction: discord.Interaction) -> None:
+    print("wipe")
+    class ConfirmationModal(discord.ui.Modal):
+      def __init__(self, user_name: str,  future: asyncio.Future, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self.add_item(discord.ui.TextInput(label = f"Type <{user_name}> to confirm deletion", 
+                                          placeholder = user_name))
+        self.future = future
+
+      async def on_submit(self, interaction: discord.Interaction) -> None:
+        await interaction.response.defer()
+        form_value = str(self.children[0]).lower()
+        self.future.set_result(form_value)
+
+    self.bot.interaction_logger.info(f"|wipe| from {interaction.user.name}")
+
+    if not os.path.exists(f"data/user/{interaction.user.name}.json"):
+      await interaction.response.send_message("There is no data to erase.")
+      return
+      
+
+    # Modal time
+    confirmation_future = asyncio.Future()
+    confirmation_modal = ConfirmationModal(user_name = interaction.user.name, 
+                                          future = confirmation_future, title = "Confirm Erease")
+    await interaction.response.send_modal(confirmation_modal)
+
+    confirmation_response = await confirmation_future
+    if not confirmation_response == interaction.user.name:
+      await interaction.followup.send("You have to type your username to erase your data")
+      return
+
+    for folder in os.listdir("data"):
+      if folder == "bets":  # Remove user from bettors in each bet
+        for bet in os.listdir("data/bets/"):
+          bettors = load_json(f"{bet}/{bet}_bettors", "bets")
+          if interaction.user.name in bettors:
+            self.bot.interaction_logger.info(f"Removed {interaction.user.name} from {bet}/{bet}_bettors.json")
+            del bettors[interaction.user.name]
+            save_json(bettors, f"{bet}/{bet}_bettors", "bets")
+
+      elif folder == "other": # Remove user from user_ids
+        user_ids = load_json("user_ids", "other")
+        if interaction.user.name in user_ids:
+          self.bot.interaction_logger.info(f"Removed {interaction.user.name} user_id from data/other/user_ids.json")
+          del user_ids[interaction.user.name]
+          save_json(user_ids, "user_ids", "other")
+
+      else: # Remove user data files
+        if os.path.exists(f"data/{folder}/{interaction.user.name}.json"):
+          self.bot.interaction_logger.info(f"Removed {interaction.user.name}.json from data/{folder}/")
+          os.remove(f"data/{folder}/{interaction.user.name}.json")
+
+    await interaction.followup.send("All your data has been deleted")
 
 
 async def setup(bot: commands.Bot) -> None:
