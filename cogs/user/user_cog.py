@@ -39,42 +39,6 @@ class User(commands.Cog):
         save_json(data, file[:-5], "user")
 
 
-  @commands.Cog.listener()
-  async def on_interaction(self, interaction: discord.Interaction) -> None:
-    if interaction.type != discord.InteractionType.application_command:
-      return
-    if interaction.data["name"] == "wipe":
-      return
-    data = load_json(interaction.user.name, "user")
-    level = data["level"]
-    experience = data["experience"]
-    xp_probabiliy = data["xp_probabiliy"]
-    daily_xp = data["daily_xp"]
-    
-    if daily_xp > 0:
-      if random.randint(1, 100) <= xp_probabiliy:
-        increase = random.randint(20, 50)
-        experience += increase
-        await interaction.channel.send(f"(*) You received {increase} XP")
-
-        if experience >= (level * 100 + (level - 1) * 50):
-          level += 1
-          data["level"] = level
-          await interaction.channel.send(f"(*) You leveled up to level {level}!!")
-
-        data["experience"] = experience
-        data["xp_probabiliy"] = 5
-        data["daily_xp"] = data["daily_xp"] - 1  
-        self.bot.interaction_logger.info(f"Experience increase trigger succesful for {interaction.user.name} with {increase} XP")
-        
-      else:
-        if xp_probabiliy < 75:
-          xp_probabiliy += 2
-          data["xp_probabiliy"] = xp_probabiliy
-      
-    save_json(data, interaction.user.name, "user")
-
-
   @app_commands.command(
     name = "profile",
     description = "Review your own or others' profile"
@@ -97,12 +61,8 @@ class User(commands.Cog):
       user = interaction.user
 
     if not os.path.isfile(f"data/user/{user.name}.json"):
-      if user.name == interaction.user.name:
-        await interaction.response.send_message("It seems this is your first interaction with this " + 
-                                                "bot, so I don't have any data, please check again")
-      else:
-        await interaction.response.send_message(f"It seems {user.display_name} hasn't interacted "
-                                                "with me yet, so I don't have any data")
+      await interaction.response.send_message(f"It seems {user.display_name} hasn't interacted "
+                                              "with me yet, so I don't have any data")
       return
 
     data = load_json(user.name, "user")
@@ -137,10 +97,7 @@ class User(commands.Cog):
   async def description(self, interaction: discord.Interaction, description: str) -> None:
     self.bot.interaction_logger.info(f"|description| from {interaction.user.name} with description |{description}|")
 
-    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
-      await interaction.response.send_message("You cannot set your description on your first " +
-                                              "interaction, please try again")
-    elif len(description) > 64:
+    if len(description) > 64:
       await interaction.response.send_message("Description too long")
     else:
       data = load_json(interaction.user.name, "user")

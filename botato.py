@@ -22,10 +22,12 @@ from datetime import datetime, timedelta, date
 import logging
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 from discord.ext import tasks
 
 from utils.funcs import make_data, save_user_id
+from utils.on_interactions import economy_on_interaction, user_on_interaction
 from utils.web_scrapper import WebScrapper
     
 
@@ -181,12 +183,18 @@ class Botato(commands.Bot):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
-    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
-      self.interaction_logger.info(f"First interaction of |{interaction.user.name}|")
-      # First interaction for user -> create data
+    if interaction.type != discord.InteractionType.application_command:
+      return
+    if interaction.data["name"] == "wipe":
+      return
+   
+    try:
+      await economy_on_interaction(interaction)
+      await user_on_interaction(interaction)
+    except KeyError: # First user interaction
       make_data(interaction.user.name)
       save_user_id(interaction.user.name, interaction.user.id)
-      
+
 
 if __name__ == "__main__":  
   bot = Botato()

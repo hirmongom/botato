@@ -23,7 +23,6 @@ import random
 import datetime
 
 from utils.json import load_json, save_json
-from utils.funcs import add_user_stat
 
 from .utils.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
 from .utils.shop_ui import ShopItemSelect
@@ -56,47 +55,12 @@ class Economy(commands.Cog):
         save_json(economy_data, file[:-5], "economy")
 
 
-  @commands.Cog.listener()
-  async def on_interaction(self, interaction: discord.Interaction) -> None:
-    if interaction.type != discord.InteractionType.application_command:
-      return
-    if interaction.data["name"] == "wipe":
-      return
-
-    economy_data = load_json(interaction.user.name, "economy")
-    user_data = load_json(interaction.user.name, "user")
-    daily_pay = economy_data["daily_pay"]
-
-    if daily_pay == 1:
-      await add_user_stat("days_interacted", interaction)
-      if economy_data["streak"] == 7:
-        lower_bound = user_data["level"] * 100 + 1000
-        upper_bound = user_data["level"] * 100 + 1500
-        economy_data["streak"] = 0
-      else:
-        lower_bound = user_data["level"] * 10 + 200
-        upper_bound = user_data["level"] * 10 + 250
-      increase = round(random.uniform(lower_bound, upper_bound), 2)
-      economy_data["bank_balance"] = economy_data["bank_balance"] + increase
-      economy_data["daily_pay"] = 0
-
-      streak_msg = f" (Current streak = {economy_data['streak']} days)" if int(economy_data["streak"]) != 0 else ""
-      await interaction.channel.send(f"(*) You received {increase}€ on your bank{streak_msg}")
-      self.bot.interaction_logger.info(f"Money increase on first interaction for {interaction.user.name} with {increase}€")
-
-    save_json(economy_data, interaction.user.name, "economy")
-
-
   @app_commands.command(
     name = "bank",
     description = "Check your account balance and perform opperations"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
     self.bot.interaction_logger.info(f"|bank| from {interaction.user.name}")
-    if not os.path.isfile(f"data/economy/{interaction.user.name}.json"):
-      await interaction.response.send_message("It seems this is your first interaction with this " + 
-                                              "bot, so I don't have any data, please check again")
-      return
 
     await interaction.response.defer()
 
@@ -226,11 +190,6 @@ class Economy(commands.Cog):
     self.bot.interaction_logger.info(f"|deposit| from {interaction.user.name} with amount |{amount}|")
     amount = round(amount, 2)
 
-    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
-      await interaction.response.send_message("It seems this is your first interaction with this " + 
-                                              "bot, so I don't have any data, please check again")
-      return
-
     economy_data = load_json(interaction.user.name, "economy")
     if economy_data["hand_balance"] < amount:
       await interaction.response.send_message("You do not have enough money in hand")
@@ -251,11 +210,6 @@ class Economy(commands.Cog):
   async def withdraw(self, interaction: discord.Interaction, amount: float) -> None:
     self.bot.interaction_logger.info(f"|withdraw| from {interaction.user.name} with amount |{amount}|")
     amount = round(amount, 2)
-
-    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
-      await interaction.response.send_message("It seems this is your first interaction with this " + 
-                                              "bot, so I don't have any data, please check again")
-      return
 
     economy_data = load_json(interaction.user.name, "economy")
     if economy_data["bank_balance"] < amount:
@@ -291,10 +245,6 @@ class Economy(commands.Cog):
       await interaction.response.send_message(f"Invalid mention <{mention}>")
       return
 
-    if not os.path.isfile(f"data/user/{interaction.user.name}.json"):
-      await interaction.response.send_message("It seems this is your first interaction with this " + 
-                                              "bot, so I don't have any data, please check again")
-      return
     if not os.path.isfile(f"data/user/{recipient.name}.json"):
       await interaction.response.send_message(f"It seems {recipient.display_name} hasn't interacted "
                                                 "with me yet, so I don't have any data")
