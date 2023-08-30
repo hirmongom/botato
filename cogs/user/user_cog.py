@@ -23,7 +23,7 @@ from discord.ext import commands
 import random
 
 from utils.json import load_json, save_json
-from .utils.achievments import map_stat_name, map_tier
+from .utils.achievements import map_stat_name, map_tier
 
 
 class User(commands.Cog):
@@ -87,7 +87,7 @@ class User(commands.Cog):
 
     achievements = user_data["achievments"]
     if len(achievements) > 0:
-      embed.add_field(name = "", value = "```🎯 Achievments 🎯```", inline = False)
+      embed.add_field(name = "", value = "```🎯 Achievements 🎯```", inline = False)
       for achievement in achievements:
         keys = list(achievement.keys())
         embed.add_field(name = f"{map_tier[achievement[keys[1]]]} {achievement[keys[0]]} {map_stat_name[keys[0]]}", value = "", inline = False)
