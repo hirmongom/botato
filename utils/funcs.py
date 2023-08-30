@@ -13,6 +13,7 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
 import discord
 from utils.json import load_json, save_json
 
@@ -52,7 +53,10 @@ def save_user_id(user_name: str, user_id: int) -> None:
   save_json(user_ids, "user_ids", "other")
 
 
-async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
+# ********** ACHIEVMENTS **********
+lock = asyncio.Lock()
+
+async def update_achievment(interaction: discord.Interaction, user_data: dict, stat: str, value: int, tier: int) -> None:
   map_stat_name = {
     "days_interacted": "Days Interacted",
     "gamekeys_searched": "Game Keys Searched",
@@ -63,100 +67,102 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
     "bets_placed": "Bets Placed"
   }
 
-  async def update_achievment(stat: str, value: int, tier: int) -> None:
-    if tier == 1:
-      user_data["achievments"].append({stat: value})
-    else:
-      for achievment in user_data["achievments"]:
-        if stat in achievment:
-          achievment[stat] = value
-          break
+  if tier == 1:
+    user_data["achievments"].append({stat: value})
+  else:
+    for achievment in user_data["achievments"]:
+      if stat in achievment:
+        achievment[stat] = value
+        break
 
-    xp_increase = tier * 100
-    user_data["experience"] += xp_increase
+  xp_increase = tier * 100
+  user_data["experience"] += xp_increase
 
-    await interaction.followup.send(f"You unlocked the achievment {value} {map_stat_name[stat]} "
-                                    f"and received {xp_increase} XP!")
-    if user_data["experience"] >= (user_data["level"] * 100 + (user_data["level"] - 1) * 50):
-      user_data["level"] += 1
-      await interaction.followup.send(f"(*) You leveled up to level {user_data['level']}!!")
+  await interaction.followup.send(f"You unlocked the achievment {value} {map_stat_name[stat]} "
+                                  f"and received {xp_increase} XP!")
+  if user_data["experience"] >= (user_data["level"] * 100 + (user_data["level"] - 1) * 50):
+    user_data["level"] += 1
+    await interaction.followup.send(f"(*) You leveled up to level {user_data['level']}!!")
 
-  user_data = load_json(interaction.user.name, "user")
-  if stat == "days_interacted":
-    user_data[stat] += 1
-    if user_data[stat] == 10:
-      await update_achievment(stat, 10, 1)
-    if user_data[stat] == 25:
-      await update_achievment(stat, 25, 2)
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 3)
-    if user_data[stat] == 100:
-      await update_achievment(stat, 100, 4)
 
-  elif stat == "gamekeys_searched":
-    user_data[stat] += 1
-    if user_data[stat] == 10:
-      await update_achievment(stat, 10, 1)
-    if user_data[stat] == 25:
-      await update_achievment(stat, 25, 2)
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 3)
-    if user_data[stat] == 100:
-      await update_achievment(stat, 100, 4)
-  
-  elif stat == "blackjack_hands_played":
-    user_data[stat] += 1
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 1)
-    if user_data[stat] == 100:
-      await update_achievment(stat, 100, 2)
-    if user_data[stat] == 250:
-      await update_achievment(stat, 250, 3)
-    if user_data[stat] == 500:
-      await update_achievment(stat, 500, 4)
+async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
+  async with lock:
+    user_data = load_json(interaction.user.name, "user")
+    if stat == "days_interacted":
+      user_data[stat] += 1
+      if user_data[stat] == 10:
+        await update_achievment(interaction, user_data, stat, 10, 1)
+      if user_data[stat] == 25:
+        await update_achievment(interaction, user_data, stat, 25, 2)
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 3)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 4)
 
-  elif stat == "blackjack_hands_won":
-    user_data[stat] += 1
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 1)
-    if user_data[stat] == 100:
-      await update_achievment(stat, 100, 2)
-    if user_data[stat] == 250:
-      await update_achievment(stat, 250, 3)
-    if user_data[stat] == 500:
-      await update_achievment(stat, 500, 4)
+    elif stat == "gamekeys_searched":
+      user_data[stat] += 1
+      if user_data[stat] == 10:
+        await update_achievment(interaction, user_data, stat, 10, 1)
+      if user_data[stat] == 25:
+        await update_achievment(interaction, user_data, stat, 25, 2)
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 3)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 4)
+    
+    elif stat == "blackjack_hands_played":
+      user_data[stat] += 1
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 1)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 2)
+      if user_data[stat] == 250:
+        await update_achievment(interaction, user_data, stat, 250, 3)
+      if user_data[stat] == 500:
+        await update_achievment(interaction, user_data, stat, 500, 4)
 
-  elif stat == "roulettes_played":
-    user_data[stat] += 1
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 1)
-    if user_data[stat] == 100:
-      await update_achievment(stat, 100, 2)
-    if user_data[stat] == 250:
-      await update_achievment(stat, 250, 3)
-    if user_data[stat] == 500:
-      await update_achievment(stat, 500, 4)
+    elif stat == "blackjack_hands_won":
+      user_data[stat] += 1
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 1)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 2)
+      if user_data[stat] == 250:
+        await update_achievment(interaction, user_data, stat, 250, 3)
+      if user_data[stat] == 500:
+        await update_achievment(interaction, user_data, stat, 500, 4)
 
-  elif stat == "roulettes_won":
-    user_data[stat] += 1
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 1)
-    if user_data[stat] == 100:
-      await update_achievment(stat, 100, 2)
-    if user_data[stat] == 250:
-      await update_achievment(stat, 250, 3)
-    if user_data[stat] == 500:
-      await update_achievment(stat, 500, 4)
+    elif stat == "roulettes_played":
+      user_data[stat] += 1
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 1)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 2)
+      if user_data[stat] == 250:
+        await update_achievment(interaction, user_data, stat, 250, 3)
+      if user_data[stat] == 500:
+        await update_achievment(interaction, user_data, stat, 500, 4)
 
-  elif stat == "bets_placed":
-    user_data[stat] += 1
-    if user_data[stat] == 5:
-      await update_achievment(stat, 5, 1)
-    if user_data[stat] == 15:
-      await update_achievment(stat, 15, 2)
-    if user_data[stat] == 25:
-      await update_achievment(stat, 25, 3)
-    if user_data[stat] == 50:
-      await update_achievment(stat, 50, 4)
+    elif stat == "roulettes_won":
+      user_data[stat] += 1
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 1)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 2)
+      if user_data[stat] == 250:
+        await update_achievment(interaction, user_data, stat, 250, 3)
+      if user_data[stat] == 500:
+        await update_achievment(interaction, user_data, stat, 500, 4)
 
-  save_json(user_data, interaction.user.name, "user")
+    elif stat == "bets_placed":
+      user_data[stat] += 1
+      if user_data[stat] == 5:
+        await update_achievment(interaction, user_data, stat, 5, 1)
+      if user_data[stat] == 15:
+        await update_achievment(interaction, user_data, stat, 15, 2)
+      if user_data[stat] == 25:
+        await update_achievment(interaction, user_data, stat, 25, 3)
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 4)
+
+    save_json(user_data, interaction.user.name, "user")
