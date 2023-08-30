@@ -23,6 +23,7 @@ from discord.ext import commands
 import random
 
 from utils.json import load_json, save_json
+from .utils.achievments import map_stat_name, map_tier
 
 
 class User(commands.Cog):
@@ -47,7 +48,6 @@ class User(commands.Cog):
     mention = "Mention a user to check its profile"
   )
   async def profile(self, interaction: discord.Interaction, mention: str = "") -> None:
-    # @todo Display achievments
     self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}" + 
                                     (f" with |mention| {mention}" if mention != "" else ""))
     if mention != "":
@@ -65,10 +65,10 @@ class User(commands.Cog):
                                               "with me yet, so I don't have any data")
       return
 
-    data = load_json(user.name, "user")
-    level = data["level"]
-    experience = data["experience"]
-    description = data["user_description"]
+    user_data = load_json(user.name, "user")
+    level = user_data["level"]
+    experience = user_data["experience"]
+    description = user_data["user_description"]
     
     user_badges = ""
     if user.premium_since:
@@ -84,6 +84,14 @@ class User(commands.Cog):
     embed.add_field(name = "*Experience*", value = f"{experience} XP", inline = True)
     embed.add_field(name = "*Next Level In*", value = f"{level * 100 + (level - 1) * 50} XP")
     embed.set_thumbnail(url = user.display_avatar.url)
+
+    achievements = user_data["achievments"]
+    if len(achievements) > 0:
+      embed.add_field(name = "", value = "```🎯 Achievments 🎯```", inline = False)
+      for achievement in achievements:
+        keys = list(achievement.keys())
+        embed.add_field(name = f"{map_tier[achievement[keys[1]]]} {achievement[keys[0]]} {map_stat_name[keys[0]]}", value = "", inline = False)
+
     await interaction.response.send_message(embed = embed)
 
 

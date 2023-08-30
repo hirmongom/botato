@@ -68,11 +68,12 @@ async def update_achievment(interaction: discord.Interaction, user_data: dict, s
   }
 
   if tier == 1:
-    user_data["achievments"].append({stat: value})
+    user_data["achievments"].append({stat: value, "tier": tier})
   else:
     for achievment in user_data["achievments"]:
       if stat in achievment:
         achievment[stat] = value
+        achievment["tier"] = tier
         break
 
   xp_increase = tier * 100

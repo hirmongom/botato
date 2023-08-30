@@ -32,3 +32,20 @@
 #   - 250                         #   - 250
 #   - 500                         #   - 500
 
+map_stat_name = {
+  "days_interacted": "Days Interacted",
+  "gamekeys_searched": "Game Keys Searched",
+  "blackjack_hands_played": "Blackjack Hands Played",
+  "blackjack_hands_won": "Blackjack Hands Won",
+  "roulettes_played": "Roulette Games Played",
+  "roulettes_won": "Roulette Games Won",
+  "bets_placed": "Bets Placed"
+}
+
+
+map_tier = {
+  1: "📜",
+  2: "🥉",
+  3: "🥈",
+  4: "🥇",
+}

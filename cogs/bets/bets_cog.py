@@ -72,12 +72,15 @@ class Bets(commands.Cog):
 
   async def daily_task(self) -> None:
     now = datetime.now()
-    for event in os.listdir("data/bets/"):
-      data = load_json(f"{event}/{event}_bet", "bets")
-      if int(data["day"]) == now.day and int(data["month"]) == now.month:
-        data["status"] = "closed"
-        save_json(data, f"{event}/{event}_bet", "bets")
-        self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
+    try:
+      for event in os.listdir("data/bets/"):
+        data = load_json(f"{event}/{event}_bet", "bets")
+        if int(data["day"]) == now.day and int(data["month"]) == now.month:
+          data["status"] = "closed"
+          save_json(data, f"{event}/{event}_bet", "bets")
+          self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
+    except:
+      pass # Folder not created
 
 
   @app_commands.command(
