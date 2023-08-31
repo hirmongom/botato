@@ -68,7 +68,7 @@ class Economy(commands.Cog):
     hand_balance = round(economy_data["hand_balance"], 2)
     bank_balance = round(economy_data["bank_balance"], 2)
     max_withdrawal = economy_data["max_withdrawal"]
-    withdrawn_money = economy_data["withdrawn_money"]
+    withdrawn_money = round(economy_data["withdrawn_money"], 2)
     interest_rate = economy_data["interest_rate"]
     user_data = load_json(interaction.user.name, "user")
 

@@ -129,7 +129,7 @@ async def update_embed(message: discord.Message, embed: discord.Embed,
   hand_balance = round(economy_data["hand_balance"], 2)
   bank_balance = round(economy_data["bank_balance"], 2)
   max_withdrawal = economy_data["max_withdrawal"]
-  withdrawn_money = economy_data["withdrawn_money"]
+  withdrawn_money = round(economy_data["withdrawn_money"], 2)
 
   embed.set_field_at(0, name = "💰 Hand Balance", value = f"{hand_balance}€", inline = True)
   embed.set_field_at(1, name = "🏦 Bank Balance", value = f"{bank_balance}€", inline = True)
