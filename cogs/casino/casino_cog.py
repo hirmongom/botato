@@ -103,7 +103,10 @@ class Casino(commands.Cog):
     while True:
       # Case of 2 ACES count as 22
       if player_total == 22:
+        self.bot.interaction_logger.info("@todo fix blackjack 22 hand error")
+        self.bot.interaction_logger.info(hand)
         for card in hand:
+          self.bot.interaction_logger.info(card)
           card['value'] = 1
           break
         player_total = sum(card['value'] for card in hand)

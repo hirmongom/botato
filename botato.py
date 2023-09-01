@@ -183,10 +183,9 @@ class Botato(commands.Bot):
 
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
-    if interaction.type != discord.InteractionType.application_command:
-      return
-    if interaction.data["name"] == "wipe":
-      return
+    if interaction.type == discord.InteractionType.application_command:
+      if interaction.data["name"] == "wipe":
+        return
    
     try:
       await economy_on_interaction(interaction)

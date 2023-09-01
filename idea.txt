@@ -1,2 +1,0 @@
-@idea game dev tycoon
-@idea poker multiplayer (hand in private msg) rest in main embed

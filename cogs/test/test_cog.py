@@ -13,12 +13,15 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+import asyncio
+import ctypes
+import datetime
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-import ctypes
-import datetime
+from .utils.test_room import EntryButton, StartButton
 
 
 class Test(commands.Cog):
@@ -76,6 +79,46 @@ class Test(commands.Cog):
     embed.timestamp = datetime.datetime.utcnow()
 
     await interaction.response.send_message(embed = embed)
+
+
+  @app_commands.command(
+    name = "test_room",
+    description  = "Room creation for multiplayer commands"
+  )
+  async def test_room(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|test_room| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    host = interaction.user
+    players = [host]
+
+    embed = discord.Embed(
+      title = "Test Room",
+      description = "Room test",
+      color = discord.Colour.red()
+    )
+    embed.add_field(name = "", value = "``` Players ```", inline = False)
+    embed.add_field(name = f"{host.display_name}", value = "", inline = False)
+
+    message = await interaction.followup.send(embed = embed)
+
+    # button to join (everyone)
+    join_button = EntryButton(players = players, embed = embed, message = message, 
+                              label = "Join", style = discord.ButtonStyle.secondary)
+
+    # button to start (host)
+    start_future = asyncio.Future()
+    start_button = StartButton(host_id = interaction.user.id, future = start_future, 
+                               label = "Start", style = discord.ButtonStyle.success)
+
+    view = discord.ui.View()
+    view.add_item(join_button)
+    view.add_item(start_button)
+    await message.edit(embed = embed, view = view)
+
+    start = await start_future
+    view.clear_items()
+    await interaction.followup.send(embed = embed, view = view)
 
 
 async def setup(bot: commands.Bot) -> None:

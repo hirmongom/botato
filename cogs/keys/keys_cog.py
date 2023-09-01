@@ -64,7 +64,7 @@ class Keys(commands.Cog):
   )
   async def keys(self, interaction: discord.Interaction, query: str) -> None:
     self.bot.interaction_logger.info(f"|keys| from {interaction.user.name} with query |{query}|")
-
+    # @todo fix command not returning prices (it returns game)
     await interaction.response.defer()
     await add_user_stat("gamekeys_searched", interaction)
 
