@@ -29,7 +29,6 @@ from utils.funcs import add_user_stat
 from .utils.blackjack import (
   blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
 from .utils.roulette import BetTypeSelect, BetValueSelect, BetAmountButton, process_winnings
-from .utils.horse_racing import EntryButton, StartButton
 
 
 class Casino(commands.Cog):
@@ -412,59 +411,6 @@ class Casino(commands.Cog):
           await interaction.followup.send("You lost, better luck next time")
 
     save_json(economy_data, interaction.user.name, "economy")
-
-
-  @app_commands.command(
-    name = "horse_racing",
-    description  = "description"
-  )
-  @app_commands.describe(
-    entry = "money entry stuff"
-  )
-  async def horse_racing(self, interaction: discord.Interaction, entry: int) -> None:
-    # @todo horse_racing
-    self.bot.interaction_logger.info(f"|horse_racing| from {interaction.user.name}")
-    host_economy = load_json(interaction.user.name, "economy")    
-    if host_economy["hand_balance"] < entry:
-      await interaction.response.send_messaage("You do not have enough money in hand")
-      return
-    else:
-      await interaction.response.defer()
-
-    host_economy["hand_balance"] -= entry
-    save_json(host_economy, interaction.user.name, "economy")
-    
-    host = interaction.user
-    players = [host]
-
-    embed = discord.Embed(
-      title = "Horse racing",
-      description = "description for horse racing",
-      color = discord.Colour.red()
-    )
-    embed.add_field(name = "", value = f"```Entry fee = {entry}€```", inline = False)
-    embed.add_field(name = "", value = "``` Players ```", inline = False)
-    embed.add_field(name = f"{host.display_name}", value = "", inline = False)
-    embed.set_footer(text = "Lucky Races | Botato Casino", icon_url = self.bot.user.display_avatar.url)
-
-    message = await interaction.followup.send(embed = embed)
-
-    # button to join (everyone)
-    join_button = EntryButton(players = players, entry = entry, embed = embed, message = message, 
-                              label = "Join", style = discord.ButtonStyle.secondary)
-
-    # button to start (host)
-    start_future = asyncio.Future()
-    start_button = StartButton(host_id = interaction.user.id, future = start_future, 
-                               label = "Start", style = discord.ButtonStyle.success)
-
-    view = discord.ui.View()
-    view.add_item(join_button)
-    view.add_item(start_button)
-    await message.edit(embed = embed, view = view)
-
-    start = await start_future
-    await interaction.followup.send("Started LMAO")
 
 
 async def setup(bot: commands.Bot) -> None:
