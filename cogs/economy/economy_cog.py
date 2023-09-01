@@ -80,7 +80,7 @@ class Economy(commands.Cog):
     embed.add_field(name = "💰 Hand Balance", value = f"{hand_balance}€", inline = True)
     embed.add_field(name = "🏦 Bank Balance", value = f"{bank_balance}€", inline = True)
     embed.add_field(name = f"📆🔽 Remaining Weekly Withdraw Limit", 
-                    value = f"{max_withdrawal - withdrawn_money}€", 
+                    value = f"{round(max_withdrawal - withdrawn_money, 2)}€", 
                     inline = False)
     if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
       upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
