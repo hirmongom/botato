@@ -370,9 +370,9 @@ class Casino(commands.Cog):
     if bet_info[0] == 0: # Bet Type Straight
       if roulette_result == bet_info[1]:
         if roulette_result == 0:
-          multiplier = 5
+          multiplier = 25
         else:
-          multiplier = 2
+          multiplier = 10
         await process_winnings(economy_data, bet_amount * 2.5 * multiplier, interaction)
         await interaction.followup.send(f"You've won {bet_amount * 2.5 * multiplier}€")
       else:
