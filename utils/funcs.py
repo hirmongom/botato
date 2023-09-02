@@ -30,6 +30,8 @@ def make_data(user: str) -> None:
   user_data["blackjack_hands_won"] = 0
   user_data["roulettes_played"] = 0
   user_data["roulettes_won"] = 0
+  user_data["horse_races_played"] = 0
+  user_data["horse_races_won"] = 0
   user_data["achievments"] = []
   user_data["user_description"] = ""
   user_data["role_name"] = ""
@@ -58,13 +60,15 @@ lock = asyncio.Lock()
 
 async def update_achievment(interaction: discord.Interaction, user_data: dict, stat: str, value: int, tier: int) -> None:
   map_stat_name = {
-    "days_interacted": "Days Interacted",
-    "gamekeys_searched": "Game Keys Searched",
-    "blackjack_hands_played": "Blackjack Hands Played",
-    "blackjack_hands_won": "Blackjack Hands Won",
-    "roulettes_played": "Roulette Games Played",
-    "roulettes_won": "Roulette Games Won",
-    "bets_placed": "Bets Placed"
+    "days_interacted": "Days Engaged",
+    "gamekeys_searched": "Game Key Queries",
+    "blackjack_hands_played": "Blackjack Rounds Played",
+    "blackjack_hands_won": "Blackjack Rounds Victorious",
+    "roulettes_played": "Roulette Rounds Played",
+    "roulettes_won": "Roulette Rounds Victorious",
+    "horse_races_played": "Horse Race Bets Made",
+    "horse_races_won": "Successful Horse Race Bets",
+    "bets_placed": "Total Bets Made"
   }
 
   if tier == 1:
@@ -145,6 +149,28 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
         await update_achievment(interaction, user_data, stat, 500, 4)
 
     elif stat == "roulettes_won":
+      user_data[stat] += 1
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 1)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 2)
+      if user_data[stat] == 250:
+        await update_achievment(interaction, user_data, stat, 250, 3)
+      if user_data[stat] == 500:
+        await update_achievment(interaction, user_data, stat, 500, 4)
+
+    elif stat == "horse_races_played":
+      user_data[stat] += 1
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 1)
+      if user_data[stat] == 100:
+        await update_achievment(interaction, user_data, stat, 100, 2)
+      if user_data[stat] == 250:
+        await update_achievment(interaction, user_data, stat, 250, 3)
+      if user_data[stat] == 500:
+        await update_achievment(interaction, user_data, stat, 500, 4)
+
+    elif stat == "horse_races_won":
       user_data[stat] += 1
       if user_data[stat] == 50:
         await update_achievment(interaction, user_data, stat, 50, 1)

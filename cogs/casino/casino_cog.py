@@ -29,7 +29,7 @@ from utils.funcs import add_user_stat
 from .utils.blackjack import (
   blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
 from .utils.roulette import BetTypeSelect, BetValueSelect, BetAmountButton, process_winnings
-
+from .utils.horse_race import HorseSelect, race
 
 class Casino(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
@@ -414,6 +414,80 @@ class Casino(commands.Cog):
           await interaction.followup.send("You lost, better luck next time")
 
     save_json(economy_data, interaction.user.name, "economy")
+
+
+  @app_commands.command(
+    name = "horse_race",
+    description = "Pick a racer, place your bet, and see if luck's on your side."
+  )
+  async def horse_race(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|horse_race| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    racer_name_map = [
+      "Horse",
+      "Squid",
+      "Rabbit",
+      "Crocodile"
+    ]
+
+    tracks = [
+        ["🐎", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_"],
+        ["🦑", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_"],
+        ["🐇", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_"],
+        ["🐊", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_", "_"]
+    ]
+
+    embed = discord.Embed(
+        title="🏁 Race Track 🏁",
+        description="Choose your favorite racer\n and place your bet!",
+        colour=discord.Colour.light_gray()
+    )
+    embed.add_field(name = "", value = f"```{''.join(tracks[0])}  ```", inline = False)
+    embed.add_field(name = "", value = f"```{''.join(tracks[1])}  ```", inline = False)
+    embed.add_field(name = "", value = f"```{''.join(tracks[2])}  ```", inline = False)
+    embed.add_field(name = "", value = f"```{''.join(tracks[3])}  ```", inline = False)
+    embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+    embed.set_footer(text = "Lucky Racing | Botato Casino", icon_url = self.bot.user.display_avatar.url)
+
+    response_future = asyncio.Future()
+    select_horse = HorseSelect(interaction.user.id, response_future)
+    view = discord.ui.View()
+    view.add_item(select_horse)
+
+    message = await interaction.followup.send(embed = embed, view = view)
+    horse_choice, bet_amount = await response_future
+    horse_choice = int(horse_choice)
+    await message.edit(embed = embed, view = None)
+
+    try:
+      bet_amount = round(float(bet_amount), 2)
+    except ValueError:
+      await interaction.followup.send("Bet amount must be a number")
+      return
+
+    economy_data = load_json(interaction.user.name, "economy")
+    if economy_data["hand_balance"] < bet_amount:
+      await interaction.followup.send("You do not have enough money in hand")
+      return
+    else:
+      economy_data["hand_balance"] -= bet_amount
+      save_json(economy_data, interaction.user.name, "economy")
+
+    await add_user_stat("horse_races_played", interaction)
+
+
+    winner = await race(message, embed, tracks)
+
+    if winner == horse_choice:
+      await add_user_stat("horse_races_won", interaction)
+      increase = bet_amount * 4
+      economy_data["bank_balance"] += increase
+      save_json(economy_data, interaction.user.name, "economy")
+      await interaction.followup.send(f"{racer_name_map[winner]} won the race and you received"
+                                      f" {increase}€")
+    else:
+      await interaction.followup.send(f"{racer_name_map[winner]} won the race")
 
 
 async def setup(bot: commands.Bot) -> None:

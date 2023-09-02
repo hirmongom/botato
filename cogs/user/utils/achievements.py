@@ -14,32 +14,16 @@
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
 
-# "days_interacted"       # "gamekeys_searched"       # "bets_placed"
-#   - 10                  #   - 10                    #   - 5
-#   - 25                  #   - 25                    #   - 15
-#   - 50                  #   - 50                    #   - 25
-#   - 100                 #   - 100                   #   - 50
-
-# "blackjack_hands_played":       # "blackjack_hands_won":
-#   - 50                          #   - 50
-#   - 100                         #   - 100
-#   - 250                         #   - 250
-#   - 500                         #   - 500
-
-# "roulettes_played":             # "roulettes_won":
-#   - 50                          #   - 50
-#   - 100                         #   - 100
-#   - 250                         #   - 250
-#   - 500                         #   - 500
-
 map_stat_name = {
-  "days_interacted": "Days Interacted",
-  "gamekeys_searched": "Game Keys Searched",
-  "blackjack_hands_played": "Blackjack Hands Played",
-  "blackjack_hands_won": "Blackjack Hands Won",
-  "roulettes_played": "Roulette Games Played",
-  "roulettes_won": "Roulette Games Won",
-  "bets_placed": "Bets Placed"
+    "days_interacted": "Days Engaged",
+    "gamekeys_searched": "Game Key Queries",
+    "blackjack_hands_played": "Blackjack Rounds Played",
+    "blackjack_hands_won": "Blackjack Rounds Victorious",
+    "roulettes_played": "Roulette Rounds Played",
+    "roulettes_won": "Roulette Rounds Victorious",
+    "horse_races_played": "Horse Race Bets Made",
+    "horse_races_won": "Successful Horse Race Bets",
+    "bets_placed": "Total Bets Made"
 }
 
 
