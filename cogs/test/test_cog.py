@@ -98,7 +98,7 @@ class Test(commands.Cog):
       color = discord.Colour.red()
     )
     embed.add_field(name = "", value = "``` Players ```", inline = False)
-    embed.add_field(name = f"{host.display_name}", value = "", inline = False)
+    embed.add_field(name = f"⭐ {host.display_name}", value = "", inline = False)
 
     message = await interaction.followup.send(embed = embed)
 
