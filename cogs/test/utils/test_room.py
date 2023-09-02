@@ -13,9 +13,12 @@ class EntryButton(discord.ui.Button):
   async def callback(self, interaction: discord.Interaction) -> None:
     await interaction.response.defer()
 
-    self.players.append(interaction.user)
-    self.embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False)
-    await self.message.edit(embed = self.embed)
+    if interaction.user not in self.players:
+      self.players.append(interaction.user)
+      self.embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False)
+      await self.message.edit(embed = self.embed)
+    else:
+      await interaction.followup.send("You are already in the room", ephemeral = True)
 
 
 class StartButton(discord.ui.Button):
