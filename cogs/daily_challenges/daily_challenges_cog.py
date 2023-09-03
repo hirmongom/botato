@@ -22,6 +22,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.json import load_json, save_json
+from utils.funcs import add_user_stat
 from .local.daily_challenges_ui import ChallengeSelect, FutureIdButton, FutureModalButton, FutureModal, SolutionSelect
 
 class DailyChallenges(commands.Cog):
@@ -30,9 +31,12 @@ class DailyChallenges(commands.Cog):
 
 
   async def daily_task(self) -> None:
-    # @todo clear current (non-automated) challenges
-    #       grab next automated challenges
-    pass
+    for file in os.listdir("data/daily_challenges"):
+      if file.endswith(".json"):
+        os.remove(f"data/daily_challenges/{file}")
+    # @todo get next automated daily challenge
+    tried_challenges = {}
+    save_json(tried_challenges, "data/tried_challenges", "daily_challenges")
 
 
   @app_commands.command(
@@ -47,7 +51,10 @@ class DailyChallenges(commands.Cog):
     for file in os.listdir("data/daily_challenges/"):
       if file.endswith(".json"):
         file = file[:-5]
-        challenges.append(load_json(file, "daily_challenges"))
+        if file != "tried_challenges":
+          challenge = load_json(file, "daily_challenges")
+          challenge["filename"] = file
+          challenges.append(challenge)
 
     embed = discord.Embed(
       title = "Current challenges",
@@ -73,6 +80,15 @@ class DailyChallenges(commands.Cog):
     challenge = challenges[challenge]
     view.clear_items()
     
+    # check if user has atempetd challenge
+    tried_challenges = load_json("tried_challenges", "daily_challenges")
+    if interaction.user.name in tried_challenges:
+      if challenge["filename"] in tried_challenges[interaction.user.name]:
+        view.clear_items()
+        await message.edit(embed = embed, view = view)
+        await interaction.followup.send("You have already atempted this challenge")
+        return
+
     embed = discord.Embed(
       title = challenge["category"],
       description = challenge["problem"],
@@ -94,10 +110,20 @@ class DailyChallenges(commands.Cog):
     await message.edit(embed = embed, view = view)
 
     if selection == challenge["solution"]:
-      await interaction.followup.send("Correct")
+      economy_data = load_json(interaction.user.name, "economy")
+      economy_data["bank_balance"] += challenge["prize"]
+      save_json(economy_data, interaction.user.name, "economy")
+      await add_user_stat("completed_daily_challenges", interaction)
+      await interaction.followup.send(f"That was correct. You received {challenge['prize']}€")
     else:
-      await interaction.followup.send("Nope")
+      await interaction.followup.send("Wrong answer, better luck next time!")
 
+    print(challenge)
+    if interaction.user.name not in tried_challenges:
+      tried_challenges[interaction.user.name] = [challenge["filename"]]
+    else:  
+      tried_challenges[interaction.user.name].append(challenge["filename"])
+    save_json(tried_challenges, "tried_challenges", "daily_challenges")
 
   @app_commands.command(
     name = "create_daily_challenge",
@@ -160,7 +186,7 @@ class DailyChallenges(commands.Cog):
       "problem": problem,
       "options": options,
       "solution": solution,
-      "prize": prize
+      "prize": prize,
     }
     now = datetime.now()
     save_json(challenge_data, f"{now.day}{now.hour}{now.minute}{now.second}", "daily_challenges")

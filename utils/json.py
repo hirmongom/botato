@@ -16,9 +16,9 @@
 import os
 import json
 
-def load_json(sub_path: str, cog: str) -> dict[str, str]:
+def load_json(sub_path: str, category: str) -> dict[str, str]:
   data = {}
-  filePath = f"data/{cog}/{sub_path}.json"
+  filePath = f"data/{category}/{sub_path}.json"
   
   if not os.path.isfile(filePath):
     with open(filePath, "w") as file:
@@ -33,8 +33,8 @@ def load_json(sub_path: str, cog: str) -> dict[str, str]:
 
   return data
   
-def save_json(data: dict[str, str], sub_path: str, cog: str) -> None:
-  filePath = f"data/{cog}/{sub_path}.json"
+def save_json(data: dict[str, str], sub_path: str, category: str) -> None:
+  filePath = f"data/{category}/{sub_path}.json"
 
   with open(filePath, "w") as file:
     json.dump(data, file)

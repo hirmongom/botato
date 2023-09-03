@@ -23,7 +23,8 @@ map_stat_name = {
     "roulettes_won": "Roulette Rounds Victorious",
     "horse_races_played": "Horse Race Bets Made",
     "horse_races_won": "Successful Horse Race Bets",
-    "bets_placed": "Total Bets Made"
+    "bets_placed": "Total Bets Made",
+    "completed_daily_challenges": "Total Daily Challenges Solved"
 }
 
 

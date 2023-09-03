@@ -32,6 +32,7 @@ def make_data(user: str) -> None:
   user_data["roulettes_won"] = 0
   user_data["horse_races_played"] = 0
   user_data["horse_races_won"] = 0
+  user_data["completed_daily_challenges"] = 0
   user_data["achievments"] = []
   user_data["user_description"] = ""
   user_data["role_name"] = ""
@@ -68,7 +69,8 @@ async def update_achievment(interaction: discord.Interaction, user_data: dict, s
     "roulettes_won": "Roulette Rounds Victorious",
     "horse_races_played": "Horse Race Bets Made",
     "horse_races_won": "Successful Horse Race Bets",
-    "bets_placed": "Total Bets Made"
+    "bets_placed": "Total Bets Made",
+    "completed_daily_challenges": "Total Daily Challenges Solved"
   }
 
   if tier == 1:
@@ -182,6 +184,17 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
         await update_achievment(interaction, user_data, stat, 500, 4)
 
     elif stat == "bets_placed":
+      user_data[stat] += 1
+      if user_data[stat] == 5:
+        await update_achievment(interaction, user_data, stat, 5, 1)
+      if user_data[stat] == 15:
+        await update_achievment(interaction, user_data, stat, 15, 2)
+      if user_data[stat] == 25:
+        await update_achievment(interaction, user_data, stat, 25, 3)
+      if user_data[stat] == 50:
+        await update_achievment(interaction, user_data, stat, 50, 4)
+
+    elif stat == "completed_daily_challenges":
       user_data[stat] += 1
       if user_data[stat] == 5:
         await update_achievment(interaction, user_data, stat, 5, 1)
