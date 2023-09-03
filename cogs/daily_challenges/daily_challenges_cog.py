@@ -49,12 +49,11 @@ class DailyChallenges(commands.Cog):
 
     challenges = []
     for file in os.listdir("data/daily_challenges/"):
-      if file.endswith(".json"):
+      if file.endswith(".json") and file != "tried_challenges.json":
         file = file[:-5]
-        if file != "tried_challenges":
-          challenge = load_json(file, "daily_challenges")
-          challenge["filename"] = file
-          challenges.append(challenge)
+        challenge = load_json(file, "daily_challenges")
+        challenge["filename"] = file
+        challenges.append(challenge)
 
     embed = discord.Embed(
       title = "🌟 Current Challenges 🌟",
@@ -62,11 +61,12 @@ class DailyChallenges(commands.Cog):
                     "coding problems, and unravel riddles. Test your skills and win rewards!",
       colour = discord.Colour.blue()
     )
-    
+
     if len(challenges) == 0:
       embed.add_field(name = "No available challenges at the moment", value = "", inline = False)
       embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
       embed.set_footer(text = "Skilled Problems | Botato Braintraining", icon_url = self.bot.user.display_avatar.url)
+      await interaction.followup.send(embed = embed)
       return
 
     for i, challenge in enumerate(challenges):
