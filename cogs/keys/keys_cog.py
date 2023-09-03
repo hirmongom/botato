@@ -20,9 +20,9 @@ from discord.ui import Select, View
 
 import datetime
 
-from .utils.game_data import store_game, get_game_list, remove_games, get_following_list_size
 from utils.json import load_json, save_json
 from utils.funcs import add_user_stat
+from .local.game_data import store_game, get_game_list, remove_games, get_following_list_size
 
 
 class Keys(commands.Cog):

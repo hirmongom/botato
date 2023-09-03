@@ -19,7 +19,7 @@ from discord.ext import commands
 
 import random
 
-from .utils.help_ui import HelpHandlerSelect
+from .local.help_ui import HelpHandlerSelect
 
 class Misc(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:

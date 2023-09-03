@@ -24,9 +24,9 @@ import datetime
 
 from utils.json import load_json, save_json
 
-from .utils.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
-from .utils.shop_ui import ShopItemSelect
-from .utils.shop_funcs import create_role
+from .local.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
+from .local.shop_ui import ShopItemSelect
+from .local.shop_funcs import create_role
 
 
 class Economy(commands.Cog):

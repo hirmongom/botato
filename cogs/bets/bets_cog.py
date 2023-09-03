@@ -26,7 +26,7 @@ from datetime import datetime
 import calendar
 
 from utils.json import save_json, load_json
-from .utils.bets_ui import (
+from .local.bets_ui import (
   EventBetSelect, 
   FutureModalCallbackButton, 
   FutureSimpleButton, 

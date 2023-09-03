@@ -21,7 +21,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from .utils.test_room import EntryButton, StartButton
+from .local.test_room import EntryButton, StartButton
 
 
 class Test(commands.Cog):

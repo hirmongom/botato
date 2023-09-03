@@ -26,10 +26,10 @@ import random
 from utils.json import load_json, save_json
 from utils.funcs import add_user_stat
 
-from .utils.blackjack import (
+from .local.blackjack import (
   blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
-from .utils.roulette import BetTypeSelect, BetValueSelect, BetAmountButton, process_winnings
-from .utils.horse_race import HorseSelect, race
+from .local.roulette import BetTypeSelect, BetValueSelect, BetAmountButton, process_winnings
+from .local.horse_race import HorseSelect, race
 
 class Casino(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:

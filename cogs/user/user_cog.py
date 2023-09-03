@@ -23,7 +23,7 @@ from discord.ext import commands
 import random
 
 from utils.json import load_json, save_json
-from .utils.achievements import map_stat_name, map_tier
+from .local.achievements import map_stat_name, map_tier
 
 
 class User(commands.Cog):
