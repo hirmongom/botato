@@ -64,14 +64,17 @@ class Keys(commands.Cog):
   )
   async def keys(self, interaction: discord.Interaction, query: str) -> None:
     self.bot.interaction_logger.info(f"|keys| from {interaction.user.name} with query |{query}|")
-    # @todo fix command not returning prices (it returns game)
     await interaction.response.defer()
     await add_user_stat("gamekeys_searched", interaction)
 
     try:
       link = self.bot.web_scrapper.get_game_link(query)
       title = self.bot.web_scrapper.get_game_title(link)
-      content = self.bot.web_scrapper.get_game_keys(link)
+      while True:
+        content = self.bot.web_scrapper.get_game_keys(link)
+        if len(content) != 0:
+            break
+        self.bot.web_scrapper.restart_driver()
     except Exception as e:
       print(e)
       await interaction.followup.send(f"No results found")
