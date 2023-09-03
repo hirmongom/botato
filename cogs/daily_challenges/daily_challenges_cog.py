@@ -46,7 +46,7 @@ class DailyChallenges(commands.Cog):
     await interaction.followup.send("@todo daily_challenges")
 
   
-  @app_command.command(
+  @app_commands.command(
     name = "create_daily_challenge",
     description = "(ADMIN)"
   )
