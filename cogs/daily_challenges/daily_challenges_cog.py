@@ -57,13 +57,20 @@ class DailyChallenges(commands.Cog):
           challenges.append(challenge)
 
     embed = discord.Embed(
-      title = "Current challenges",
-      description = "description",
+      title = "🌟 Current Challenges 🌟",
+      description = "💡 Sharpen your mind with Daily Challenges! Solve math puzzles, conquer "
+                    "coding problems, and unravel riddles. Test your skills and win rewards!",
       colour = discord.Colour.blue()
     )
+    
+    if len(challenges) == 0:
+      embed.add_field(name = "No available challenges at the moment", value = "", inline = False)
+      embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+      embed.set_footer(text = "Skilled Problems | Botato Braintraining", icon_url = self.bot.user.display_avatar.url)
+      return
 
     for i, challenge in enumerate(challenges):
-      embed.add_field(name = "", value = f"```Challenge {i + 1} | {challenge['category']} | {challenge['prize']}€ ```", 
+      embed.add_field(name = "", value = f"```🔮 {i + 1} {challenge['category']} 💶{challenge['prize']}€ ```", 
                       inline = False)
       embed.add_field(name = "", value = challenge["problem"], inline = False)
     embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
@@ -90,19 +97,24 @@ class DailyChallenges(commands.Cog):
         return
 
     embed = discord.Embed(
-      title = challenge["category"],
-      description = challenge["problem"],
+      title = f"📚{challenge['category']}📚",
+      description = f"🔍 {challenge['problem']}",
       colour = discord.Colour.blue()
     )
-    embed.add_field(name = "", value = "``` Options ```", inline = False)
+    embed.add_field(name = "", value = "``` 🔘 Possible Options ```", inline = False)
     selection_future = asyncio.Future()
+
+    map_color = ["🔴", "🔵", "🟢", "🟡"]
     for i, option in enumerate(challenge["options"]):
       if i == 2:
         embed.add_field(name = "", value = "", inline = False) # Separator
-      embed.add_field(name = f"Option {i + 1}", value = option, inline = True)
+      embed.add_field(name = f"{map_color[i]} Option {i + 1}", value = option, inline = True)
       selection_button = FutureIdButton(user_id = interaction.user.id, future = selection_future, 
-                                        id = i, label = f"Option {i + 1}")
+                                        id = i, label = f"{map_color[i]} Option {i + 1}")
       view.add_item(selection_button)
+    embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+    embed.set_footer(text = "Skilled Problems | Botato Braintraining", icon_url = self.bot.user.display_avatar.url)
+  
     await message.edit(embed = embed, view = view)
 
     selection = await selection_future
@@ -118,7 +130,6 @@ class DailyChallenges(commands.Cog):
     else:
       await interaction.followup.send("Wrong answer, better luck next time!")
 
-    print(challenge)
     if interaction.user.name not in tried_challenges:
       tried_challenges[interaction.user.name] = [challenge["filename"]]
     else:  
