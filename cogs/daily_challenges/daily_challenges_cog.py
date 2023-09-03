@@ -13,6 +13,10 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+import discord
+from discord import app_commands
+from discord.ext import commands
+
 class DailyChallenges(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
