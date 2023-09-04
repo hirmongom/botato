@@ -5,7 +5,7 @@
       "category": "Math",
       "problem": "Solve for x: 2x + 5 = 11",
       "options": ["x = 1", "x = 3", "x = 4", "x = 5"],
-      "solution": 2,
+      "solution": 1,
       "prize": 300
     },
     {
