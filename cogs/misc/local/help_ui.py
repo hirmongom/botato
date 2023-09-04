@@ -11,7 +11,8 @@ class HelpHandlerSelect(discord.ui.Select):
       discord.SelectOption(label = "🔑 Game Keys", value = 2),
       discord.SelectOption(label = "🎲 Bets", value = 3),
       discord.SelectOption(label = "🎰 Casino", value = 4),
-      discord.SelectOption(label = "📦 Miscellaneous", value = 5)
+      discord.SelectOption(label = "📚 Daily Problems", value = 5),
+      discord.SelectOption(label = "📦 Miscellaneous", value = 6)
     ]
     self.placeholder = "Choose a category"
 
@@ -51,6 +52,9 @@ class HelpHandlerSelect(discord.ui.Select):
       self.placeholder = "🎰 Casino"
       embed = self.casino_help_embed()
     elif choice == 5:
+      self.placeholder = "📚 Daily Problems"
+      embed = self.daily_problems_help_embed()    
+    elif choice == 6:
       self.placeholder = "📦 Miscellaneous"
       embed = self.misc_help_embed()
 
@@ -59,9 +63,9 @@ class HelpHandlerSelect(discord.ui.Select):
 
   def main_help_embed(self) -> discord.Embed:
     embed = discord.Embed(
-      title = "📚 Bot Help",
+      title = "❓ Bot Help",
       description = "Welcome to the help menu! Use the interface below to navigate through the bot's features.",
-      color = discord.Color.light_embed()
+      color = discord.Colour.light_embed()
     )
 
     embed.add_field(name = "```👤 User```", value = "Category related to user profiles, experience, and rankings.", inline = False)
@@ -69,6 +73,7 @@ class HelpHandlerSelect(discord.ui.Select):
     embed.add_field(name = "```🔑 Game Keys```", value = "Category centered around tracking game key prices and receiving updates.", inline = False)
     embed.add_field(name = "```🎲 Bets```", value = "Category centered around placing bets on various events.", inline = False)
     embed.add_field(name = "```🎰 Casino```", value = "Category centered around testing your luck and increasing your virtual finances within the server.", inline = False)
+    embed.add_field(name = "```📚 Daily Problems```", value = "Category centered around daily challenges that test your knowledge and skills.", inline = False)
     embed.add_field(name = "```📦 Miscellaneous```", value = "Category centered around various utility and fun commands.")
     embed.add_field(name = "", value = "```🔗 Source Code```", inline = False)
     embed.add_field(name = "", value = "[Click here](https://github.com/hmongom/botato)" 
@@ -84,7 +89,7 @@ class HelpHandlerSelect(discord.ui.Select):
       embed = discord.Embed(
         title = "👤 User Category",
         description = "Category related to user profiles, experience, and rankings.",
-        color = discord.Color.blue()
+        color = discord.Colour.blue()
       )
       embed.add_field(
         name = "", value = "```📚 How Experience Works 📚```", inline = False
@@ -95,7 +100,8 @@ class HelpHandlerSelect(discord.ui.Select):
                 "- 📈 **Increasing XP Chances:** The more a user interacts with the bot, the higher their chances of earning XP with each interaction.\n"
                 "- 🌞 **Daily XP Opportunities:** Every day, users have specific chances to earn XP, promoting daily engagement.\n"
                 "- 📊 **Leveling Mechanics:** As users gather XP, they level up. Each new level requires more XP than the last, making progression challenging yet rewarding.\n"
-                "- 🔓 **Benefits of Leveling:** Advanced levels unlock additional features across various bot categories, enhancing the user's experience and capabilities.",
+                "- 🔓 **Benefits of Leveling:** Advanced levels unlock additional features across various bot categories, enhancing the user's experience and capabilities.\n"
+                "- 🏆 **Achievements:** Completing specific tasks and challenges grants achievements. Achievements come with XP rewards, helping you level up faster.",
         inline = False
       )
 
@@ -132,7 +138,7 @@ class HelpHandlerSelect(discord.ui.Select):
     embed = discord.Embed(
       title = "💰 Economy Category",
       description = "Category centered around managing your virtual finances within the server.",
-      color = discord.Color.green()
+      color = discord.Colour.green()
     )
     
     embed.add_field(
@@ -192,7 +198,7 @@ class HelpHandlerSelect(discord.ui.Select):
     embed = discord.Embed(
       title = "🔑 Game Keys Category",
       description = "Category centered around tracking game key prices and receiving updates.",
-      color = discord.Color.gold()
+      color = discord.Colour.gold()
     )
 
     embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
@@ -244,7 +250,7 @@ class HelpHandlerSelect(discord.ui.Select):
     embed = discord.Embed(
       title = "🎲 Bets Category",
       description = "Category centered around placing bets on various events.",
-      color = discord.Color.fuchsia()
+      color = discord.Colour.pink()
     )
     
     embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
@@ -278,20 +284,25 @@ class HelpHandlerSelect(discord.ui.Select):
     embed = discord.Embed(
       title = "🎰 Casino Category",
       description = "Category centered around testing your luck and increasing your virtual finances within the server.",
-      color = discord.Color.red()
+      color = discord.Colour.red()
     )
 
     embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
 
     embed.add_field(
-        name = "🃏 `/blackjack [bet amount]`",
-        value = "Play blackjack and try to double your bet.",
-        inline = False
+      name = "🃏 `/blackjack [bet amount]`",
+      value = "Play blackjack and try to double your bet.",
+      inline = False
     )
     embed.add_field(
-        name = "🎰 `/roulette`",
-        value = "Spin the roulette wheel and place your bet.",
-        inline = False
+      name = "🎰 `/roulette`",
+      value = "Spin the roulette wheel and place your bet.",
+      inline = False
+    )
+    embed.add_field(
+      name = "🏇 `/horse_race`",
+      value = "Participate in horse racing and bet on your favorite horse to win.",
+      inline = False
     )
     
     embed.add_field(name = "", value = "", inline = False) # Separator
@@ -300,11 +311,35 @@ class HelpHandlerSelect(discord.ui.Select):
     return embed
     
 
+  def daily_problems_help_embed(self) -> discord.Embed:
+    embed = discord.Embed(
+      title = "📚 Daily Problems Category",
+      description = "Category centered around daily challenges that test your knowledge and skills.",
+      color = discord.Colour.purple()
+    )
+    embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
+
+    embed.add_field(
+      name = "🎓 `/daily_problems`",
+      value = "Show daily problems and try to solve them",
+      inline = False
+    )
+    embed.add_field(
+      name = "🧩 `/create_daily_problem [category] [prize]`",
+      value = "(ADMIN) Create a daily problem for users to solve",
+      inline = False
+    )
+
+    embed.add_field(name = "", value = "", inline = False) # Separator
+    embed.set_footer(text = "Useful Assistance | Botato Help", icon_url = self.bot.user.display_avatar.url)
+
+    return embed
+
   def misc_help_embed(self) -> discord.Embed:
     embed = discord.Embed(
         title = "🔧 Miscellaneous Category",
         description = "Category centered around various utility and fun commands.",
-        color = discord.Color.orange()
+        color = discord.Colour.orange()
     )
 
     embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
