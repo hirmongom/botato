@@ -108,7 +108,7 @@ class DailyChallenges(commands.Cog):
         return
 
     embed = discord.Embed(
-      title = f"📚{challenge['category']}📚",
+      title = f"📚 {challenge['category']} 📚",
       description = f"🔍 {challenge['problem']}",
       colour = discord.Colour.blue()
     )
