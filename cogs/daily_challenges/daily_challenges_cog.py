@@ -33,10 +33,11 @@ class DailyChallenges(commands.Cog):
   async def daily_task(self) -> None:
     for file in os.listdir("data/daily_challenges"):
       if file.endswith(".json"):
+        self.bot.interaction_logger.info(f"Removed challenge data/daily_challenges/{file}")
         os.remove(f"data/daily_challenges/{file}")
     # @todo get next automated daily challenge
     tried_challenges = {}
-    save_json(tried_challenges, "data/tried_challenges", "daily_challenges")
+    save_json(tried_challenges, "tried_challenges", "daily_challenges")
 
 
   @app_commands.command(

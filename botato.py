@@ -76,7 +76,7 @@ class Botato(commands.Bot):
 
   @tasks.loop(hours = 1)
   async def hourly_loop(self) -> None:
-    daily_task_hour = 0
+    daily_task_hour = 6
     current_date = date.today()
     day_name = current_date.strftime('%A')
     now = datetime.now()
