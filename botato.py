@@ -98,6 +98,7 @@ class Botato(commands.Bot):
     # Run hourly cog tasks
     for cog in self.cogs.values():
       if hasattr(cog, "hourly_task"):
+        self.interaction_logger.info(f"{cog.qualified_name} hourly_task")
         await cog.hourly_task()
 
 
