@@ -10,7 +10,7 @@ class HorseSelect(discord.ui.Select):
     self.options = [
       discord.SelectOption(label = "🐎 Horse", value = 0),
       discord.SelectOption(label = "🐜 Ant", value = 1),
-      discord.SelectOption(label = "🚬 Cigarette", value = 2),
+      discord.SelectOption(label = "🥬 Lettuce", value = 2),
       discord.SelectOption(label = "🥔 Potato", value = 3),
     ]
     self.user_id = user_id
@@ -42,7 +42,7 @@ class BetModal(discord.ui.Modal):
 
 
 async def race(message: discord.Message, embed: discord.Embed, tracks: list[list[str]]) -> int:
-  racer_icon_map = ["🐎", "🐜", "🚬", "🥔"]
+  racer_icon_map = ["🐎", "🐜", "🥬", "🥔"]
   track_size = len(tracks[0])
   racer_positions = [0, 0, 0, 0]
   while True:
