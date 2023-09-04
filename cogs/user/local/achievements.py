@@ -24,7 +24,7 @@ map_stat_name = {
     "horse_races_played": "Horse Race Bets Made",
     "horse_races_won": "Successful Horse Race Bets",
     "bets_placed": "Total Bets Made",
-    "completed_daily_challenges": "Total Daily Challenges Solved"
+    "completed_daily_problems": "Total Daily Problems Solved"
 }
 
 

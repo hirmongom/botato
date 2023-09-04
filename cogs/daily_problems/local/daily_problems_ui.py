@@ -2,13 +2,13 @@ import asyncio
 import discord
 
 
-class ChallengeSelect(discord.ui.Select):
-  def __init__(self, user_id: int, challenges: list[dict], future: asyncio.Future, 
+class ProblemSelect(discord.ui.Select):
+  def __init__(self, user_id: int, problems: list[dict], future: asyncio.Future, 
               *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
     self.user_id = user_id
-    for i, challenge in enumerate(challenges):
-      self.add_option(label = f"{i + 1}. {challenge['category']}", value = i)
+    for i, problem in enumerate(problems):
+      self.add_option(label = f"{i + 1}. {problem['category']}", value = i)
     self.future = future
 
   async def callback(self, interaction: discord.Interaction) -> None:
