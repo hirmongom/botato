@@ -147,5 +147,20 @@ class Debug(commands.Cog):
     await interaction.followup.send("hourly_task() triggered for all cogs") 
 
 
+  @app_commands.command(
+    name = "trigger_hourly_loop",
+    description = "(ADMIN) Executes houly_loop()")
+  async def trigger_hourly_loop(self, interaction: discord.Interaction) -> None:
+    self.bot.interaction_logger.info(f"|trigger_hourly_loop| from {interaction.user.name}")
+    await interaction.response.defer()
+
+    if not interaction.user.guild_permissions.administrator:
+      await interaction.response.send_message("Missing Administrator permissions")
+      return
+
+    await self.bot.hourly_loop()
+    await interaction.followup.send("hourly_loop() triggered") 
+
+
 async def setup(bot: commands.Bot) -> None:
   await bot.add_cog(Debug(bot))

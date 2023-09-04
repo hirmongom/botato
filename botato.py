@@ -76,13 +76,12 @@ class Botato(commands.Bot):
 
   @tasks.loop(hours = 1)
   async def hourly_loop(self) -> None:
-    daily_task_hour = 6
+    daily_task_hour = 0
     current_date = date.today()
     day_name = current_date.strftime('%A')
     now = datetime.now()
-
     # Run weekly cog tasks
-    if day_name == "Sunday" and now.hour == daily_task_hour:
+    if day_name == "Monday" and now.hour == daily_task_hour:
       for cog in self.cogs.values():
         if hasattr(cog, "weekly_task"):
           self.interaction_logger.info(f"{cog.qualified_name} weekly_task")
