@@ -35,7 +35,17 @@ class DailyChallenges(commands.Cog):
       if file.endswith(".json"):
         self.bot.interaction_logger.info(f"Removed challenge data/daily_challenges/{file}")
         os.remove(f"data/daily_challenges/{file}")
-    # @todo get next automated daily challenge
+
+    for file in os.listdir("data/daily_challenges/problem_data"):
+      if file.endswith(".json"):
+        problem_data = load_json(f"problem_data/{file[:-5]}", "daily_challenges")
+        if problem_data["problems"]:
+            problem = problem_data["problems"].pop(0)
+            save_json(problem_data, f"problem_data/{file[:-5]}", "daily_challenges")
+            save_json(problem, problem["problem_id"], "daily_challenges")
+        else:
+            self.bot.interaction_logger.info(f"No problems left for {file[-5]}")
+
     tried_challenges = {}
     save_json(tried_challenges, "tried_challenges", "daily_challenges")
 

@@ -84,8 +84,3 @@ class WebScrapper():
       price = key.find("div", class_ = "offers-table-row-cell buy-btn-cell").find("span").get_text()
       content += f"\n{info}    {price} {store}"
     return content
-
-  def get_daily_math_problem(self) -> None:
-    pass # @todo scrap math problem
-    # https://www.mathopolis.com/questions/day.php?y=C
-    # https://www.mathopolis.com/questions/day.php?y=C#ans

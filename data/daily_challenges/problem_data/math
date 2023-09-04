@@ -1,0 +1,188 @@
+{
+  "problems": [
+    {
+      "problem_id": "math0",
+      "category": "Math",
+      "problem": "Solve for x: 2x + 5 = 11",
+      "options": ["x = 1", "x = 3", "x = 4", "x = 5"],
+      "solution": 2,
+      "prize": 300
+    },
+    {
+      "problem_id": "math1",
+      "category": "Math",
+      "problem": "Find the area of a circle with radius 3",
+      "options": ["9π square units", "6 square units", "12 square units", "15π square units"],
+      "solution": 0,
+      "prize": 450
+    },
+    {
+      "problem_id": "math2",
+      "category": "Math",
+      "problem": "What is the square root of 144?",
+      "options": ["9", "12", "14", "16"],
+      "solution": 1,
+      "prize": 230
+    },
+    {
+      "problem_id": "math3",
+      "category": "Math",
+      "problem": "Simplify: (3x^2 * 2x^3) / (6x)",
+      "options": ["x^3", "x^5", "6x^5", "6x^6"],
+      "solution": 0,
+      "prize": 560
+    },
+    {
+      "problem_id": "math4",
+      "category": "Math",
+      "problem": "What is the value of π (pi) to two decimal places?",
+      "options": ["3.14", "3.141", "3.1416", "3.14159"],
+      "solution": 0,
+      "prize": 160
+    },
+    {
+      "problem_id": "math5",
+      "category": "Math",
+      "problem": "Solve for x: 3x + 5 = 17",
+      "options": ["2", "4", "6", "8"],
+      "solution": 2,
+      "prize": 420
+    },
+    {
+      "problem_id": "math6",
+      "category": "Math",
+      "problem": "If a rectangle has a length of 8 units and a width of 6 units, what is its area?",
+      "options": ["24", "36", "48", "56"],
+      "solution": 1,
+      "prize": 270
+    },
+    {
+      "problem_id": "math7",
+      "category": "Math",
+      "problem": "Simplify the expression: 2(3x - 5) - 4(2x + 1)",
+      "options": ["-8x - 14", "2x + 14", "8x - 14", "14 - 8x"],
+      "solution": 0,
+      "prize": 390
+    },
+    {
+      "problem_id": "math8",
+      "category": "Math",
+      "problem": "What is the value of π (pi) to three decimal places?",
+      "options": ["3.141", "3.142", "3.143", "3.140"],
+      "solution": 1,
+      "prize": 210
+    },
+    {
+      "problem_id": "math9",
+      "category": "Math",
+      "problem": "If a triangle has angles measuring 45 degrees, 45 degrees, and 90 degrees, what type of triangle is it?",
+      "options": ["Equilateral", "Isosceles", "Scalene", "Right"],
+      "solution": 3,
+      "prize": 180
+    },
+    {
+      "problem_id": "math10",
+      "category": "Math",
+      "problem": "What is the value of 5! (5 factorial)?",
+      "options": ["10", "20", "60", "120"],
+      "solution": 3,
+      "prize": 250
+    },
+    {
+      "problem_id": "math11",
+      "category": "Math",
+      "problem": "Solve for y: 2y - 7 = 11",
+      "options": ["4", "6", "9", "18"],
+      "solution": 2,
+      "prize": 390
+    },
+    {
+      "problem_id": "math12",
+      "category": "Math",
+      "problem": "What is the perimeter of a square with a side length of 10 units?",
+      "options": ["20", "30", "40", "50"],
+      "solution": 3,
+      "prize": 410
+    },
+    {
+      "problem_id": "math13",
+      "category": "Math",
+      "problem": "If a = 3 and b = 4, what is the value of √(a^2 + b^2)?",
+      "options": ["5", "6", "7", "8"],
+      "solution": 0,
+      "prize": 670
+    },
+    {
+      "problem_id": "math14",
+      "category": "Math",
+      "problem": "What is the area of a rectangle with a length of 12 units and a width of 5 units?",
+      "options": ["20 sq. units", "30 sq. units", "40 sq. units", "60 sq. units"],
+      "solution": 2,
+      "prize": 410
+    },
+    {
+      "problem_id": "math15",
+      "category": "Math",
+      "problem": "If a = 6 and b = 2, what is the value of a² - b²?",
+      "options": ["4", "16", "24", "32"],
+      "solution": 3,
+      "prize": 330
+    },
+    {
+      "problem_id": "math16",
+      "category": "Math",
+      "problem": "Solve for x: 3x + 8 = 20",
+      "options": ["2", "4", "6", "12"],
+      "solution": 1,
+      "prize": 410
+    },
+    {
+      "problem_id": "math17",
+      "category": "Math",
+      "problem": "What is the circumference of a circle with a radius of 5 units? (Use π ≈ 3.14)",
+      "options": ["10 units", "15 units", "20 units", "25 units"],
+      "solution": 0,
+      "prize": 360
+    },
+    {
+      "problem_id": "math18",
+      "category": "Math",
+      "problem": "What is the value of 2³ (2 raised to the power of 3)?",
+      "options": ["4", "8", "16", "32"],
+      "solution": 1,
+      "prize": 160
+    },
+    {
+      "problem_id": "math19",
+      "category": "Math",
+      "problem": "If a pizza is divided into 8 equal slices, and you eat 3 slices, how many slices are left?",
+      "options": ["2", "3", "4", "5"],
+      "solution": 0,
+      "prize": 250
+    },
+    {
+      "problem_id": "math20",
+      "category": "Math",
+      "problem": "Simplify the expression: 2(x + 3) - 4(x - 1)",
+      "options": ["2x - 2", "2x + 2", "4x - 2", "4x + 2"],
+      "solution": 1,
+      "prize": 350
+    },
+    {
+      "problem_id": "math21",
+      "category": "Math",
+      "problem": "If a car travels at a speed of 60 miles per hour, how far will it travel in 2.5 hours?",
+      "options": ["120 miles", "140 miles", "150 miles", "160 miles"],
+      "solution": 2,
+      "prize": 550
+    },
+    {
+      "problem_id": "math22",
+      "category": "Math",
+      "problem": "A store is offering a 20% discount on a $80 item. What is the final price after the discount?",
+      "options": ["$60", "$64", "$68", "$72"],
+      "solution": 0,
+      "prize": 490
+    }
+  ]
+}
