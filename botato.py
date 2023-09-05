@@ -26,7 +26,7 @@ from discord import app_commands
 from discord.ext import commands
 from discord.ext import tasks
 
-from utils.funcs import make_data, save_user_id
+from utils.data import make_data, save_user_id
 from utils.on_interactions import economy_on_interaction, user_on_interaction
 from utils.web_scrapper import WebScrapper
     
@@ -38,14 +38,16 @@ class Botato(commands.Bot):
       intents = discord.Intents.all(),
       activity = discord.Activity(type = discord.ActivityType.playing, 
                                   name = "The loading game (I'm loading)"))
-    self.set_up_loggers()
+    self.set_up_logger()
     self.logger.info("********************** RUN **********************")
 
-    self.main_channel = 0
-    self.web_scrapper = None
+    self.main_channel = 0     # Loads on run()
+    self.web_scrapper = None  # Loads on run()
 
 
-  def set_up_loggers(self) -> None: 
+  def set_up_logger(self) -> None: 
+    now = datetime.now()
+
     # Configure and set loggers
     logger_formatter_stream = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger_formatter_file = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
@@ -53,25 +55,12 @@ class Botato(commands.Bot):
     logger_stream_handler.setFormatter(logger_formatter_stream)
 
     # Set up main logger
-    self.logger = logging.getLogger("MainLogger")
+    self.logger = logging.getLogger("Logger")
     self.logger.setLevel(logging.INFO)
     self.logger.addHandler(logger_stream_handler)
-    main_file_handler = logging.FileHandler("logs/main.log")
+    main_file_handler = logging.FileHandler(f"logs/{now.day}_{now.month}_{now.year}.log")
     main_file_handler.setFormatter(logger_formatter_file)
     self.logger.addHandler(main_file_handler)
-
-    # Set up interaction logger
-    self.interaction_logger = logging.getLogger("InteractionLogger")
-    self.interaction_logger.setLevel(logging.DEBUG)
-    self.interaction_logger.addHandler(logger_stream_handler)
-    interaction_file_handler = logging.FileHandler("logs/interaction.log")
-    interaction_file_handler.setFormatter(logger_formatter_file)
-    self.interaction_logger.addHandler(interaction_file_handler)
-    self.interaction_logger.propagate = False
-
-
-  def cog_unload(self) -> None:
-    self.daily_cog_trigger.cancel()
 
 
   @tasks.loop(hours = 1)
@@ -80,6 +69,7 @@ class Botato(commands.Bot):
     current_date = date.today()
     day_name = current_date.strftime('%A')
     now = datetime.now()
+
     # Run weekly cog tasks
     if day_name == "Monday" and now.hour == daily_task_hour:
       for cog in self.cogs.values():
@@ -87,8 +77,9 @@ class Botato(commands.Bot):
           self.interaction_logger.info(f"{cog.qualified_name} weekly_task")
           await cog.weekly_task()
 
-    # Run daily cog tasks
+    # Run daily cog tasks and set up new logger 
     if now.hour == daily_task_hour:
+      self.set_up_logger()
       for cog in self.cogs.values():
         if hasattr(cog, "daily_task"):
           self.interaction_logger.info(f"{cog.qualified_name} daily_task")
@@ -120,26 +111,32 @@ class Botato(commands.Bot):
 
 
   async def setup_hook(self) -> None:
-    self.logger.info("Started setup_hook()")
+    self.logger.info("(!) Started setup_hook")
+
+    # Load cogs
     for folder in os.listdir("./cogs"):
       await self.load_extension(f"cogs.{folder}.{folder}_cog")
       self.logger.info(f"Loaded cog {folder}_cog")
+    
+    # Execute run options
     await self.argument_parsing()
-    self.logger.info("Finished setup_hook()")
+
+    self.logger.info("(!) Finished setup_hook")
 
 
   async def argument_parsing(self) -> None:
     if len(sys.argv) == 1:
-      return
+      return  # No arguments
 
-    self.logger.info("Started argument parsing")
+    self.logger.info("(!) Started argument parsing")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--sync", action = "store_true", help = "Run setup_hook on startup to sync commands")
     parser.add_argument("--wipe", action = "store_true", help = "Wipe all json data (only)")
-    parser.add_argument("--fetch", action = "store_true", help = "Fetch all data by running fetch_data() for all cogs")
     args = parser.parse_args()
 
     if args.sync:
+      # Sync tree commands
       self.logger.info("--sync")
       try:
         sync = await self.tree.sync()
@@ -148,34 +145,32 @@ class Botato(commands.Bot):
         self.logger.error(f"Failed to sync commands: \n{e}")
 
     if args.wipe:
+      # Delete al .json data
       self.logger.info("--wipe")
       for category in os.listdir("data/"):
         for data_file in os.listdir(f"data/{category}/"):
           if os.path.isdir(f"data/{category}/{data_file}"):
             for sub_data_file in os.listdir(f"data/{category}/{data_file}"):
               if sub_data_file.endswith(".json"):
+                self.logger.info(f"Removed data/{category}/{data_file}/{sub_data_file}")
                 os.remove(f"data/{category}/{data_file}/{sub_data_file}")
           elif data_file.endswith(".json"):
+            self.logger.info(f"Removed data/{category}/{data_file}")
             os.remove(f"data/{category}/{data_file}")
       self.logger.info("Json data wipe completed")
 
-    if args.fetch:
-      self.logger.info("--fetch")
-      for cog in self.cogs.values():
-        if hasattr(cog, "fetch_data"):
-          self.logger.info(f"fetch_data() for cog {cog.qualified_name}")
-          await cog.fetch_data()
-
-    self.logger.info("Finished argument parsing")
+    self.logger.info("(!) Finished argument parsing")
 
 
   async def on_ready(self) -> None:
     self.hourly_loop.start()
+
     for cog in self.cogs.values():
-        if hasattr(cog, "on_bot_run"):
-          self.logger.info(f"on_bot_run() for cog {cog.qualified_name}")
-          await cog.on_bot_run()
-    self.logger.info(f"{bot.user} is ready")
+      if hasattr(cog, "on_bot_run"):
+        self.logger.info(f"{cog.qualified_name} on_bot_run")
+        await cog.on_bot_run()
+
+    self.logger.info(f"(*******) {bot.user} is ready")
     activity = discord.Activity(type = discord.ActivityType.watching, 
                                 name = "lo tonto que eres")
     await self.change_presence(activity = activity)
@@ -184,10 +179,11 @@ class Botato(commands.Bot):
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     if interaction.type == discord.InteractionType.application_command:
+      # @todo add user stat for achievments (commands_executed)
       if interaction.data["name"] == "wipe":
         return
    
-    try:
+    try: # Run on_interaction functions
       await economy_on_interaction(interaction)
       await user_on_interaction(interaction)
     except KeyError: # First user interaction
