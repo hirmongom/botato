@@ -34,7 +34,7 @@ class DailyProblems(commands.Cog):
     for file in os.listdir("data/daily_problems"):
       if file.endswith(".json"):
         self.bot.interaction_logger.info(f"Removed problem data/daily_problems/{file}")
-        os.remove(f"data/daily_poroblems/{file}")
+        os.remove(f"data/daily_problems/{file}")
 
     for file in os.listdir("data/daily_problems/problem_data"):
       if file.endswith(".json"):
