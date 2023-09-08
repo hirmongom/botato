@@ -1,0 +1,6 @@
+redo achievments into own data file
+create global custom_ui.py for reusable interface
+add mention on interactions and ephemeral where it is needed
+comment parts of code
+most commands should have one or multiple handlers depending on the steps (eg blackjack-> play stage, score stage)
+use consistent interfaces
