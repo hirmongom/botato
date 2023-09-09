@@ -41,6 +41,7 @@ class Keys(commands.Cog):
       keys = ""
       try:
         for title in games.keys():
+          # @todo embed
           while True:
             keys = self.bot.web_scrapper.get_game_keys(games[title])
             if len(keys) != 0:
@@ -63,24 +64,43 @@ class Keys(commands.Cog):
     query = "The search query to find the game you are looking for"
   )
   async def keys(self, interaction: discord.Interaction, query: str) -> None:
-    self.bot.interaction_logger.info(f"|keys| from {interaction.user.name} with query |{query}|")
+    # @todo global embed generation
+    # @todo use same format for update() and weekly_trigger()
+    self.bot.logger.info(f"(INTERACTION) |keys| from {interaction.user.name} with query |{query}|")
     await interaction.response.defer()
     await add_user_stat("gamekeys_searched", interaction)
 
+    embed = discord.Embed(
+      title = "🎮 Game Keys Search 🎮",
+      description = f"Query: <{query}>",
+      colour = discord.Colour.blue()
+    )
+    embed.set_footer(text = "Cheap Keys | Botato Game Keys", icon_url = self.bot.user.display_avatar.url)
     try:
       link = self.bot.web_scrapper.get_game_link(query)
       title = self.bot.web_scrapper.get_game_title(link)
+      image_link_title = title.replace(' ', '').replace('\'', '')
+      image_link = f"https://www.clavecd.es/wp-content/uploads/{image_link_title}-1.webp"
+      embed.set_thumbnail(url = image_link)
+      embed.description = f"{link}"
+      embed.add_field(name = "", value = f"```🔑 {title} 🔑```", inline = False)
       while True:
         content = self.bot.web_scrapper.get_game_keys(link)
         if len(content) != 0:
             break
         self.bot.web_scrapper.restart_driver()
     except Exception as e:
-      print(e)
-      await interaction.followup.send(f"No results found")
+      self.bot.logger.error(f"Error on keys search: {e}")
+      embed.add_field(name = "No results found", value = "")
+      embed.add_field(name = "", value = "", inline = False) # Pre footer separator
+      await interaction.followup.send(embed = embed)
       return
 
-    await interaction.followup.send(f"{title}\n{link}\n{content}")
+    for key in content:
+      embed.add_field(name = key, value = "", inline = False)
+
+    embed.add_field(name = "", value = "", inline = False) # Pre footer separator
+    await interaction.followup.send(embed = embed)
 
 
   @app_commands.command(
@@ -91,7 +111,8 @@ class Keys(commands.Cog):
     game = "The game you want to follow"
   )
   async def follow(self, interaction: discord.Interaction, game : str) -> None:
-    self.bot.interaction_logger.info(f"|follow| from {interaction.user.name} with game |{game}|")
+    # @todo embed
+    self.bot.logger.info(f"(INTERACTION) |follow| from {interaction.user.name} with game |{game}|")
 
     if get_following_list_size(interaction.user.name) >= 25:
       await interaction.response.send_message("You have reached the maximum of following games")
@@ -117,7 +138,8 @@ class Keys(commands.Cog):
     description = "Lists all games you are following"
   )
   async def list(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|list| from {interaction.user.name}")
+    # @todo embed
+    self.bot.logger.info(f"(INTERACTION) |list| from {interaction.user.name}")
 
     games = get_game_list(interaction.user.name)   
 
@@ -137,7 +159,7 @@ class Keys(commands.Cog):
     description = "Remove one or multiple games from your following list"
   )
   async def unfollow(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|unfollow| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |unfollow| from {interaction.user.name}")
     await interaction.response.defer()
 
     games = get_game_list(interaction.user.name)
@@ -175,7 +197,7 @@ class Keys(commands.Cog):
     description = "Get the key prices for all the games on your following list"
     )
   async def update(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|update| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |update| from {interaction.user.name}")
     await interaction.response.defer()
     games = load_json(interaction.user.name, "keys")
 
@@ -211,7 +233,7 @@ class Keys(commands.Cog):
     app_commands.Choice(name = "Disable", value = 0)
   ])
   async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
-    self.bot.interaction_logger.info(f"|autoupdate_keys| from {interaction.user.name} and param {option}")
+    self.bot.logger.info(f"(INTERACTION) |autoupdate_keys| from {interaction.user.name} and param {option}")
 
     games = load_json(interaction.user.name, "keys")
     if len(games) == 0:

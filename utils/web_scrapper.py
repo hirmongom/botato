@@ -66,7 +66,7 @@ class WebScrapper():
     return title
 
 
-  def get_game_keys(self, link: str) -> str:
+  def get_game_keys(self, link: str) -> list[str]:
     self.driver.get(link)
     html = self.driver.page_source
 
@@ -75,12 +75,12 @@ class WebScrapper():
     table = soup.find("div", id = "offers_table")
     keys = table.find_all("div", class_ = "offers-table-row x-offer")
 
-    content = ""
+    keys_list = []
     for i, key in enumerate(keys):
       if (i == 5 or i == len(keys)):
         break     
       info = "[ " + key.find("div", class_ = "x-offer-edition-region-names offers-infos d-block d-md-none").get_text(separator = " - ") + " ]"
       store = key.find("div", class_ = "x-offer-merchant-title offers-merchant text-truncate").get("title")
       price = key.find("div", class_ = "offers-table-row-cell buy-btn-cell").find("span").get_text()
-      content += f"\n{info}    {price} {store}"
-    return content
+      keys_list.append(f"\n{info}    {price} {store}")
+    return keys_list
