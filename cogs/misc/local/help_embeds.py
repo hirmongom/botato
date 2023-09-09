@@ -86,7 +86,12 @@ def user_help_embed(bot: commands.Bot) -> discord.Embed:
     value = "Check the leaderboard across different categories.",
     inline = False
   )
-
+  # Wipe command
+  embed.add_field(
+    name = "🗑️ `/wipe`",
+    value = "Erase all your data from the bot.",
+    inline = False
+  )
   embed.add_field(name = "", value = "", inline = False) # Separator
   embed.set_footer(text = "Useful Assistance | Botato Help", icon_url = bot.user.display_avatar.url)
 

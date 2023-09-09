@@ -171,10 +171,9 @@ class User(commands.Cog):
 
   @app_commands.command(
     name = "wipe",
-    description = "Erease all your data from the bot"
+    description = "Erase all your data from the bot"
   )
   async def wipe(self, interaction: discord.Interaction) -> None:
-    print("wipe")
     class ConfirmationModal(discord.ui.Modal):
       def __init__(self, user_name: str,  future: asyncio.Future, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
