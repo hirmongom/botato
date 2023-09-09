@@ -22,7 +22,8 @@ import datetime
 
 from utils.json import load_json, save_json
 from utils.achievement import add_user_stat
-from .local.game_data import store_game, get_game_list, remove_games, get_following_list_size
+from .local.keys_funcs import (
+  store_game, get_game_list, remove_games, get_following_list_size, get_game_embed)
 
 
 class Keys(commands.Cog):
@@ -34,26 +35,17 @@ class Keys(commands.Cog):
     channel = self.bot.get_channel(int(self.bot.main_channel))
     data = load_json("autoupdate", "keys")
     user_ids = load_json("user_ids", "other")
+
     for user in data.keys():
       await channel.send(f"<@{user_ids[user]}> Your weekly update is ready!")
-
       games = load_json(user, "keys")
-      keys = ""
-      try:
-        for title in games.keys():
-          # @todo embed
-          while True:
-            keys = self.bot.web_scrapper.get_game_keys(games[title])
-            if len(keys) != 0:
-              break
-            self.bot.web_scrapper.restart_driver()
-          await channel.send(
-            f"**{title}**\n<{games[title]}>\n{keys}")
-        await channel.send("------------------------------------------------------------")
-      except Exception as e:
-        self.bot.logger(f"Error on Keys weekly trigger for {user}\n{e}")
-        await channel.send(content = "An error ocurred")
-        return
+      for title in games.keys():
+        try:
+          embed = get_game_embed(bot = self.bot, title = title, link = games[title])
+          await channel.send(embed = embed)
+        except Exception as e:
+          self.bot.logger.error(f"Error on Keys weekly trigger for {user}, title = <{title}>, "
+                                f"link = {games[title]}\n{e}")
 
 
   @app_commands.command(
@@ -64,42 +56,21 @@ class Keys(commands.Cog):
     query = "The search query to find the game you are looking for"
   )
   async def keys(self, interaction: discord.Interaction, query: str) -> None:
-    # @todo global embed generation
-    # @todo use same format for update() and weekly_trigger()
     self.bot.logger.info(f"(INTERACTION) |keys| from {interaction.user.name} with query |{query}|")
     await interaction.response.defer()
-    await add_user_stat("gamekeys_searched", interaction)
 
-    embed = discord.Embed(
-      title = "🎮 Game Keys Search 🎮",
-      description = f"Query: <{query}>",
-      colour = discord.Colour.blue()
-    )
-    embed.set_footer(text = "Cheap Keys | Botato Game Keys", icon_url = self.bot.user.display_avatar.url)
+    user_ids = load_json("user_ids", "other")
+    await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> Searching ...")
+
+    await add_user_stat("gamekeys_searched", interaction)
     try:
       link = self.bot.web_scrapper.get_game_link(query)
       title = self.bot.web_scrapper.get_game_title(link)
-      image_link_title = title.replace(' ', '').replace('\'', '')
-      image_link = f"https://www.clavecd.es/wp-content/uploads/{image_link_title}-1.webp"
-      embed.set_thumbnail(url = image_link)
-      embed.description = f"{link}"
-      embed.add_field(name = "", value = f"```🔑 {title} 🔑```", inline = False)
-      while True:
-        content = self.bot.web_scrapper.get_game_keys(link)
-        if len(content) != 0:
-            break
-        self.bot.web_scrapper.restart_driver()
+      embed = get_game_embed(bot = self.bot, title = title, link = link)
     except Exception as e:
       self.bot.logger.error(f"Error on keys search: {e}")
-      embed.add_field(name = "No results found", value = "")
-      embed.add_field(name = "", value = "", inline = False) # Pre footer separator
-      await interaction.followup.send(embed = embed)
-      return
+      embed = get_game_embed(bot = self.bot, query = query)
 
-    for key in content:
-      embed.add_field(name = key, value = "", inline = False)
-
-    embed.add_field(name = "", value = "", inline = False) # Pre footer separator
     await interaction.followup.send(embed = embed)
 
 
@@ -161,11 +132,12 @@ class Keys(commands.Cog):
   async def unfollow(self, interaction: discord.Interaction) -> None:
     self.bot.logger.info(f"(INTERACTION) |unfollow| from {interaction.user.name}")
     await interaction.response.defer()
-
+    user_ids = load_json("user_ids", "other")
     games = get_game_list(interaction.user.name)
 
     if len(games) == 0:
-      await interaction.followup.send("You are not following any games")
+      await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> You are not following "
+                                      "any games")
       return
 
     game_choice = [discord.SelectOption(label = game, value = i) for i, game in enumerate(games)]
@@ -184,7 +156,8 @@ class Keys(commands.Cog):
       response = ""
       for game in to_remove:
         response += "\n-\t" + game
-      await message.edit(content = f"You unfollowed:{response}", view = None)
+      await message.edit(content = f"<@{user_ids[interaction.user.name]}> You unfollowed:"
+                        f"{response}", view = None)
 
     menu.callback = menu_callback
     view = View()
@@ -199,29 +172,24 @@ class Keys(commands.Cog):
   async def update(self, interaction: discord.Interaction) -> None:
     self.bot.logger.info(f"(INTERACTION) |update| from {interaction.user.name}")
     await interaction.response.defer()
+    user_ids = load_json("user_ids", "other")
     games = load_json(interaction.user.name, "keys")
 
     if len(games) == 0:
-      await interaction.followup.send("You are not following any games")
+      await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> You are not following "
+                                      "any games")
       return
 
-    message = await interaction.followup.send("Sit back and relax, this may take some time...")
+    await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> Sit back and relax, "
+                                    "this may take some time...")
 
-    keys = ""
-    try:
-      for title in games.keys():
-        while True:
-          keys = self.bot.web_scrapper.get_game_keys(games[title])
-          if len(keys) != 0:
-            break
-          self.bot.web_scrapper.restart_driver()
-        await interaction.followup.send(
-          f"**{title}**\n<{games[title]}>\n{keys}")
-    except Exception as e:
-      self.bot.logger.error(f"Error on update() for {interaction.user.name}\n{e}")
-      await message.edit(content = "An error ocurred")
-      return
-    await message.delete()
+    for title in games.keys():
+      try:
+        embed = get_game_embed(bot = self.bot, title = title, link = games[title])
+        await interaction.followup.send(embed = embed)
+      except Exception as e:
+        self.bot.logger.error(f"Error on keys update() for {interaction.user.name}, title = <{title}>, "
+                        f"link = {games[title]}\n{e}")
 
 
   @app_commands.command(
