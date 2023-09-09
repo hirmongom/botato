@@ -20,7 +20,7 @@ import ctypes
 import discord
 
 from utils.json import load_json, save_json
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 
 # ************************** bet() command **************************
 

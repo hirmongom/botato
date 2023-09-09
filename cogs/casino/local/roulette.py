@@ -16,7 +16,7 @@
 import asyncio
 import discord
 
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 
 # **************************************************************************************************
 class BetTypeSelect(discord.ui.Select):

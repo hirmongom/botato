@@ -18,7 +18,7 @@ import random
 import discord
 
 from utils.json import save_json
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 
 kDeck = [
   "Ace of Hearts", "2 of Hearts", "3 of Hearts", "4 of Hearts", "5 of Hearts",

@@ -22,7 +22,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.json import load_json, save_json
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 from .local.daily_problems_ui import ProblemSelect, FutureIdButton, FutureModalButton, FutureModal, SolutionSelect
 
 class DailyProblems(commands.Cog):

@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from utils.json import load_json
-from utils.funcs import make_data, save_user_id
+from utils.data import make_data, save_user_id
 
 class Exception(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:

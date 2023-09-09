@@ -24,7 +24,7 @@ import random
 
 
 from utils.json import load_json, save_json
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 
 from .local.blackjack import (
   blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
