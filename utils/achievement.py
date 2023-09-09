@@ -184,3 +184,4 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
         await update_achievment(interaction, achievement_data, user_data, stat, 50, 4)
 
     save_json(achievement_data, interaction.user.name, "achievement")
+    save_json(user_data, interaction.user.name, "user")
