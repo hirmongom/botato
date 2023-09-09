@@ -65,18 +65,27 @@ class Misc(commands.Cog):
                                               f"not within the limits")
       return
     
-    # Perform the rolls and add to result and response
+    embed = discord.Embed(
+      title = "🎲 Dice Roll 🎲",
+      description = f"Roll results for {rolls}d{dice}",
+      colour = discord.Colour.red()
+    )
+    embed.add_field(name = "", value = "``` ROLLS ```", inline = False)
+    
+    # Perform the rolls and form the embed
     roll_result = 0
-    response = ""
     for i in range(rolls):
       roll = random.randint(1, dice)
       roll_result += roll
-      response += f"\n\tRoll {i + 1} = {roll}"
+      embed.add_field(name = "", value = f"🎲 Roll {i + 1} = {roll}", inline = False)
 
-    # Form and send response
-    response += f"\nTOTAL = {roll_result}"
-    await interaction.response.send_message(f"<@{interaction.user.id}> You rolled {rolls}d{dice} " 
-                                            f"and got:{response}")
+    embed.add_field(name = "", value = "``` TOTAL ```", inline = False)
+    embed.add_field(name = roll_result, value = "", inline = False)
+    
+    embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+    embed.set_footer(text = "Random Rolls | Botato Dices", icon_url = self.bot.user.display_avatar.url)
+
+    await interaction.response.send_message(embed = embed)
 
 
 #***************************************************************************************************
