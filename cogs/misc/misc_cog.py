@@ -55,7 +55,6 @@ class Misc(commands.Cog):
     ]
   )
   async def roll(self, interaction: discord.Interaction, rolls: int, dice: int):
-    # @todo embed
     self.bot.logger.info(f"(INTERACTION) |roll| from {interaction.user.name} with rolls = {rolls} " 
                          f"and dice = {dice}")
 
