@@ -40,6 +40,7 @@ def make_data(user: str) -> None:
 
   achievement_data = {}
   achievement_data["days_interacted"] = 0
+  achievement_data["command_count"] = 0
   achievement_data["gamekeys_searched"] = 0
   achievement_data["bets_placed"] = 0
   achievement_data["blackjack_hands_played"] = 0

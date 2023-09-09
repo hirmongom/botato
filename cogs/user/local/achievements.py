@@ -16,6 +16,7 @@
 
 map_stat_name = {
     "days_interacted": "Days Engaged",
+    "command_count": "Commands Executed",
     "gamekeys_searched": "Game Key Queries",
     "blackjack_hands_played": "Blackjack Rounds Played",
     "blackjack_hands_won": "Blackjack Rounds Victorious",

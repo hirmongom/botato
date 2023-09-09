@@ -24,6 +24,7 @@ lock = asyncio.Lock()
 async def update_achievment(interaction: discord.Interaction, achievement_data: dict, stat: str, value: int, tier: int) -> None:
   map_stat_name = {
     "days_interacted": "Days Engaged",
+    "command_count": "Commands Executed",
     "gamekeys_searched": "Game Key Queries",
     "blackjack_hands_played": "Blackjack Rounds Played",
     "blackjack_hands_won": "Blackjack Rounds Victorious",
@@ -69,6 +70,17 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
         await update_achievment(interaction, achievement_data, stat, 50, 3)
       if achievement_data[stat] == 100:
         await update_achievment(interaction, achievement_data, stat, 100, 4)
+
+    if stat == "command_count":
+      achievement_data[stat] += 1
+      if achievement_data[stat] == 100:
+        await update_achievment(interaction, achievement_data, stat, 100, 1)
+      if achievement_data[stat] == 250:
+        await update_achievment(interaction, achievement_data, stat, 250, 2)
+      if achievement_data[stat] == 500:
+        await update_achievment(interaction, achievement_data, stat, 500, 3)
+      if achievement_data[stat] == 1000:
+        await update_achievment(interaction, achievement_data, stat, 1000, 4)
 
     elif stat == "gamekeys_searched":
       achievement_data[stat] += 1

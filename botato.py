@@ -27,6 +27,7 @@ from discord.ext import commands
 from discord.ext import tasks
 
 from utils.data import make_data, save_user_id
+from utils.achievement import add_user_stat
 from utils.on_interactions import economy_on_interaction, user_on_interaction
 from utils.web_scrapper import WebScrapper
     
@@ -179,16 +180,15 @@ class Botato(commands.Bot):
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     if interaction.type == discord.InteractionType.application_command:
-      # @todo add user stat for achievments (commands_executed)
+      await add_user_stat("command_count", interaction)
       if interaction.data["name"] == "wipe":
         return
-   
-    try: # Run on_interaction functions
-      await economy_on_interaction(interaction)
-      await user_on_interaction(interaction)
-    except KeyError: # First user interaction
-      make_data(interaction.user.name)
-      save_user_id(interaction.user.name, interaction.user.id)
+      try: # Run on_interaction functions
+        await economy_on_interaction(interaction)
+        await user_on_interaction(interaction)
+      except KeyError: # First user interaction
+        make_data(interaction.user.name)
+        save_user_id(interaction.user.name, interaction.user.id)
 
 
 if __name__ == "__main__":  

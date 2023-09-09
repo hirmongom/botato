@@ -67,6 +67,6 @@ async def user_on_interaction(interaction: discord.Interaction) -> None:
       
     else:
       if user_data["xp_probabiliy"] < 75:
-        user_data["xp_probabiliy"] += 2
+        user_data["xp_probabiliy"] += 5
     
   save_json(user_data, interaction.user.name, "user")
