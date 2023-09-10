@@ -52,7 +52,7 @@ def get_game_embed(bot: commands.Bot, query: str = "", link: str = "", title: st
   if query == "": # Keys were succesfully obtained
 
     image_link_title = title.replace(' ', '').replace('\'', '')
-    image_link = f"https://www.clavecd.es/wp-content/uploads/{image_link_title}-1.webp"
+    image_link = f"https://www.clavecd.es/wp-content/uploads/{image_link_title}.jpg"
     embed.set_thumbnail(url = image_link)
 
     embed.description = f"{link}"

@@ -13,14 +13,17 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
+import asyncio
+
 import discord
 from discord import app_commands
 from discord.ext import commands
-from discord.ui import Select, View
 
 import datetime
 
 from utils.json import load_json, save_json
+from utils.custom_ui import FutureSelectMenu
 from utils.achievement import add_user_stat
 from .local.keys_funcs import (
   store_game, get_game_list, remove_games, get_following_list_size, get_game_embed)
@@ -60,7 +63,7 @@ class Keys(commands.Cog):
     await interaction.response.defer()
 
     user_ids = load_json("user_ids", "other")
-    await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> Searching ...")
+    await interaction.followup.send(f"<@{interaction.user.id}> Searching ...")
 
     await add_user_stat("gamekeys_searched", interaction)
     try:
@@ -82,11 +85,12 @@ class Keys(commands.Cog):
     game = "The game you want to follow"
   )
   async def follow(self, interaction: discord.Interaction, game : str) -> None:
-    # @todo embed
     self.bot.logger.info(f"(INTERACTION) |follow| from {interaction.user.name} with game |{game}|")
+    user_ids = load_json("user_ids", "other")
 
     if get_following_list_size(interaction.user.name) >= 25:
-      await interaction.response.send_message("You have reached the maximum of following games")
+      await interaction.response.send_message(f"<@{interaction.user.id}> You have "
+                                              "reached the maximum of following games")
       return
 
     await interaction.response.defer()
@@ -96,33 +100,55 @@ class Keys(commands.Cog):
       title = self.bot.web_scrapper.get_game_title(link)
     except Exception as e:
       self.bot.logger.error(f"Error ocurred on follow() for {interaction.user.name} with game {game}\n{e}")
-      await interaction.followup.send(f"No results found")
+      await interaction.followup.send(f"<@{interaction.user.id}> No results found")
       return
   
     store_game(interaction.user.name, title, link)
 
-    await interaction.followup.send(f"You are now following {title}\n{link}")
+    embed = discord.Embed(
+      title = f"🎮➕ You are now following {title}",
+      description = f"👤 <@{interaction.user.id}>\n{link}",
+      colour = discord.Colour.blue()
+    )
+    image_link_title = title.replace(' ', '').replace('\'', '')
+    image_link = f"https://www.clavecd.es/wp-content/uploads/{image_link_title}.jpg"
+    print(image_link)
+    embed.set_thumbnail(url = image_link)
+    embed.add_field(name = "", value = "", inline = False)  # Pre-footer separator
+    embed.set_footer(text = "Cheap Keys | Botato Game Keys", 
+                    icon_url = self.bot.user.display_avatar.url)
 
+    await interaction.followup.send(embed = embed)
 
   @app_commands.command(
     name = "list",
     description = "Lists all games you are following"
   )
   async def list(self, interaction: discord.Interaction) -> None:
-    # @todo embed
     self.bot.logger.info(f"(INTERACTION) |list| from {interaction.user.name}")
-
-    games = get_game_list(interaction.user.name)   
+    user_ids = load_json("user_ids", "other")
+    games = get_game_list(interaction.user.name)
 
     if len(games) == 0:
-      await interaction.response.send_message("You are not following any games")
+      await interaction.response.send_message(f"<@{interaction.user.id}> You are not "
+                                              "following any games")
       return
+    
+    embed = discord.Embed(
+      title = "🧾 List 🕹️",
+      description = f"👤 <@{interaction.user.id}>",
+      colour = discord.Colour.blue()
+    )
+    embed.add_field(name = "", value = "``` Following Games ```", inline = False)
 
-    output = ""
     for i, game in enumerate(games):
-      output += f"\n-\t {game}"
+      embed.add_field(name = f"{i + 1}.\t {game}", value = "", inline = False)
 
-    await interaction.response.send_message(f"Following games:{output}")
+    embed.add_field(name = "", value = "", inline = False) # Pre footer separator
+    embed.set_footer(text = "Cheap Keys | Botato Game Keys", 
+                    icon_url = self.bot.user.display_avatar.url)
+
+    await interaction.response.send_message(embed = embed)
 
 
   @app_commands.command(
@@ -132,37 +158,36 @@ class Keys(commands.Cog):
   async def unfollow(self, interaction: discord.Interaction) -> None:
     self.bot.logger.info(f"(INTERACTION) |unfollow| from {interaction.user.name}")
     await interaction.response.defer()
-    user_ids = load_json("user_ids", "other")
     games = get_game_list(interaction.user.name)
 
     if len(games) == 0:
-      await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> You are not following "
+      await interaction.followup.send(f"<@{interaction.user.id}> You are not following "
                                       "any games")
       return
 
-    game_choice = [discord.SelectOption(label = game, value = i) for i, game in enumerate(games)]
-
-    menu = Select(
+    games_future = asyncio.Future()
+    select_menu = FutureSelectMenu(
       min_values = 1,
       max_values = len(games),
       placeholder = "Choose games to unfollow", 
-      options = game_choice,
+      user_id = interaction.user.id,
+      future = games_future,
+      options = games,
     )
 
-    async def menu_callback(interaction: discord.Interaction) -> None:
-      to_remove = [games[int(i)] for i in menu.values]
-      remove_games(interaction.user.name, to_remove)
+    view = discord.ui.View()
+    view.add_item(select_menu)
+    message = await interaction.followup.send(view = view)
 
-      response = ""
-      for game in to_remove:
-        response += "\n-\t" + game
-      await message.edit(content = f"<@{user_ids[interaction.user.name]}> You unfollowed:"
-                        f"{response}", view = None)
+    games_ix = await games_future
+    to_remove = [games[int(i)] for i in games_ix]
+    remove_games(interaction.user.name, to_remove)
 
-    menu.callback = menu_callback
-    view = View()
-    view.add_item(menu)
-    message = await interaction.followup.send(view = view, ephemeral = True)
+    response = ""
+    for game in to_remove:
+      response += "\n-\t" + game
+    await message.edit(content = f"<@{interaction.user.id}> You unfollowed:"
+                      f"{response}", view = None)
 
 
   @app_commands.command(
@@ -176,11 +201,11 @@ class Keys(commands.Cog):
     games = load_json(interaction.user.name, "keys")
 
     if len(games) == 0:
-      await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> You are not following "
+      await interaction.followup.send(f"<@{interaction.user.id}> You are not following "
                                       "any games")
       return
 
-    await interaction.followup.send(f"<@{user_ids[interaction.user.name]}> Sit back and relax, "
+    await interaction.followup.send(f"<@{interaction.user.id}> Sit back and relax, "
                                     "this may take some time...")
 
     for title in games.keys():
