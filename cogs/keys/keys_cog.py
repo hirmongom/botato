@@ -114,7 +114,6 @@ class Keys(commands.Cog):
     )
     image_link_title = title.replace(' ', '').replace('\'', '')
     image_link = f"https://www.clavecd.es/wp-content/uploads/{image_link_title}.jpg"
-    print(image_link)
     embed.set_thumbnail(url = image_link)
     embed.add_field(name = "", value = "", inline = False)  # Pre-footer separator
     embed.set_footer(text = "Cheap Keys | Botato Game Keys", 
