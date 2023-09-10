@@ -13,31 +13,42 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
-import discord
-from discord import app_commands
-from discord.ext import commands
 
 import os
 from datetime import datetime
 
+import discord
+from discord import app_commands
+from discord.ext import commands
+
+
+#***************************************************************************************************
 class Debug(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 
+#***************************************************************************************************
   async def on_bot_run(self) -> None:
     pass
 
+
+#***************************************************************************************************
   async def weekly_task(self) -> None:
     pass
 
+
+#***************************************************************************************************
   async def daily_task(self) -> None:
     pass
 
+
+#***************************************************************************************************
   async def hourly_task(self) -> None:
     pass
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "ping",
     description = "Checks bot latency")
@@ -47,6 +58,7 @@ class Debug(commands.Cog):
                                           f"{format(self.bot.latency * 1000, '.2f')} milliseconds")     
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "time",
     description = "Displays the current local time of the bot")
@@ -58,6 +70,7 @@ class Debug(commands.Cog):
           f"\n{time.day}/{time.month}/{time.year}")
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "reload",
     description = "(ADMIN) Reload all cogs")
@@ -75,6 +88,7 @@ class Debug(commands.Cog):
     await interaction.followup.send("Reloaded all cogs", ephemeral = True)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "sync",
     description = "(ADMIN) Syncs tree commands")
@@ -95,6 +109,7 @@ class Debug(commands.Cog):
     await interaction.followup.send("Synced tree commands", ephemeral = True)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "run_weekly_task",
     description = "(ADMIN) Executes weekly_task() for all cogs")
@@ -113,6 +128,7 @@ class Debug(commands.Cog):
     await interaction.followup.send("weekly_task() triggered for all cogs", ephemeral = True) 
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "run_daily_task",
     description = "(ADMIN) Executes daily_task() for all cogs")
@@ -131,6 +147,7 @@ class Debug(commands.Cog):
     await interaction.followup.send("daily_task() triggered for all cogs", ephemeral = True) 
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "run_hourly_task",
     description = "(ADMIN) Executes hourly_task() for all cogs")
@@ -149,6 +166,7 @@ class Debug(commands.Cog):
     await interaction.followup.send("hourly_task() triggered for all cogs", ephemeral = True) 
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "trigger_hourly_loop",
     description = "(ADMIN) Executes houly_loop()")
@@ -163,5 +181,6 @@ class Debug(commands.Cog):
     await interaction.followup.send("hourly_loop() triggered", ephemeral = True) 
 
 
+#***************************************************************************************************
 async def setup(bot: commands.Bot) -> None:
   await bot.add_cog(Debug(bot))

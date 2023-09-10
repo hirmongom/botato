@@ -20,6 +20,7 @@ from discord.ext import commands
 from .help_embeds import *
 
 
+#***************************************************************************************************
 class HelpHandlerSelect(discord.ui.Select):
   def __init__(self, user_id: int, bot_instance: commands.Bot, message = discord.Webhook, *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)

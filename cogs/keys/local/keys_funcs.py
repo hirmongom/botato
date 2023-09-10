@@ -13,22 +13,27 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import discord
 from discord.ext import commands
+
 from utils.json import load_json, save_json
 
 
+#***************************************************************************************************
 def store_game(user: str, title: str, link: str) -> None:
   data = load_json(user, "keys")
   data[title] = link
   save_json(data, user, "keys")
 
 
+#***************************************************************************************************
 def get_game_list(user: str) -> list[str]:
   data = load_json(user, "keys")
   return list(data.keys())
 
 
+#***************************************************************************************************
 def remove_games(user: str, games: list[str]) -> None:
   data = load_json(user, "keys")
   for game in games:
@@ -36,11 +41,13 @@ def remove_games(user: str, games: list[str]) -> None:
   save_json(data, user, "keys")
 
 
+#***************************************************************************************************
 def get_following_list_size(user: str) -> int:
   data = load_json(user, "keys")
   return len(data.keys())
 
 
+#***************************************************************************************************
 def get_game_embed(bot: commands.Bot, query: str = "", link: str = "", title: str = "") -> discord.Embed:
   embed = discord.Embed(
     title = "🎮 Game Keys Search 🎮",

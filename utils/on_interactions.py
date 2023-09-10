@@ -15,7 +15,9 @@
 
 
 import random
+
 import discord
+
 from utils.json import load_json, save_json
 from utils.achievement import add_user_stat
 

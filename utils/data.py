@@ -13,6 +13,7 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 from utils.json import load_json, save_json
 
 

@@ -13,6 +13,7 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import asyncio
 import ctypes
 import datetime
@@ -24,6 +25,7 @@ from discord.ext import commands
 from .local.test_room import EntryButton, StartButton
 
 
+#***************************************************************************************************
 class Test(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
@@ -84,5 +86,6 @@ class Test(commands.Cog):
     await interaction.followup.send(embed = embed, view = view)
 
 
+#***************************************************************************************************
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Test(bot))

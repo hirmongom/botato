@@ -13,6 +13,7 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import os
 import json
 
@@ -34,6 +35,7 @@ def load_json(sub_path: str, category: str) -> dict[str, str]:
       data = {}
 
   return data
+  
   
 #***************************************************************************************************
 def save_json(data: dict[str, str], sub_path: str, category: str) -> None:

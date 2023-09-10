@@ -13,13 +13,14 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import os, sys
 import argparse
 import asyncio
+import logging
 
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, date
-import logging
 
 import discord
 from discord import app_commands
@@ -32,6 +33,7 @@ from utils.on_interactions import economy_on_interaction, user_on_interaction
 from utils.web_scrapper import WebScrapper
     
 
+#***************************************************************************************************
 class Botato(commands.Bot):
   def __init__(self) -> None:
     super().__init__(
@@ -46,6 +48,7 @@ class Botato(commands.Bot):
     self.web_scrapper = None  # Loads on run()
 
 
+#***************************************************************************************************
   def set_up_logger(self) -> None: 
     now = datetime.now()
 
@@ -64,6 +67,7 @@ class Botato(commands.Bot):
     self.logger.addHandler(main_file_handler)
 
 
+#***************************************************************************************************
   @tasks.loop(hours = 1)
   async def hourly_loop(self) -> None:
     daily_task_hour = 0
@@ -93,17 +97,20 @@ class Botato(commands.Bot):
         await cog.hourly_task()
 
 
+#***************************************************************************************************
   @hourly_loop.before_loop
   async def before_hourly_loop(self):
     await self.wait_until_next_hour()
 
 
+#***************************************************************************************************
   async def wait_until_next_hour(self):
     now = datetime.now()
     future = datetime(now.year, now.month, now.day, (now.hour + 1) % 24 , 0)
     await discord.utils.sleep_until(future)
 
 
+#***************************************************************************************************
   def run(self) -> None:
     load_dotenv()
     self.main_channel = os.getenv("MAIN_CHANNEL")
@@ -111,6 +118,7 @@ class Botato(commands.Bot):
     super().run(os.getenv("TOKEN"))
 
 
+#***************************************************************************************************
   async def setup_hook(self) -> None:
     self.logger.info("(!) Started setup_hook")
 
@@ -125,6 +133,7 @@ class Botato(commands.Bot):
     self.logger.info("(!) Finished setup_hook")
 
 
+#***************************************************************************************************
   async def argument_parsing(self) -> None:
     if len(sys.argv) == 1:
       return  # No arguments
@@ -163,6 +172,7 @@ class Botato(commands.Bot):
     self.logger.info("(!) Finished argument parsing")
 
 
+#***************************************************************************************************
   async def on_ready(self) -> None:
     self.hourly_loop.start()
 
@@ -177,6 +187,7 @@ class Botato(commands.Bot):
     await self.change_presence(activity = activity)
 
 
+#***************************************************************************************************
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     if interaction.type == discord.InteractionType.application_command:
@@ -191,6 +202,7 @@ class Botato(commands.Bot):
         save_user_id(interaction.user.name, interaction.user.id)
 
 
+#***************************************************************************************************
 if __name__ == "__main__":  
   bot = Botato()
   bot.run()

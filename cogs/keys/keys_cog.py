@@ -15,12 +15,11 @@
 
 
 import asyncio
+import datetime
 
 import discord
 from discord import app_commands
 from discord.ext import commands
-
-import datetime
 
 from utils.json import load_json, save_json
 from utils.custom_ui import FutureSelectMenu
@@ -29,11 +28,13 @@ from .local.keys_funcs import (
   store_game, get_game_list, remove_games, get_following_list_size, get_game_embed)
 
 
+#***************************************************************************************************
 class Keys(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 
+#***************************************************************************************************
   async def weekly_task(self) -> None:
     channel = self.bot.get_channel(int(self.bot.main_channel))
     data = load_json("autoupdate", "keys")
@@ -51,6 +52,7 @@ class Keys(commands.Cog):
                                 f"link = <{games[title]}>\n{e}")
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "keys",
     description = "Queries for a game in clavecd.es and returns the first 5 prices"
@@ -78,6 +80,7 @@ class Keys(commands.Cog):
     await interaction.followup.send(embed = embed)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "follow",
     description = "Follow a game to easily check key prices (Maximum of 25 games)"
@@ -121,6 +124,8 @@ class Keys(commands.Cog):
 
     await interaction.followup.send(embed = embed)
 
+
+#***************************************************************************************************
   @app_commands.command(
     name = "list",
     description = "Lists all games you are following"
@@ -151,6 +156,7 @@ class Keys(commands.Cog):
     await interaction.response.send_message(embed = embed)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "unfollow",
     description = "Unfollow one or multiple games and remove them from your following list"
@@ -190,6 +196,7 @@ class Keys(commands.Cog):
                       f"{response}", view = None)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "update",
     description = "Get the key prices for all the games on your following list"
@@ -216,6 +223,7 @@ class Keys(commands.Cog):
                               f"<{title}>, link = <{games[title]}\n{e}>")
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "autoupdate_keys",
     description = "Enable or disable the weekly autoupdate keys function"
@@ -247,5 +255,6 @@ class Keys(commands.Cog):
                                               "receive weekly updates for your followed games")
 
 
+#***************************************************************************************************
 async def setup(bot: commands.Bot) -> None:
   await bot.add_cog(Keys(bot))

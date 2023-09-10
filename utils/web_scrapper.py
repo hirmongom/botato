@@ -13,6 +13,12 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
+import logging
+import datetime
+import re
+import csv
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -20,14 +26,10 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
-import logging
-import datetime
-import re
-import csv
-
 from utils.json import save_json
 
 
+#***************************************************************************************************
 class WebScrapper():
   def __init__(self, logger: logging.Logger, browserPath: str) -> None:
     self.logger = logger
@@ -39,12 +41,14 @@ class WebScrapper():
     self.logger.info("Started WebScrapper")
 
 
+#***************************************************************************************************
   def restart_driver(self) -> None:
     self.driver.quit()
     self.driver = webdriver.Chrome(service = self.service, options = self.options)
     self.logger.info("Restarted webdriver")
 
 
+#***************************************************************************************************
   def get_game_link(self, query: str) -> str:
     query = query.replace(" ", "+")
     query = f"https://clavecd.es/catalog/search-{query}"
@@ -58,6 +62,7 @@ class WebScrapper():
     return link
 
 
+#***************************************************************************************************
   def get_game_title(self, link: str) -> str:
     soup = BeautifulSoup(requests.get(link).text, "lxml")
 
@@ -66,6 +71,7 @@ class WebScrapper():
     return title
 
 
+#***************************************************************************************************
   def get_game_keys(self, link: str) -> list[str]:
     self.driver.get(link)
     html = self.driver.page_source
