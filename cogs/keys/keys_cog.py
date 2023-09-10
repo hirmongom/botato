@@ -47,8 +47,8 @@ class Keys(commands.Cog):
           embed = get_game_embed(bot = self.bot, title = title, link = games[title])
           await channel.send(embed = embed)
         except Exception as e:
-          self.bot.logger.error(f"Error on Keys weekly trigger for {user}, title = <{title}>, "
-                                f"link = {games[title]}\n{e}")
+          self.bot.logger.error(f"Error on Keys weekly trigger for <{user}>, title = <{title}>, "
+                                f"link = <{games[title]}>\n{e}")
 
 
   @app_commands.command(
@@ -59,10 +59,10 @@ class Keys(commands.Cog):
     query = "The search query to find the game you are looking for"
   )
   async def keys(self, interaction: discord.Interaction, query: str) -> None:
-    self.bot.logger.info(f"(INTERACTION) |keys| from {interaction.user.name} with query |{query}|")
+    self.bot.logger.info(f"(INTERACTION) |keys| from <{interaction.user.name}> with query "
+                        f"<{query}>")
     await interaction.response.defer()
 
-    user_ids = load_json("user_ids", "other")
     await interaction.followup.send(f"<@{interaction.user.id}> Searching ...")
 
     await add_user_stat("gamekeys_searched", interaction)
@@ -71,7 +71,8 @@ class Keys(commands.Cog):
       title = self.bot.web_scrapper.get_game_title(link)
       embed = get_game_embed(bot = self.bot, title = title, link = link)
     except Exception as e:
-      self.bot.logger.error(f"Error on keys search: {e}")
+      self.bot.logger.error(f"Error on keys search for <{interaction.user.name}> with query = "
+                            f"<{queryu}>\n{e}")
       embed = get_game_embed(bot = self.bot, query = query)
 
     await interaction.followup.send(embed = embed)
@@ -85,8 +86,8 @@ class Keys(commands.Cog):
     game = "The game you want to follow"
   )
   async def follow(self, interaction: discord.Interaction, game : str) -> None:
-    self.bot.logger.info(f"(INTERACTION) |follow| from {interaction.user.name} with game |{game}|")
-    user_ids = load_json("user_ids", "other")
+    self.bot.logger.info(f"(INTERACTION) |follow| from <{interaction.user.name}> with game = "
+                        f"<{game}>")
 
     if get_following_list_size(interaction.user.name) >= 25:
       await interaction.response.send_message(f"<@{interaction.user.id}> You have "
@@ -99,7 +100,8 @@ class Keys(commands.Cog):
       link = self.bot.web_scrapper.get_game_link(game)
       title = self.bot.web_scrapper.get_game_title(link)
     except Exception as e:
-      self.bot.logger.error(f"Error ocurred on follow() for {interaction.user.name} with game {game}\n{e}")
+      self.bot.logger.error(f"Error ocurred on follow() for <{interaction.user.name}> with game "
+                            f"= <{game}>\n{e}")
       await interaction.followup.send(f"<@{interaction.user.id}> No results found")
       return
   
@@ -125,8 +127,7 @@ class Keys(commands.Cog):
     description = "Lists all games you are following"
   )
   async def list(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |list| from {interaction.user.name}")
-    user_ids = load_json("user_ids", "other")
+    self.bot.logger.info(f"(INTERACTION) |list| from <{interaction.user.name}>")
     games = get_game_list(interaction.user.name)
 
     if len(games) == 0:
@@ -153,10 +154,10 @@ class Keys(commands.Cog):
 
   @app_commands.command(
     name = "unfollow",
-    description = "Remove one or multiple games from your following list"
+    description = "Unfollow one or multiple games and remove them from your following list"
   )
   async def unfollow(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |unfollow| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |unfollow| from <{interaction.user.name}>")
     await interaction.response.defer()
     games = get_game_list(interaction.user.name)
 
@@ -195,9 +196,8 @@ class Keys(commands.Cog):
     description = "Get the key prices for all the games on your following list"
     )
   async def update(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |update| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |update| from <{interaction.user.name}>")
     await interaction.response.defer()
-    user_ids = load_json("user_ids", "other")
     games = load_json(interaction.user.name, "keys")
 
     if len(games) == 0:
@@ -213,8 +213,8 @@ class Keys(commands.Cog):
         embed = get_game_embed(bot = self.bot, title = title, link = games[title])
         await interaction.followup.send(embed = embed)
       except Exception as e:
-        self.bot.logger.error(f"Error on keys update() for {interaction.user.name}, title = <{title}>, "
-                        f"link = {games[title]}\n{e}")
+        self.bot.logger.error(f"Error on keys update() for <{interaction.user.name}>, title = "
+                              f"<{title}>, link = <{games[title]}\n{e}>")
 
 
   @app_commands.command(
@@ -226,11 +226,13 @@ class Keys(commands.Cog):
     app_commands.Choice(name = "Disable", value = 0)
   ])
   async def autoupdate_keys(self, interaction: discord.Interaction, option: app_commands.Choice[int]) -> None:
-    self.bot.logger.info(f"(INTERACTION) |autoupdate_keys| from {interaction.user.name} and param {option}")
+    self.bot.logger.info(f"(INTERACTION) |autoupdate_keys| from <{interaction.user.name}> and "
+                        f"option = <{option}>")
 
     games = load_json(interaction.user.name, "keys")
     if len(games) == 0:
-      await interaction.response.send_message("You are not following any games")
+      await interaction.response.send_message(f"<@{interaction.user.id}>You are not following "
+                                              "any games")
       return
     
     data = load_json("autoupdate", "keys")
@@ -239,9 +241,11 @@ class Keys(commands.Cog):
     save_json(data, "autoupdate", "keys")
 
     if option.value == 1:
-      await interaction.response.send_message("You have opted in to receive weekly updates for your followed games")
+      await interaction.response.send_message(f"<@{interaction.user.id}> You have opted in to "
+                                              "receive weekly updates for your followed games")
     else:
-      await interaction.response.send_message("You have opted out to receive weekly updates for your followed games")
+      await interaction.response.send_message(f"<@{interaction.user.id}> You have opted out to "
+                                              "receive weekly updates for your followed games")
 
 
 async def setup(bot: commands.Bot) -> None:

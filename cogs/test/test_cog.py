@@ -35,7 +35,7 @@ class Test(commands.Cog):
     description = "Test execution of C++ script from python"
   )
   async def test_cpp(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |test_cpp| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |test_cpp| from <{interaction.user.name}>")
 
     lib = ctypes.CDLL("./cpp/test/test.so") # Load shared library
     lib.hello_cpp.restype = ctypes.c_char_p # Set type of return
@@ -49,7 +49,7 @@ class Test(commands.Cog):
     description  = "Room creation for multiplayer commands"
   )
   async def test_room(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |test_room| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |test_room| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     host = interaction.user

@@ -33,8 +33,9 @@ class Misc(commands.Cog):
     description = "Check my code in my GitHub repository"
   )
   async def git(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |git| from {interaction.user.name}")
-    await interaction.response.send_message("https://github.com/hmongom/Botato")
+    self.bot.logger.info(f"(INTERACTION) |git| from <{interaction.user.name}>")
+    await interaction.response.send_message(f"<@{interaction.user.id}>\n"
+                                            "https://github.com/hmongom/Botato")
 
 
 #***************************************************************************************************
@@ -55,18 +56,18 @@ class Misc(commands.Cog):
     ]
   )
   async def roll(self, interaction: discord.Interaction, rolls: int, dice: int):
-    self.bot.logger.info(f"(INTERACTION) |roll| from {interaction.user.name} with rolls = {rolls} " 
-                         f"and dice = {dice}")
+    self.bot.logger.info(f"(INTERACTION) |roll| from <{interaction.user.name}> with rolls = "
+                        f"<{rolls}> and dice = <{dice}>")
 
     # Check if rolls is within the limits
     if rolls > 10 or rolls < 1:
-      await interaction.response.send_message(f"<@{interaction.user.id}>That amount of rolls is "
+      await interaction.response.send_message(f"<@{interaction.user.id}> That amount of rolls is "
                                               f"not within the limits")
       return
     
     embed = discord.Embed(
       title = "🎲 Dice Roll 🎲",
-      description = f"Roll results for {rolls}d{dice}",
+      description = f"<@{interaction.user.id}>\nRoll results for {rolls}d{dice}",
       colour = discord.Colour.red()
     )
     embed.add_field(name = "", value = "``` ROLLS ```", inline = False)
@@ -82,7 +83,8 @@ class Misc(commands.Cog):
     embed.add_field(name = roll_result, value = "", inline = False)
     
     embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
-    embed.set_footer(text = "Random Rolls | Botato Dices", icon_url = self.bot.user.display_avatar.url)
+    embed.set_footer(text = "Random Rolls | Botato Dices", 
+                    icon_url = self.bot.user.display_avatar.url)
 
     await interaction.response.send_message(embed = embed)
 
@@ -93,7 +95,7 @@ class Misc(commands.Cog):
     description = "Get help and information on the different functionalities provided by the bot"
   )
   async def help(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"(INTERACTION) |help| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |help| from <{interaction.user.name}>")
     await interaction.response.defer()
     
     message = await interaction.followup.send("Loading..") # To keep the message as variable

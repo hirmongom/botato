@@ -37,7 +37,8 @@ class EntryButton(discord.ui.Button):
       self.embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False)
       await self.message.edit(embed = self.embed)
     else:
-      await interaction.followup.send("You are already in the room", ephemeral = True)
+      await interaction.followup.send(f"<@{interaction.user.id}>You are already in the room", 
+                                      ephemeral = True)
 
 
 #***************************************************************************************************
