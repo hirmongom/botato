@@ -75,7 +75,7 @@ class Botato(commands.Bot):
     if day_name == "Monday" and now.hour == daily_task_hour:
       for cog in self.cogs.values():
         if hasattr(cog, "weekly_task"):
-          self.interaction_logger.info(f"{cog.qualified_name} weekly_task")
+          self.logger.info(f"{cog.qualified_name} weekly_task")
           await cog.weekly_task()
 
     # Run daily cog tasks and set up new logger 
@@ -83,13 +83,13 @@ class Botato(commands.Bot):
       self.set_up_logger()
       for cog in self.cogs.values():
         if hasattr(cog, "daily_task"):
-          self.interaction_logger.info(f"{cog.qualified_name} daily_task")
+          self.logger.info(f"{cog.qualified_name} daily_task")
           await cog.daily_task()
 
     # Run hourly cog tasks
     for cog in self.cogs.values():
       if hasattr(cog, "hourly_task"):
-        self.interaction_logger.info(f"{cog.qualified_name} hourly_task")
+        self.logger.info(f"{cog.qualified_name} hourly_task")
         await cog.hourly_task()
 
 

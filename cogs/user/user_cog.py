@@ -48,7 +48,7 @@ class User(commands.Cog):
     mention = "Mention a user to check its profile"
   )
   async def profile(self, interaction: discord.Interaction, mention: str = "") -> None:
-    self.bot.interaction_logger.info(f"|profile| from {interaction.user.name}" + 
+    self.bot.logger.info(f"|profile| from {interaction.user.name}" + 
                                     (f" with |mention| {mention}" if mention != "" else ""))
     if mention != "":
       if mention.startswith("<@") and mention.endswith(">"):
@@ -103,7 +103,7 @@ class User(commands.Cog):
     description = "The description you want to set (Max 64 characters)"
   )
   async def description(self, interaction: discord.Interaction, description: str) -> None:
-    self.bot.interaction_logger.info(f"|description| from {interaction.user.name} with description |{description}|")
+    self.bot.logger.info(f"|description| from {interaction.user.name} with description |{description}|")
 
     if len(description) > 64:
       await interaction.response.send_message("Description too long")
@@ -123,7 +123,7 @@ class User(commands.Cog):
 
   ])
   async def leaderboard(self, interaction: discord.Interaction, category: str) -> None:
-    self.bot.interaction_logger.info(f"|leaderboard| from {interaction.user.name}")
+    self.bot.logger.info(f"|leaderboard| from {interaction.user.name}")
     await interaction.response.defer()
 
     rank_map = {
@@ -186,7 +186,7 @@ class User(commands.Cog):
         form_value = str(self.children[0]).lower()
         self.future.set_result(form_value)
 
-    self.bot.interaction_logger.info(f"|wipe| from {interaction.user.name}")
+    self.bot.logger.info(f"|wipe| from {interaction.user.name}")
 
     if not os.path.exists(f"data/user/{interaction.user.name}.json"):
       await interaction.response.send_message("There is no data to erase.")
@@ -209,20 +209,20 @@ class User(commands.Cog):
         for bet in os.listdir("data/bets/"):
           bettors = load_json(f"{bet}/{bet}_bettors", "bets")
           if interaction.user.name in bettors:
-            self.bot.interaction_logger.info(f"Removed {interaction.user.name} from {bet}/{bet}_bettors.json")
+            self.bot.logger.info(f"Removed {interaction.user.name} from {bet}/{bet}_bettors.json")
             del bettors[interaction.user.name]
             save_json(bettors, f"{bet}/{bet}_bettors", "bets")
 
       elif folder == "other": # Remove user from user_ids
         user_ids = load_json("user_ids", "other")
         if interaction.user.name in user_ids:
-          self.bot.interaction_logger.info(f"Removed {interaction.user.name} user_id from data/other/user_ids.json")
+          self.bot.logger.info(f"Removed {interaction.user.name} user_id from data/other/user_ids.json")
           del user_ids[interaction.user.name]
           save_json(user_ids, "user_ids", "other")
 
       else: # Remove user data files
         if os.path.exists(f"data/{folder}/{interaction.user.name}.json"):
-          self.bot.interaction_logger.info(f"Removed {interaction.user.name}.json from data/{folder}/")
+          self.bot.logger.info(f"Removed {interaction.user.name}.json from data/{folder}/")
           os.remove(f"data/{folder}/{interaction.user.name}.json")
 
     await interaction.followup.send("All your data has been deleted")
