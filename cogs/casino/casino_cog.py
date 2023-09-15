@@ -345,6 +345,7 @@ class Casino(commands.Cog):
     economy_data = load_json(interaction.user.name, "economy")
     if bet_amount > economy_data["hand_balance"]:
       await interaction.followup.send("You do not have enough money in hand")
+      return
       
     await add_user_stat("roulettes_played", interaction)
     economy_data["hand_balance"] -= bet_amount
