@@ -66,6 +66,7 @@ class User(commands.Cog):
       return
 
     user_data = load_json(user.name, "user")
+    achievement_data = load_json(user.name, "achievement")
     level = user_data["level"]
     experience = user_data["experience"]
     description = user_data["user_description"]
@@ -85,7 +86,7 @@ class User(commands.Cog):
     embed.add_field(name = "*Next Level In*", value = f"{level * 100 + (level - 1) * 50} XP")
     embed.set_thumbnail(url = user.display_avatar.url)
 
-    achievements = user_data["achievements"]
+    achievements = achievement_data["achievements"]
     if len(achievements) > 0:
       embed.add_field(name = "", value = "```🎯 Achievements 🎯```", inline = False)
       for achievement in achievements:
