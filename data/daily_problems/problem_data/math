@@ -28,8 +28,8 @@
       "problem_id": "math3",
       "category": "Math",
       "problem": "Simplify: (3x^2 * 2x^3) / (6x)",
-      "options": ["x^3", "x^5", "6x^5", "6x^6"],
-      "solution": 0,
+      "options": ["x^3", "x^4", "6x^5", "x^5"],
+      "solution": 1,
       "prize": 560
     },
     {
@@ -45,7 +45,7 @@
       "category": "Math",
       "problem": "Solve for x: 3x + 5 = 17",
       "options": ["2", "4", "6", "8"],
-      "solution": 2,
+      "solution": 1,
       "prize": 420
     },
     {
@@ -53,15 +53,15 @@
       "category": "Math",
       "problem": "If a rectangle has a length of 8 units and a width of 6 units, what is its area?",
       "options": ["24", "36", "48", "56"],
-      "solution": 1,
+      "solution": 2,
       "prize": 270
     },
     {
       "problem_id": "math7",
       "category": "Math",
       "problem": "Simplify the expression: 2(3x - 5) - 4(2x + 1)",
-      "options": ["-8x - 14", "2x + 14", "8x - 14", "14 - 8x"],
-      "solution": 0,
+      "options": ["-8x - 14", "-2x - 14", "8x - 14", "14 - 8x"],
+      "solution": 1,
       "prize": 390
     },
     {
@@ -77,7 +77,7 @@
       "category": "Math",
       "problem": "If a triangle has angles measuring 45 degrees, 45 degrees, and 90 degrees, what type of triangle is it?",
       "options": ["Equilateral", "Isosceles", "Scalene", "Right"],
-      "solution": 3,
+      "solution": 2,
       "prize": 180
     },
     {
@@ -101,7 +101,7 @@
       "category": "Math",
       "problem": "What is the perimeter of a square with a side length of 10 units?",
       "options": ["20", "30", "40", "50"],
-      "solution": 3,
+      "solution": 2,
       "prize": 410
     },
     {
@@ -117,7 +117,7 @@
       "category": "Math",
       "problem": "What is the area of a rectangle with a length of 12 units and a width of 5 units?",
       "options": ["20 sq. units", "30 sq. units", "40 sq. units", "60 sq. units"],
-      "solution": 2,
+      "solution": 3,
       "prize": 410
     },
     {
@@ -139,8 +139,8 @@
     {
       "problem_id": "math17",
       "category": "Math",
-      "problem": "What is the circumference of a circle with a radius of 5 units? (Use π ≈ 3.14)",
-      "options": ["10 units", "15 units", "20 units", "25 units"],
+      "problem": "What is the circumference of a circle with a radius of 5 units?",
+      "options": ["10π units", "15π units", "20π units", "25π units"],
       "solution": 0,
       "prize": 360
     },
@@ -157,14 +157,14 @@
       "category": "Math",
       "problem": "If a pizza is divided into 8 equal slices, and you eat 3 slices, how many slices are left?",
       "options": ["2", "3", "4", "5"],
-      "solution": 0,
+      "solution": 3,
       "prize": 250
     },
     {
       "problem_id": "math20",
       "category": "Math",
       "problem": "Simplify the expression: 2(x + 3) - 4(x - 1)",
-      "options": ["2x - 2", "2x + 2", "4x - 2", "4x + 2"],
+      "options": ["2x - 2", "-2x + 10", "4x - 2", "4x + 2"],
       "solution": 1,
       "prize": 350
     },
@@ -181,7 +181,7 @@
       "category": "Math",
       "problem": "A store is offering a 20% discount on a $80 item. What is the final price after the discount?",
       "options": ["$60", "$64", "$68", "$72"],
-      "solution": 0,
+      "solution": 1,
       "prize": 490
     }
   ]

@@ -60,7 +60,7 @@ class Economy(commands.Cog):
     description = "Check your account balance and perform opperations"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|bank| from {interaction.user.name}")
+    self.bot.logger.info(f"|bank| from {interaction.user.name}")
 
     await interaction.response.defer()
 
@@ -129,7 +129,7 @@ class Economy(commands.Cog):
     description = "Check all items available in the shop"
   )
   async def shop(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|shop| from {interaction.user.name}")
+    self.bot.logger.info(f"|shop| from {interaction.user.name}")
     await interaction.response.defer()
     
     user_data = load_json(interaction.user.name, "user")
@@ -187,7 +187,7 @@ class Economy(commands.Cog):
     amount = "Amount of money to deposit into the bank"
   )
   async def deposit(self, interaction: discord.Interaction, amount: float) -> None:
-    self.bot.interaction_logger.info(f"|deposit| from {interaction.user.name} with amount |{amount}|")
+    self.bot.logger.info(f"|deposit| from {interaction.user.name} with amount |{amount}|")
     amount = round(amount, 2)
 
     economy_data = load_json(interaction.user.name, "economy")
@@ -208,7 +208,7 @@ class Economy(commands.Cog):
     amount = "Amount of money to withdraw from the bank"
   )
   async def withdraw(self, interaction: discord.Interaction, amount: float) -> None:
-    self.bot.interaction_logger.info(f"|withdraw| from {interaction.user.name} with amount |{amount}|")
+    self.bot.logger.info(f"|withdraw| from {interaction.user.name} with amount |{amount}|")
     amount = round(amount, 2)
 
     economy_data = load_json(interaction.user.name, "economy")
@@ -235,7 +235,7 @@ class Economy(commands.Cog):
     mention = "Mention of the user who the transfer will go to"
   )
   async def transfer(self, interaction: discord.Interaction, amount: float, mention: str) -> None:
-    self.bot.interaction_logger.info(f"|transfer| from {interaction.user.name} with amount "
+    self.bot.logger.info(f"|transfer| from {interaction.user.name} with amount "
                                     f" |{amount}| and mention |{mention}|")
     amount = round(amount, 2)
     if mention.startswith("<@") and mention.endswith(">"):

@@ -1,0 +1,20 @@
+redo achievments into own data file
+create global custom_ui.py for reusable interface
+add mention on interactions and ephemeral where it is needed
+comment parts of code
+most commands should have one or multiple handlers depending on the steps (eg blackjack-> play stage, score stage)
+use consistent interfaces
+
+?data reads/writes with lock, should have a global function for them?
+
+iterate cogs to improve:
+  - bets..............
+  - casino............
+  - daily_problems....
+  - debug.............x
+  - economy...........
+  - exception.........
+  - keys..............x
+  - misc..............x
+  - test..............x
+  - user..............

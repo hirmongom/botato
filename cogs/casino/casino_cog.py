@@ -24,7 +24,7 @@ import random
 
 
 from utils.json import load_json, save_json
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 
 from .local.blackjack import (
   blackjack_start, get_deck, draw_card, dealer_turn, blackjack_winnings, BlackjackButton, get_embed)
@@ -44,7 +44,7 @@ class Casino(commands.Cog):
     bet = "Bet amount (€)"
   )
   async def blackjack(self, interaction: discord.Interaction, bet: float) -> None:
-    self.bot.interaction_logger.info(f"|blackjack| from {interaction.user.name} with bet |{bet}|")
+    self.bot.logger.info(f"|blackjack| from {interaction.user.name} with bet |{bet}|")
     user_data = load_json(interaction.user.name, "user")
     economy_data = load_json(interaction.user.name, "economy")
     bet = round(bet, 2)
@@ -233,7 +233,7 @@ class Casino(commands.Cog):
     description = "Spin the wheel and try your luck!"
   )
   async def roulette(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|roulette| from {interaction.user.name}")
+    self.bot.logger.info(f"|roulette| from {interaction.user.name}")
     await interaction.response.defer()
 
     bet_type_map = {
@@ -345,6 +345,7 @@ class Casino(commands.Cog):
     economy_data = load_json(interaction.user.name, "economy")
     if bet_amount > economy_data["hand_balance"]:
       await interaction.followup.send("You do not have enough money in hand")
+      return
       
     await add_user_stat("roulettes_played", interaction)
     economy_data["hand_balance"] -= bet_amount
@@ -418,7 +419,7 @@ class Casino(commands.Cog):
     description = "Pick a racer, place your bet, and see if luck's on your side."
   )
   async def horse_race(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|horse_race| from {interaction.user.name}")
+    self.bot.logger.info(f"|horse_race| from {interaction.user.name}")
     await interaction.response.defer()
 
     racer_name_map = [

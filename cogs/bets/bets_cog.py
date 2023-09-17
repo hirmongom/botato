@@ -78,7 +78,7 @@ class Bets(commands.Cog):
         if int(data["day"]) == now.day and int(data["month"]) == now.month:
           data["status"] = "closed"
           save_json(data, f"{event}/{event}_bet", "bets")
-          self.bot.interaction_logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
+          self.bot.logger.info(f"bet_cog: Event {sport.upper()} {data['event']} closed")
     except:
       pass # Folder not created
 
@@ -88,7 +88,7 @@ class Bets(commands.Cog):
     description = "Check ongoing bets and try your luck!"
   )
   async def bet(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|bet| from {interaction.user.name}")
+    self.bot.logger.info(f"|bet| from {interaction.user.name}")
     await interaction.response.defer()
 
     embed = discord.Embed(
@@ -136,7 +136,7 @@ class Bets(commands.Cog):
   )
   async def create_event(self, interaction: discord.Interaction, day: int, month: int, 
                       year: int = datetime.now().year) -> None:
-    self.bot.interaction_logger.info(f"|create_event| from {interaction.user.name} with day |{day}|" 
+    self.bot.logger.info(f"|create_event| from {interaction.user.name} with day |{day}|" 
                                       f" month |{month}| and year |{year}|")
 
     if not interaction.user.guild_permissions.administrator:
@@ -265,7 +265,7 @@ class Bets(commands.Cog):
     description = "(ADMIN) Set the winner and close a custom made bet"
   )
   async def close_event(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|close_event| from {interaction.user.name}")
+    self.bot.logger.info(f"|close_event| from {interaction.user.name}")
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
       return
@@ -338,9 +338,9 @@ class Bets(commands.Cog):
     folder_path = f"data/bets/{event_select_result}"
     try:
       shutil.rmtree(folder_path)
-      self.bot.interaction_logger.info(f"Folder '{folder_path}' and its contents deleted successfully.")
+      self.bot.logger.info(f"Folder '{folder_path}' and its contents deleted successfully.")
     except OSError as e:
-      self.bot.interaction_logger.error(f"Error deleting folder '{folder_path}: {e}")
+      self.bot.logger.error(f"Error deleting folder '{folder_path}: {e}")
 
 
 async def setup(bot: commands.Bot) -> None:

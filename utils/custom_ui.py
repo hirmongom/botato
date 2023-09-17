@@ -13,25 +13,26 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
-from utils.json import load_json, save_json
 
-def store_game(user: str, title: str, link: str) -> None:
-  data = load_json(user, "keys")
-  data[title] = link
-  save_json(data, user, "keys")
+import asyncio
+
+import discord
 
 
-def get_game_list(user: str) -> list[str]:
-  data = load_json(user, "keys")
-  return list(data.keys())
+#***************************************************************************************************
+class FutureSelectMenu(discord.ui.Select):
+  def __init__(self, user_id: int, future: asyncio.Future, options: list[str], 
+              *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+    self.options = [
+      discord.SelectOption(label = option, value = i) for i, option in enumerate(options)]
 
-
-def remove_games(user: str, games: list[str]) -> None:
-  data = load_json(user, "keys")
-  for game in games:
-    del data[game]
-  save_json(data, user, "keys")
-
-def get_following_list_size(user: str) -> int:
-  data = load_json(user, "keys")
-  return len(data.keys())
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+      return # User not authorized
+      
+    self.disable = True
+    await interaction.response.defer()
+    self.future.set_result(self.values)

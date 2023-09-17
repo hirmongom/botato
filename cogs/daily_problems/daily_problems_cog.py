@@ -22,7 +22,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.json import load_json, save_json
-from utils.funcs import add_user_stat
+from utils.achievement import add_user_stat
 from .local.daily_problems_ui import ProblemSelect, FutureIdButton, FutureModalButton, FutureModal, SolutionSelect
 
 class DailyProblems(commands.Cog):
@@ -33,7 +33,7 @@ class DailyProblems(commands.Cog):
   async def daily_task(self) -> None:
     for file in os.listdir("data/daily_problems"):
       if file.endswith(".json"):
-        self.bot.interaction_logger.info(f"Removed problem data/daily_problems/{file}")
+        self.bot.logger.info(f"Removed problem data/daily_problems/{file}")
         os.remove(f"data/daily_problems/{file}")
 
     for file in os.listdir("data/daily_problems/problem_data"):
@@ -44,7 +44,7 @@ class DailyProblems(commands.Cog):
             save_json(problem_data, f"problem_data/{file[:-5]}", "daily_problems")
             save_json(problem, problem["problem_id"], "daily_problems")
         else:
-            self.bot.interaction_logger.info(f"No problems left for {file[-5]}")
+            self.bot.logger.info(f"No problems left for {file[-5]}")
 
     tried_problems = {}
     save_json(tried_problems, "tried_problems", "daily_problems")
@@ -55,7 +55,7 @@ class DailyProblems(commands.Cog):
     description = "Show daily problems and try to solve them"
   )
   async def daily_problems(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|daily_problems| from {interaction.user.name}")
+    self.bot.logger.info(f"|daily_problems| from {interaction.user.name}")
     await interaction.response.defer()
 
     problems = []
@@ -159,7 +159,7 @@ class DailyProblems(commands.Cog):
   )
   async def create_daily_problem(self, interaction: discord.Interaction, category: str, 
                                   prize: int) -> None:
-    self.bot.interaction_logger.info(f"|create_daily_problem| from {interaction.user.name}")
+    self.bot.logger.info(f"|create_daily_problem| from {interaction.user.name}")
     if not interaction.user.guild_permissions.administrator:
       await interaction.response.send_message("Missing Administrator permissions")
       return

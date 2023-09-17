@@ -13,28 +13,34 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
+import random
+
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-import random
+from .local.help_handler import HelpHandlerSelect
 
-from .local.help_ui import HelpHandlerSelect
 
+#***************************************************************************************************
 class Misc(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "git",
     description = "Check my code in my GitHub repository"
   )
   async def git(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|git| from {interaction.user.name}")
-    await interaction.response.send_message("https://github.com/hmongom/Botato")
+    self.bot.logger.info(f"(INTERACTION) |git| from <{interaction.user.name}>")
+    await interaction.response.send_message(f"<@{interaction.user.id}>\n"
+                                            "https://github.com/hmongom/Botato")
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "roll",
     description = "Roll a specific dice"
@@ -52,35 +58,55 @@ class Misc(commands.Cog):
     ]
   )
   async def roll(self, interaction: discord.Interaction, rolls: int, dice: int):
-    self.bot.interaction_logger.info(f"|roll| from {interaction.user.name} with rolls = {rolls} and dice = {dice}")
+    self.bot.logger.info(f"(INTERACTION) |roll| from <{interaction.user.name}> with rolls = "
+                        f"<{rolls}> and dice = <{dice}>")
+
+    # Check if rolls is within the limits
     if rolls > 10 or rolls < 1:
-      await interaction.response.send_message("u dum")
+      await interaction.response.send_message(f"<@{interaction.user.id}> That amount of rolls is "
+                                              f"not within the limits")
       return
     
-    response = ""
+    embed = discord.Embed(
+      title = "🎲 Dice Roll 🎲",
+      description = f"<@{interaction.user.id}>\nRoll results for {rolls}d{dice}",
+      colour = discord.Colour.red()
+    )
+    embed.add_field(name = "", value = "``` ROLLS ```", inline = False)
+    
+    # Perform the rolls and form the embed
     roll_result = 0
     for i in range(rolls):
       roll = random.randint(1, dice)
-      response += f"\n\tRoll {i + 1} = {roll}"
       roll_result += roll
-    response += f"\nTOTAL = {roll_result}"
-    await interaction.response.send_message(f"You rolled {rolls}d{dice} and got:{response}")
+      embed.add_field(name = "", value = f"🎲 Roll {i + 1} = {roll}", inline = False)
+
+    embed.add_field(name = "", value = "``` TOTAL ```", inline = False)
+    embed.add_field(name = roll_result, value = "", inline = False)
+    
+    embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+    embed.set_footer(text = "Random Rolls | Botato Dices", 
+                    icon_url = self.bot.user.display_avatar.url)
+
+    await interaction.response.send_message(embed = embed)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "help",
     description = "Get help and information on the different functionalities provided by the bot"
   )
   async def help(self, interaction: discord.Interaction) -> None:
-    self.bot.interaction_logger.info(f"|help| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |help| from <{interaction.user.name}>")
     await interaction.response.defer()
-
     
-    message = await interaction.followup.send("Loading..")
+    message = await interaction.followup.send("Loading..") # To keep the message as variable
 
+    # Load and start the help handler
     help_handler_select = HelpHandlerSelect(interaction.user.id, self.bot, message)
     await help_handler_select.start()
 
 
+#***************************************************************************************************
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Misc(bot))
