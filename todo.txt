@@ -1,4 +1,4 @@
-redo achievments into own data file
+redo achievements into own data file
 create global custom_ui.py for reusable interface
 add mention on interactions and ephemeral where it is needed
 comment parts of code
