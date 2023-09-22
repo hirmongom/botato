@@ -36,3 +36,17 @@ class FutureSelectMenu(discord.ui.Select):
     self.disable = True
     await interaction.response.defer()
     self.future.set_result(self.values)
+
+
+#***************************************************************************************************
+class FutureModal(discord.ui.Modal):
+  def __init__(self, future: asyncio.Future, label: str, placeholder: str, 
+              *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.add_item(discord.ui.TextInput(label = label, placeholder = placeholder))
+    self.future = future
+
+  async def on_submit(self, interaction: discord.Interaction) -> None:
+    await interaction.response.defer()
+    form_value = str(self.children[0])
+    self.future.set_result(form_value)

@@ -53,7 +53,7 @@ class Debug(commands.Cog):
     name = "ping",
     description = "Checks bot latency")
   async def ping(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|ping| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |ping| from <{interaction.user.name}>")
     await interaction.response.send_message(f"<@{interaction.user.id}> My latency is "
                                           f"{format(self.bot.latency * 1000, '.2f')} milliseconds")     
 
@@ -63,7 +63,7 @@ class Debug(commands.Cog):
     name = "time",
     description = "Displays the current local time of the bot")
   async def time(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|time| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |time| from <{interaction.user.name}>")
     time = datetime.now()
     await interaction.response.send_message(f"<@{interaction.user.id}> Current local time and date:"
           f"\n{str(time.hour).zfill(2)}:{str(time.minute).zfill(2)}:{str(time.second).zfill(2)}"
@@ -75,7 +75,7 @@ class Debug(commands.Cog):
     name = "reload",
     description = "(ADMIN) Reload all cogs")
   async def reload(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|reload| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |reload| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
@@ -93,7 +93,7 @@ class Debug(commands.Cog):
     name = "sync",
     description = "(ADMIN) Syncs tree commands")
   async def sync(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|sync| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |sync| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
@@ -114,7 +114,7 @@ class Debug(commands.Cog):
     name = "run_weekly_task",
     description = "(ADMIN) Executes weekly_task() for all cogs")
   async def run_weekly_task(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|run_weekly_task| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |run_weekly_task| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
@@ -133,7 +133,7 @@ class Debug(commands.Cog):
     name = "run_daily_task",
     description = "(ADMIN) Executes daily_task() for all cogs")
   async def run_daily_task(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|run_daily_task| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |run_daily_task| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
@@ -152,7 +152,7 @@ class Debug(commands.Cog):
     name = "run_hourly_task",
     description = "(ADMIN) Executes hourly_task() for all cogs")
   async def run_hourly_task(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|run_hourly_task| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |run_hourly_task| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
@@ -171,7 +171,7 @@ class Debug(commands.Cog):
     name = "trigger_hourly_loop",
     description = "(ADMIN) Executes houly_loop()")
   async def trigger_hourly_loop(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|trigger_hourly_loop| from <{interaction.user.name}>")
+    self.bot.logger.info(f"(INTERACTION) |trigger_hourly_loop| from <{interaction.user.name}>")
     await interaction.response.defer()
 
     if not interaction.user.guild_permissions.administrator:
