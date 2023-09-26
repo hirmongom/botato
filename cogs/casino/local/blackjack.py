@@ -74,7 +74,8 @@ async def blackjack_game_handler(bot: commands.Bot, interaction: discord.Interac
   while True:
     if player_total == 21:
       bet *= 1.5
-      await player_turn_end(interaction, deck, dealer_hand, dealer_total, player_total, economy_data, bet)
+      dealer_total = await player_turn_end(interaction, deck, dealer_hand, dealer_total, 
+                                          player_total, economy_data, bet)
       break
     elif player_total > 21:
       await message.edit(embed = embed, view = None)
@@ -104,7 +105,8 @@ async def blackjack_game_handler(bot: commands.Bot, interaction: discord.Interac
       await message.edit(embed = embed, view = view)
 
     elif result == 1: # Stand button
-      await player_turn_end(interaction, deck, dealer_hand, dealer_total, player_total, economy_data, bet)
+      dealer_total = await player_turn_end(interaction, deck, dealer_hand, dealer_total, 
+                                          player_total, economy_data, bet)
       break
 
     elif result == 2: # Double down button
@@ -115,8 +117,8 @@ async def blackjack_game_handler(bot: commands.Bot, interaction: discord.Interac
         economy_data["hand_balance"] -= bet
         bet += bet  
         player_total = draw_card(player_hand, deck)
-        await player_turn_end(interaction, deck, dealer_hand, dealer_total, player_total, 
-                        economy_data, bet)
+        dealer_total = await player_turn_end(interaction, deck, dealer_hand, dealer_total, 
+                                            player_total, economy_data, bet)
         break
 
     elif result == 3: # Retire button
@@ -301,7 +303,7 @@ def get_view(future: asyncio.Future, interaction: discord.Interaction) -> tuple:
 #***************************************************************************************************
 async def player_turn_end(interaction: discord.Interaction, deck: dict, dealer_hand: list[dict], 
                           dealer_total: int, player_total: int, economy_data: dict, 
-                          bet: int) -> None:
+                          bet: int) -> int:
   dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
 
   if dealer_total > 21 or dealer_total < player_total:
@@ -316,3 +318,5 @@ async def player_turn_end(interaction: discord.Interaction, deck: dict, dealer_h
 
   else:
     await interaction.followup.send(f"<@{interaction.user.id}> You've lost")
+
+  return dealer_total
