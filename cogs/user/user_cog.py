@@ -118,7 +118,7 @@ class User(commands.Cog):
     description = "The description you want to set (Max 64 characters)"
   )
   async def description(self, interaction: discord.Interaction, description: str) -> None:
-    self.bot.logger.info(f"(INTERACTION)  |description| from <{interaction.user.name}> with "
+    self.bot.logger.info(f"(INTERACTION) |description| from <{interaction.user.name}> with "
                          f"description = <{description}>")
 
     if len(description) > 64:

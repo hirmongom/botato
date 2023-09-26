@@ -50,3 +50,20 @@ class FutureModal(discord.ui.Modal):
     await interaction.response.defer()
     form_value = str(self.children[0])
     self.future.set_result(form_value)
+
+
+#***************************************************************************************************
+class FutureButton(discord.ui.Button):
+  def __init__(self, user_id: int, future: asyncio.Future, button_id: int = 1, 
+              *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+    self.id = button_id
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+      return # User not authorized
+
+    await interaction.response.defer()
+    self.future.set_result(self.id)

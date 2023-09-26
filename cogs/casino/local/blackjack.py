@@ -13,13 +13,19 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import asyncio
 import random
+
 import discord
+from discord.ext import commands
 
-from utils.json import save_json
+from utils.json import save_json, load_json
 from utils.achievement import add_user_stat
+from utils.custom_ui import FutureButton
 
+
+#***************************************************************************************************
 kDeck = [
   "Ace of Hearts", "2 of Hearts", "3 of Hearts", "4 of Hearts", "5 of Hearts",
   "6 of Hearts", "7 of Hearts", "8 of Hearts", "9 of Hearts", "10 of Hearts",
@@ -39,7 +45,95 @@ kDeck = [
 ]
 
 
-# **************************************************************************************************
+#***************************************************************************************************
+async def blackjack_game_handler(bot: commands.Bot, interaction: discord.Interaction, 
+                                bet: int) -> None:
+  economy_data = load_json(interaction.user.name, "economy")
+
+  deck = get_deck()
+  player_hand, dealer_hand = blackjack_start(deck)
+
+  dealer_total = sum(card['value'] for card in dealer_hand)
+  player_total = sum(card['value'] for card in player_hand)
+  
+  if player_total == 22: # Case of 2 ACES count as 22
+    for card in player_hand:
+      card['value'] = 1
+      break
+    player_total = sum(card['value'] for card in player_hand)
+
+  embed = get_embed(bot, player_hand, player_total, dealer_hand, dealer_total)
+
+  future_button = asyncio.Future()
+  view, hit_button, stand_button, double_button, retire_button = get_view(future = future_button, 
+                                                                          interaction = interaction)
+
+  message = await interaction.followup.send(embed = embed, view = view)
+
+  # Handle game
+  while True:
+    if player_total == 21:
+      bet *= 1.5
+      await player_turn_end(interaction, deck, dealer_hand, dealer_total, player_total, economy_data, bet)
+      break
+    elif player_total > 21:
+      await message.edit(embed = embed, view = None)
+      await interaction.followup.send(f"<@{interaction.user.id}> You went bust")
+      break
+
+    try:
+      result = await asyncio.wait_for(future_button, timeout = 60)
+    except asyncio.TimeoutError:
+      await message.edit(embed = embed, view = None)
+      await interaction.followup.send(f"<@{interaction.user.id}> Timeout: Blackjack game has been "
+                                      "canceled")
+      break   
+
+    # Reset state
+    future_button = asyncio.Future()
+    hit_button.future = future_button
+    stand_button.future = future_button
+    double_button.future = future_button
+    retire_button.future = future_button
+    
+    # Handle button press
+
+    if result == 0: # Hit button
+      player_total = draw_card(player_hand, deck)
+      embed = get_embed(bot, player_hand, player_total, dealer_hand, dealer_total)
+      await message.edit(embed = embed, view = view)
+
+    elif result == 1: # Stand button
+      await player_turn_end(interaction, deck, dealer_hand, dealer_total, player_total, economy_data, bet)
+      break
+
+    elif result == 2: # Double down button
+      if economy_data["hand_balance"] < bet:
+        await interaction.followup.send(f"<@{interaction.user.id}> You do not have enough money in "
+                                        "hand to Double Down")
+      else:
+        economy_data["hand_balance"] -= bet
+        bet += bet  
+        player_total = draw_card(player_hand, deck)
+        await player_turn_end(interaction, deck, dealer_hand, dealer_total, player_total, 
+                        economy_data, bet)
+        break
+
+    elif result == 3: # Retire button
+      recovers = round(bet / 2, 2)
+      economy_data["hand_balance"] += recovers
+      
+      await message.edit(embed = embed, view = None)
+      await interaction.followup.send(f"<@{interaction.user.id}> You retired, you've received half "
+                                      f"your bet: {recovers}€")
+      break
+
+  embed = get_embed(bot, player_hand, player_total, dealer_hand, dealer_total, dealer_turn = True)
+  await message.edit(embed = embed, view = None)
+  save_json(economy_data, interaction.user.name, "economy")
+
+
+#***************************************************************************************************
 def blackjack_start(deck) -> tuple[list[dict]]:
   player_hand = deal_player_hand(deck)
   dealer_hand = deal_dealer_hand(deck)
@@ -47,14 +141,14 @@ def blackjack_start(deck) -> tuple[list[dict]]:
   return(player_hand, dealer_hand)
 
 
-# **************************************************************************************************
+#***************************************************************************************************
 def get_deck() -> dict:
   mapped_deck = [map_card(card) for card in kDeck]
   random.shuffle(mapped_deck)
   return mapped_deck
 
 
-# **************************************************************************************************
+#***************************************************************************************************
 def map_card(card: str) -> dict:
   # Mapping card names to their blackjack values
   card_values = {
@@ -85,7 +179,7 @@ def map_card(card: str) -> dict:
   }
 
 
-# **************************************************************************************************
+#***************************************************************************************************
 def deal_player_hand(mapped_deck: dict) -> list[dict]:
   # Deal two cards to the player
   player_hand = random.sample(mapped_deck, 2)
@@ -97,7 +191,7 @@ def deal_player_hand(mapped_deck: dict) -> list[dict]:
   return player_hand
 
 
-# **************************************************************************************************
+#***************************************************************************************************
 def deal_dealer_hand(mapped_deck: dict) -> list[dict]:
   # Deal two cards to the dealer
   dealer_hand = random.sample(mapped_deck, 2)
@@ -109,7 +203,7 @@ def deal_dealer_hand(mapped_deck: dict) -> list[dict]:
   return dealer_hand
 
 
-# **************************************************************************************************
+#***************************************************************************************************
 def draw_card(hand, deck) -> int:
   card = random.choice(deck)
   hand.append(card)
@@ -128,8 +222,7 @@ def draw_card(hand, deck) -> int:
   return total
 
 
-
-# **************************************************************************************************
+#***************************************************************************************************
 def dealer_turn(hand: dict, deck: dict, dealer_total) -> int:
   total = dealer_total
   while total < 17:
@@ -137,32 +230,8 @@ def dealer_turn(hand: dict, deck: dict, dealer_total) -> int:
   return total
 
 
-# **************************************************************************************************
-async def blackjack_winnings(winnings: int, economy_data: dict,
-                            interaction: discord.Interaction) -> None:
-  economy_data["bank_balance"] += winnings
-  save_json(economy_data, interaction.user.name, "economy")
-  await add_user_stat("blackjack_hands_won", interaction)
-
-
-# **************************************************************************************************
-class BlackjackButton(discord.ui.Button):
-  def __init__(self, user_id: int, future: asyncio.Future, button_id: int, *args, **kwargs)-> None:
-    super().__init__(*args, **kwargs)
-    self.user_id = user_id
-    self.future = future
-    self.id = button_id
-
-
-  async def callback(self, interaction: discord.Interaction) -> None:
-    if interaction.user.id != self.user_id:
-      return # User not authorized
-    await interaction.response.defer()
-    self.future.set_result(self.id)
-
-
-# **************************************************************************************************
-def get_embed(player_hand: dict, player_total: int, 
+#***************************************************************************************************
+def get_embed(bot: commands.Bot, player_hand: dict, player_total: int, 
               dealer_hand: dict, dealer_total: int,
               dealer_turn: bool = False) -> discord.Embed:
   embed = discord.Embed(
@@ -189,4 +258,60 @@ def get_embed(player_hand: dict, player_total: int,
                     value = "", inline = True)
   embed.add_field(name = f"TOTAL: {player_total}", value = "", inline = False)
 
+  embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+  embed.set_footer(text = "Lucky Blackjack | Botato Casino", 
+                  icon_url = bot.user.display_avatar.url)
+
   return embed
+
+
+#***************************************************************************************************
+def get_view(future: asyncio.Future, interaction: discord.Interaction) -> tuple:
+  view = discord.ui.View()
+
+  hit_button = FutureButton(style = discord.ButtonStyle.primary, 
+                            label = "Hit",
+                            user_id = interaction.user.id,
+                            future = future,
+                            button_id = 0)
+  stand_button = FutureButton(style = discord.ButtonStyle.green, 
+                              label = "Stand",
+                              user_id = interaction.user.id,
+                              future = future,
+                              button_id = 1)
+  double_button = FutureButton(style = discord.ButtonStyle.red, 
+                               label = "Double Down",
+                               user_id = interaction.user.id,
+                               future = future,
+                               button_id = 2)
+  retire_button = FutureButton(style = discord.ButtonStyle.secondary, 
+                               label = "Retire",
+                               user_id = interaction.user.id,
+                               future = future,
+                               button_id = 3)
+  
+  view.add_item(hit_button)
+  view.add_item(stand_button)
+  view.add_item(double_button)
+  view.add_item(retire_button)
+
+  return (view, hit_button, stand_button, double_button, retire_button)
+
+
+#***************************************************************************************************
+async def player_turn_end(interaction: discord.Interaction, deck: dict, dealer_hand: list[dict], 
+                          dealer_total: int, player_total: int, economy_data: dict, 
+                          bet: int) -> None:
+  dealer_total = dealer_turn(dealer_hand, deck, dealer_total)
+
+  if dealer_total > 21 or dealer_total < player_total:
+    winnings = bet * 2
+    economy_data["hand_balance"] += winnings
+    await interaction.followup.send(f"<@{interaction.user.id}> You've won {winnings}€")
+
+  elif dealer_total == player_total:
+    economy_data["hand_balance"] += bet
+    await interaction.followup.send(f"<@{interaction.user.id}> It's a draw")
+
+  else:
+    await interaction.followup.send(f"<@{interaction.user.id}> You've lost")
