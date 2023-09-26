@@ -307,6 +307,7 @@ async def player_turn_end(interaction: discord.Interaction, deck: dict, dealer_h
   if dealer_total > 21 or dealer_total < player_total:
     winnings = bet * 2
     economy_data["hand_balance"] += winnings
+    add_user_stat("blackjack_hands_won", interaction)
     await interaction.followup.send(f"<@{interaction.user.id}> You've won {winnings}€")
 
   elif dealer_total == player_total:
