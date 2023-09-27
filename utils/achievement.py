@@ -53,11 +53,12 @@ async def update_achievement(interaction: discord.Interaction, achievement_data:
   xp_increase = tier * 100
   user_data["experience"] += xp_increase
 
-  await interaction.followup.send(f"You unlocked the achievement {value} {map_stat_name[stat]} "
-                                  f"and received {xp_increase} XP!")
+  await interaction.followup.send(f"<@{interaction.user.id}> You unlocked the achievement {value} "
+                                  f"{map_stat_name[stat]} and received {xp_increase} XP!")
   if user_data["experience"] >= (user_data["level"] * 100 + (user_data["level"] - 1) * 50):
     user_data["level"] += 1
-    await interaction.followup.send(f"(*) You leveled up to level {user_data['level']}!!")
+    await interaction.followup.send(f"<@{interaction.user.id}> You leveled up to level "
+                                    f"{user_data['level']}!!")
 
 
 #***************************************************************************************************
