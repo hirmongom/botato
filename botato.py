@@ -53,7 +53,7 @@ class Botato(commands.Bot):
     now = datetime.now()
 
     # Configure and set loggers
-    logger_formatter_stream = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logger_formatter_stream = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logger_formatter_file = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
     logger_stream_handler = logging.StreamHandler()
     logger_stream_handler.setFormatter(logger_formatter_stream)
@@ -114,7 +114,10 @@ class Botato(commands.Bot):
   def run(self) -> None:
     load_dotenv()
     self.main_channel = os.getenv("MAIN_CHANNEL")
-    self.web_scrapper = WebScrapper(self.logger, os.getenv("BROWSER_PATH"))
+    try:
+      self.web_scrapper = WebScrapper(self.logger, os.getenv("BROWSER_PATH"))
+    except Exception as e:
+      self.logger.error(f"Could not find executable, or version might be incompatible\n{e}")
     super().run(os.getenv("TOKEN"))
 
 
@@ -141,7 +144,8 @@ class Botato(commands.Bot):
     self.logger.info("(!) Started argument parsing")
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sync", action = "store_true", help = "Run setup_hook on startup to sync commands")
+    parser.add_argument("--sync", action = "store_true", help = "Run setup_hook on startup to sync "
+                        "commands")
     parser.add_argument("--wipe", action = "store_true", help = "Wipe all json data (only)")
     args = parser.parse_args()
 
