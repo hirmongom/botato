@@ -258,17 +258,17 @@ def casino_help_embed(bot: commands.Bot) -> discord.Embed:
   embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
 
   embed.add_field(
-    name = "🃏 `/blackjack [bet amount]`",
+    name = "🃏 `/blackjack [bet]`",
     value = "Play blackjack and try to double your bet.",
     inline = False
   )
   embed.add_field(
-    name = "🎰 `/roulette`",
+    name = "🎰 `/roulette [bet]`",
     value = "Spin the roulette wheel and place your bet.",
     inline = False
   )
   embed.add_field(
-    name = "🏇 `/horse_race`",
+    name = "🏇 `/horse_race [bet]`",
     value = "Participate in horse racing and bet on your favorite horse to win.",
     inline = False
   )
@@ -318,6 +318,11 @@ def misc_help_embed(bot: commands.Bot) -> discord.Embed:
   embed.add_field(
     name = "🔗 `/git`",
     value = "Check my code in my GitHub repository.",
+    inline = False
+  )
+  embed.add_field(
+    name = "📊 `/trello`",
+    value = "Check my trello board to see what's to come.",
     inline = False
   )
   embed.add_field(

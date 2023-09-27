@@ -43,7 +43,7 @@ class Misc(commands.Cog):
 #***************************************************************************************************
   @app_commands.command(
     name = "trello",
-    description = "Check the bot's trello board to see what's to come"
+    description = "Check my trello board to see what's to come"
   )
   async def trello(self, interaction: discord.Interaction) -> None:
     self.bot.logger.info(f"(INTERACTION) |trello| from <{interaction.user.name}>")
