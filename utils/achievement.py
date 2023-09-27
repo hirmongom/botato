@@ -35,8 +35,8 @@ async def update_achievement(interaction: discord.Interaction, achievement_data:
     "blackjack_hands_won": "Blackjack Rounds Victorious",
     "roulettes_played": "Roulette Rounds Played",
     "roulettes_won": "Roulette Rounds Victorious",
-    "horse_races_played": "Horse Race Bets Made",
-    "horse_races_won": "Successful Horse Race Bets",
+    "races_played": "Race Bets Made",
+    "races_won": "Successful Race Bets",
     "bets_placed": "Total Bets Made",
     "completed_daily_problems": "Total Daily Problems Solved"
   }
@@ -137,7 +137,7 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
       if achievement_data[stat] == 500:
         await update_achievement(interaction, achievement_data, user_data, stat, 500, 4)
 
-    elif stat == "horse_races_played":
+    elif stat == "races_played":
       if achievement_data[stat] == 50:
         await update_achievement(interaction, achievement_data, user_data, stat, 50, 1)
       if achievement_data[stat] == 100:
@@ -147,7 +147,7 @@ async def add_user_stat(stat: str, interaction: discord.Interaction) -> None:
       if achievement_data[stat] == 500:
         await update_achievement(interaction, achievement_data, user_data, stat, 500, 4)
 
-    elif stat == "horse_races_won":
+    elif stat == "races_won":
       if achievement_data[stat] == 50:
         await update_achievement(interaction, achievement_data, user_data, stat, 50, 1)
       if achievement_data[stat] == 100:

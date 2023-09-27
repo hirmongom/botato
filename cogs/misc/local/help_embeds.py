@@ -268,8 +268,8 @@ def casino_help_embed(bot: commands.Bot) -> discord.Embed:
     inline = False
   )
   embed.add_field(
-    name = "🏇 `/horse_race [bet]`",
-    value = "Participate in horse racing and bet on your favorite horse to win.",
+    name = "🏇 `/race [bet]`",
+    value = "Participate in races and bet on your favorite racer to win.",
     inline = False
   )
   

@@ -48,8 +48,8 @@ def make_data(user: str) -> None:
   achievement_data["blackjack_hands_won"] = 0
   achievement_data["roulettes_played"] = 0
   achievement_data["roulettes_won"] = 0
-  achievement_data["horse_races_played"] = 0
-  achievement_data["horse_races_won"] = 0
+  achievement_data["races_played"] = 0
+  achievement_data["races_won"] = 0
   achievement_data["completed_daily_problems"] = 0
   achievement_data["achievements"] = []
   save_json(achievement_data, user, "achievement")
