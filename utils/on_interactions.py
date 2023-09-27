@@ -45,7 +45,8 @@ async def economy_on_interaction(interaction: discord.Interaction) -> None:
     if economy_data["streak"] != 0:
       streak_msg = f" (Current streak = {economy_data['streak']} days)" 
       
-    await interaction.channel.send(f"(*) You received {increase}€ on your bank{streak_msg}")
+    await interaction.channel.send(f"<@{interaction.user.id}> You received {increase}€ on your "
+                                   f"bank{streak_msg}")
 
   save_json(economy_data, interaction.user.name, "economy")
 
@@ -58,11 +59,12 @@ async def user_on_interaction(interaction: discord.Interaction) -> None:
     if random.randint(1, 100) <= user_data["xp_probabiliy"]:
       increase = random.randint(20, 50)
       user_data["experience"] += increase
-      await interaction.channel.send(f"(*) You received {increase} XP")
+      await interaction.channel.send(f"<@{interaction.user.id}> You received {increase} XP")
 
       if user_data["experience"] >= (user_data["level"] * 100 + (user_data["level"] - 1) * 50):
         user_data["level"] += 1
-        await interaction.channel.send(f"(*) You leveled up to level {user_data['level']}!!")
+        await interaction.channel.send(f"<@{interaction.user.id}> You leveled up to "
+                                       f"level {user_data['level']}!!")
 
       user_data["xp_probabiliy"] = 5
       user_data["daily_xp"] -= 1  
