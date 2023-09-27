@@ -33,9 +33,9 @@ class FutureSelectMenu(discord.ui.Select):
     if interaction.user.id != self.user_id:
       return # User not authorized
       
-    self.disable = True
+    self.disabled = True
     await interaction.response.defer()
-    self.future.set_result(self.values)
+    self.future.set_result(self.values if self.max_values > 1 else self.values[0])
 
 
 #***************************************************************************************************
@@ -67,3 +67,18 @@ class FutureButton(discord.ui.Button):
 
     await interaction.response.defer()
     self.future.set_result(self.id)
+
+
+#***************************************************************************************************
+class ModalButton(discord.ui.Button):
+  def __init__(self, user_id: int, modal: discord.ui.Modal, *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.modal = modal
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+      return # User not authorized
+      
+    self.disabled = True
+    await interaction.response.send_modal(self.modal)

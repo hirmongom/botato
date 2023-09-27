@@ -13,98 +13,227 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import asyncio
+import random
+
 import discord
+from discord.ext import commands
 
+from utils.json import load_json, save_json
 from utils.achievement import add_user_stat
+from utils.custom_ui import FutureButton, FutureSelectMenu, FutureModal, ModalButton
+
+
+#***************************************************************************************************
+bet_type_map = {
+  0: "Straight",
+  1: "Colour",
+  2: "Even/Odd",
+  3: "Low/High"
+}
+
+bet_value_map = [
+  {**{i: f"🔢 {i}" for i in range(0, 36)}},
+  {0: "🔴 Red", 1: "⚫ Black"},
+  {0: "#️⃣ Even", 1: "*️⃣ Odd"},
+  {0: "⏬ Low (1-18)", 1: "⏫ High (19-36)"}
+]
+
+colour_map = {
+  0: [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36],  # Red numbers
+  1: [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35]  # Black numbers
+}
+
 
 # **************************************************************************************************
-class BetTypeSelect(discord.ui.Select):
-  def __init__(self, user_id: int, future: asyncio.Future, *args, **kwargs) -> None:
-    super().__init__(*args, **kwargs)
-    self.user_id = user_id
-    self.future = future
-    self.placeholder = "Bet Type"
-    self.options = [
-      discord.SelectOption(label = "Straight", value = 0),
-      discord.SelectOption(label = "Colour", value = 1),
-      discord.SelectOption(label = "Even/Odd", value = 2),
-      discord.SelectOption(label = "Low/High", value = 3),
-    ]
+async def roulette_game_handler(bot: commands.Bot, interaction: discord.Interaction, 
+                                bet: int) -> None:
+  # Build interface
+  embed = build_embed(bot)
+  message = await interaction.followup.send(embed = embed)
 
-  async def callback(self, interaction: discord.Interaction) -> None:
-    if interaction.user.id != self.user_id:
-      return # User not authorized
+  bet_type_future = asyncio.Future()
+  view = discord.ui.View()
+  bet_type_select = FutureSelectMenu(placeholder = "Bet Type", user_id = interaction.user.id, 
+                                    future = bet_type_future, options = list(bet_type_map.values()))
+  view.add_item(bet_type_select)
+  await message.edit(embed = embed, view = view)
 
-    self.disabled = True
-    result = int(self.values[0])
 
-    # Bet on what? // num = button-modal, rest = select
-    if result == 0: # Bet Type Straight
-      future_num = asyncio.Future()
-      num_select_modal = FutureModal(title = "Choose a number for your bet", future = future_num, 
-                                    label = "Enter a number", placeholder = "Number (0-36)")
-      await interaction.response.send_modal(num_select_modal)
-      selected_num = await future_num
-      self.future.set_result([0, selected_num])
+  # Get bet info
+  bet_type = int(await bet_type_future)
+  await message.edit(embed = embed, view = view) # Bet Type Select disabled
+
+  bet_value = await get_bet_value(embed = embed, message = message, view = view, 
+                                  interaction = interaction, bet_type = bet_type)
+  await message.edit(embed = embed, view = view) # Bet Value Select disabled
+
+  if bet_value == -1: # Invalid value
+    return
+
+  # Spin
+  roulette_result = random.randint(0, 36)
+  if roulette_result in colour_map[0]:
+    roulette_result_colour = "🔴"
+  elif roulette_result in colour_map[1]:
+    roulette_result_colour = "⚫"
+  else:
+    roulette_result_colour = "🟢"
+
+  embed.add_field(name = "", value = "```The roulette landed on```", inline = False)
+  embed.add_field(name = f"{roulette_result_colour} {roulette_result}", value = "", inline = False)
+  embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+  await message.edit(embed = embed, view = view)
+
+  # Handle result
+  if bet_type == 0: # Bet Type Straight
+    await handle_result_for_straight(interaction, roulette_result, bet, bet_value)
+  elif bet_type == 1: # Bet Type Colour
+    await handle_result_for_colour(interaction, roulette_result, bet, bet_value)
+  elif bet_type == 2: # Bet Type Even/Odd
+    await handle_result_for_evenodd(interaction, roulette_result, bet, bet_value)
+  elif bet_type == 3: # Bet Type Low/High
+    await handle_result_for_lowhigh(interaction, roulette_result, bet, bet_value)
+
+
+# **************************************************************************************************
+def build_embed(bot: commands.Bot) -> discord.Embed:
+  embed = discord.Embed(
+    title = "🎰 Roulette Wheel 🎰",
+    description = "Place your bet and test your luck!",
+    color = discord.Colour.red()
+  )
+  embed.add_field(
+    name = "🔴 Red Numbers",
+    value = "1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36",
+    inline = True
+  )
+  embed.add_field(
+    name = "⚫ Black Numbers",
+    value = "2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35",
+    inline = True
+  )
+  embed.add_field(
+    name = "🟢 Zero",
+    value = "0",
+    inline = True
+  )
+  embed.add_field(
+    name = "🎲 Bet Types",
+    value = "Straight, Colour, Even/Odd, Low/High",
+    inline = False
+  )
+  embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
+  embed.set_footer(text = "Lucky Roulette | Botato Casino", 
+                  icon_url = bot.user.display_avatar.url)
+
+  return embed
+
+
+# **************************************************************************************************
+async def get_bet_value(embed: discord.Embed, message: discord.Message, view: discord.ui.View,
+                        interaction: discord.Interaction, bet_type: int) -> int:
+  bet_value_future = asyncio.Future()
+  if bet_type == 0: # Bet Type Straight
+    bet_value_modal = FutureModal(title = "Select a Number", label = "Bet Value", 
+                                  placeholder = "0-36", future = bet_value_future)
+    modal_button = ModalButton(user_id = interaction.user.id, modal = bet_value_modal, 
+                              label = "Bet Value")
+    view.add_item(modal_button)
+    await message.edit(embed = embed, view = view)
+    bet_value = await bet_value_future
+    await message.edit(embed = embed, view = view) # Modal Button disabled
+
+    if not bet_value.isdigit():
+      await interaction.followup.send(f"<@{interaction.user.id}> Value must be a number")
+      return -1
+
+    bet_value = int(bet_value)
+    if bet_value < 0 or bet_value > 36:
+      await interaction.followup.send(f"<@{interaction.user.id}> Value must be between 0 and 36")
+      return -1
+
+  else: # Show Select for bet value
+    if bet_type == 1: # Bet Type Color
+      bet_value_choices = ["Red", "Black"]
+    elif bet_type == 2: # Bet Type Even/Odd
+      bet_value_choices = ["Even", "Odd"]
+    elif bet_type == 3: # Bet Type Low/High
+      bet_value_choices = ["Low (1-18)", "High (19-36)"]
+    
+    bet_value_select = FutureSelectMenu(user_id = interaction.user.id, future = bet_value_future,
+                                        options = bet_value_choices, placeholder = "Bet Value")
+    view.add_item(bet_value_select)
+    await message.edit(embed = embed, view = view)
+    bet_value = await bet_value_future
+
+  return int(bet_value)
+
+
+# **************************************************************************************************
+async def handle_result_for_straight(interaction: discord.Interaction, roulette_result: int, 
+                                    bet: int, bet_value: int) -> None:
+  if roulette_result == bet_value:
+    if roulette_result == 0:
+      win_amount = bet * 25
     else:
-      await interaction.response.defer()
-      self.future.set_result([result, ""])
+      win_amount = bet * 10
+    await user_win(interaction, win_amount)
+  else:
+    await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
 
 
 # **************************************************************************************************
-class BetValueSelect(discord.ui.Select):
-  def __init__(self, user_id: int, future: asyncio.Future, options: list[discord.SelectOption], *args, **kwargs) -> None:
-    super().__init__(*args, **kwargs)
-    self.user_id = user_id
-    self.future = future
-    self.options = options
-    self.placeholder = "Bet Value"
-
-  async def callback(self, interaction: discord.Interaction) -> None:
-    if interaction.user.id != self.user_id:
-      return # User not authorized
-    await interaction.response.defer()
-
-    self.disabled = True
-    result = int(self.values[0])
-    self.future.set_result(result)
-
+async def handle_result_for_colour(interaction: discord.Interaction, roulette_result: int, 
+                                    bet: int, bet_value: int) -> None:
+  if roulette_result in colour_map[bet_value]:
+    win_amount = bet * 2
+    await user_win(interaction, win_amount)
+  else:
+    await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
 
 
 # **************************************************************************************************
-class BetAmountButton(discord.ui.Button):
-  def __init__(self, user_id: int, future: asyncio.Future, *args, **kwargs) -> None:
-    super().__init__(*args, **kwargs)
-    self.user_id = user_id
-    self.future = future
-
-
-  async def callback(self, interaction: discord.Interaction) -> None:
-    if interaction.user.id != self.user_id:
-      return # User not authorized
-
-    self.disabled = True
-    bet_amount_modal = FutureModal(title = "Enter bet amount", future = self.future, 
-                                  label = "Bet amount", placeholder = "€")
-    await interaction.response.send_modal(bet_amount_modal)
-
-
-# **************************************************************************************************
-class FutureModal(discord.ui.Modal):
-  def __init__(self, future: asyncio.Future, label: str, placeholder: str, *args, **kwargs) -> None:
-    super().__init__(*args, **kwargs)
-    self.add_item(discord.ui.TextInput(label = label, placeholder = placeholder))
-    self.future = future
-
-  async def on_submit(self, interaction: discord.Interaction) -> None:
-    await interaction.response.defer()
-    self.future.set_result(str(self.children[0]))
-
+async def handle_result_for_evenodd(interaction: discord.Interaction, roulette_result: int, 
+                                    bet: int, bet_value: int) -> None:
+  if roulette_result == 0:
+    await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
+  else:
+    if bet_value == 0: # Even
+      if roulette_result % 2 != 0:
+        await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
+        return
+    else: # Odd
+      if roulette_result % 2 == 0:
+        await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
+        return
+    win_amount = bet * 2
+    await user_win(interaction, win_amount)
 
 
 # **************************************************************************************************
-async def process_winnings(economy_data: dict, winnings: float, 
-                          interaction: discord.Interaction) -> None:
-  economy_data["bank_balance"] += winnings
+async def handle_result_for_lowhigh(interaction: discord.Interaction, roulette_result: int, 
+                                    bet: int, bet_value: int) -> None:
+  if roulette_result == 0:
+    await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
+  else:
+    if bet_value == 0: # Low
+      if roulette_result >= 19:
+        await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
+        return
+    else: # High
+      if roulette_result <= 18:
+        await interaction.followup.send(f"<@{interaction.user.id}> You lost, better luck next time")
+        return
+    win_amount = bet * 2
+    await user_win(interaction, win_amount)
+
+
+#***************************************************************************************************
+async def user_win(interaction: discord.Interaction, amount: int) -> None:
+  economy_data = load_json(interaction.user.name, "economy")
+  economy_data["hand_balance"] += amount
+  save_json(economy_data, interaction.user.name, "economy")
   await add_user_stat("roulettes_won", interaction)
+  await interaction.followup.send(f"<@{interaction.user.id}> You've won {amount}€")
