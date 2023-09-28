@@ -22,8 +22,8 @@ map_stat_name = {
     "blackjack_hands_won": "Blackjack Rounds Victorious",
     "roulettes_played": "Roulette Rounds Played",
     "roulettes_won": "Roulette Rounds Victorious",
-    "horse_races_played": "Horse Race Bets Made",
-    "horse_races_won": "Successful Horse Race Bets",
+    "races_played": "Race Bets Made",
+    "races_won": "Successful Race Bets",
     "bets_placed": "Total Bets Made",
     "completed_daily_problems": "Total Daily Problems Solved"
 }
