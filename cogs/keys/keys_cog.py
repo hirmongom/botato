@@ -74,7 +74,7 @@ class Keys(commands.Cog):
       embed = get_game_embed(bot = self.bot, title = title, link = link)
     except Exception as e:
       self.bot.logger.error(f"Error on keys search for <{interaction.user.name}> with query = "
-                            f"<{queryu}>\n{e}")
+                            f"<{query}>\n{e}")
       embed = get_game_embed(bot = self.bot, query = query)
 
     await interaction.followup.send(embed = embed)
