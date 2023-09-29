@@ -46,6 +46,7 @@ class Botato(commands.Bot):
 
     self.main_channel = 0     # Loads on run()
     self.web_scrapper = None  # Loads on run()
+    self.start_scrapper = True
 
 
 #***************************************************************************************************
@@ -114,10 +115,6 @@ class Botato(commands.Bot):
   def run(self) -> None:
     load_dotenv()
     self.main_channel = os.getenv("MAIN_CHANNEL")
-    try:
-      self.web_scrapper = WebScrapper(self.logger, os.getenv("BROWSER_PATH"))
-    except Exception as e:
-      self.logger.error(f"Could not find executable, or version might be incompatible\n{e}")
     super().run(os.getenv("TOKEN"))
 
 
@@ -147,6 +144,8 @@ class Botato(commands.Bot):
     parser.add_argument("--sync", action = "store_true", help = "Run setup_hook on startup to sync "
                         "commands")
     parser.add_argument("--wipe", action = "store_true", help = "Wipe all json data (only)")
+    parser.add_argument("--noweb", action = "store_true", help = "Disable the WebScrapper, for "
+                                                                  "debugging purposes only")
     args = parser.parse_args()
 
     if args.sync:
@@ -173,11 +172,17 @@ class Botato(commands.Bot):
             os.remove(f"data/{category}/{data_file}")
       self.logger.info("Json data wipe completed")
 
+    if args.noweb:
+      self.start_scrapper = False
+
     self.logger.info("(!) Finished argument parsing")
 
 
 #***************************************************************************************************
   async def on_ready(self) -> None:
+    if self.start_scrapper:
+      self.logger.info("(!) Starting web scrapper")
+      self.web_scrapper = WebScrapper(self.logger, os.getenv("BROWSER_PATH"))
     self.hourly_loop.start()
 
     for cog in self.cogs.values():
