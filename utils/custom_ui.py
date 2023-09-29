@@ -22,12 +22,18 @@ import discord
 #***************************************************************************************************
 class FutureSelectMenu(discord.ui.Select):
   def __init__(self, user_id: int, future: asyncio.Future, options: list[str], 
-              *args, **kwargs) -> None:
+              values: list[str] = None, *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
     self.user_id = user_id
     self.future = future
-    self.options = [
-      discord.SelectOption(label = option, value = i) for i, option in enumerate(options)]
+    self.option_values = values
+
+    if not self.option_values:
+      self.options = [
+        discord.SelectOption(label = option, value = i) for i, option in enumerate(options)]
+    else:
+      self.options = [
+        discord.SelectOption(label = option, value = values[i]) for i, option in enumerate(options)]
 
   async def callback(self, interaction: discord.Interaction) -> None:
     if interaction.user.id != self.user_id:
@@ -35,7 +41,12 @@ class FutureSelectMenu(discord.ui.Select):
       
     self.disabled = True
     await interaction.response.defer()
-    self.future.set_result(self.values if self.max_values > 1 else self.values[0])
+
+    if not self.option_values:
+      int_values = [int(i) for i in self.values]
+      self.future.set_result(int_values if self.max_values > 1 else int_values[0])
+    else:
+      self.future.set_result(self.values if self.max_values > 1 else self.values[0])
 
 
 #***************************************************************************************************
@@ -67,6 +78,21 @@ class FutureButton(discord.ui.Button):
 
     await interaction.response.defer()
     self.future.set_result(self.id)
+
+
+#***************************************************************************************************
+class FutureConfirmationButton(discord.ui.Button):
+  def __init__(self, user_id: int, future: asyncio.Future, *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.future = future
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if interaction.user.id != self.user_id:
+      return # User not authorized
+
+    await interaction.response.defer()
+    self.future.set()
 
 
 #***************************************************************************************************
