@@ -49,6 +49,7 @@ class FutureSelectMenu(discord.ui.Select):
       self.future.set_result(self.values if self.max_values > 1 else self.values[0])
 
 
+#***************************************************************************************************
 class ModalSelectMenu(discord.ui.Select):
   def __init__(self, user_id: int, future: asyncio.Future, options: list[str], 
               modals = list[discord.ui.Modal], *args, **kwargs) -> None:
