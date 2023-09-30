@@ -61,7 +61,7 @@ async def race_game_handler(bot: commands.Bot, interaction: discord.Interaction,
   view.add_item(racer_select)
 
   message = await interaction.followup.send(embed = embed, view = view)
-  racer = int(await racer_future)
+  racer = await racer_future
   await message.edit(embed = embed, view = None) # Remove view
 
   winner = await race(message, embed, tracks)

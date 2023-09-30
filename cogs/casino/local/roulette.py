@@ -62,7 +62,7 @@ async def roulette_game_handler(bot: commands.Bot, interaction: discord.Interact
 
 
   # Get bet info
-  bet_type = int(await bet_type_future)
+  bet_type = await bet_type_future
   await message.edit(embed = embed, view = view) # Bet Type Select disabled
 
   bet_value = await get_bet_value(embed = embed, message = message, view = view, 
@@ -168,7 +168,7 @@ async def get_bet_value(embed: discord.Embed, message: discord.Message, view: di
     await message.edit(embed = embed, view = view)
     bet_value = await bet_value_future
 
-  return int(bet_value)
+  return bet_value
 
 
 # **************************************************************************************************
