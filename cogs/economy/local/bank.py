@@ -80,7 +80,7 @@ def get_embed(bot: commands.Bot, interaction: discord.Interaction, economy_data:
     upgrade_cost = (economy_data["bank_upgrade"] + 1) * 10000
     embed.add_field(name = f"💰 You can upgrade your bank for {upgrade_cost}€", 
                     value = f"Withdrawal limit from {economy_data['max_withdrawal']}€ "
-                            f"to {economy_data['max_withdrawal'] + 5000}€\n"
+                            f"to {economy_data['max_withdrawal'] + 25000}€\n"
                             f"Interest rate from {int((economy_data['interest_rate'] - 1) * 100)}% "
                             f"to {int((economy_data['interest_rate'] - 1) * 100 + 2)}%", 
                     inline = False)
