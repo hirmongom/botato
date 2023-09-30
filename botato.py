@@ -200,10 +200,10 @@ class Botato(commands.Bot):
   @commands.Cog.listener()
   async def on_interaction(self, interaction: discord.Interaction) -> None:
     if interaction.type == discord.InteractionType.application_command:
-      await add_user_stat("command_count", interaction)
       if interaction.data["name"] == "wipe":
         return
       try: # Run on_interaction functions
+        await add_user_stat("command_count", interaction)
         await economy_on_interaction(interaction)
         await user_on_interaction(interaction)
       except KeyError: # First user interaction

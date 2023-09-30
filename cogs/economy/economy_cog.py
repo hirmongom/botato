@@ -13,28 +13,31 @@
 #  *              You should have received a copy of the GNU General Public License
 #  *              along with the "Botato" project. If not, see <http://www.gnu.org/licenses/>.
 
+
 import os
+import random
+import datetime
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-import random
-import datetime
-
 from utils.json import load_json, save_json
 
-from .local.bank_ui import BankOperationModal, BankOperationSelect, BankUpgradeButton
-from .local.shop_ui import ShopItemSelect
-from .local.shop_funcs import create_role
+from .local.bank import bank_handler
+from .local.quick_actions import deposit, withdraw, transfer
+from .local.shop import shop_handler
 
 
+#***************************************************************************************************
 class Economy(commands.Cog):
   def __init__(self, bot: commands.Bot) -> None:
     self.bot = bot
 
 
+#***************************************************************************************************
   async def weekly_task(self) -> None:
+    # Reset withdrawal limit and give interests
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         economy_data = load_json(file[:-5], "economy")
@@ -43,7 +46,9 @@ class Economy(commands.Cog):
         save_json(economy_data, file[:-5], "economy")
 
 
+#***************************************************************************************************
   async def daily_task(self) -> None:
+    # Reset daily money reward and check streak
     for file in os.listdir("data/economy/"):
       if file != ".gitkeep":
         economy_data = load_json(file[:-5], "economy")
@@ -55,130 +60,31 @@ class Economy(commands.Cog):
         save_json(economy_data, file[:-5], "economy")
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "bank",
     description = "Check your account balance and perform opperations"
   )
   async def bank(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|bank| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |bank| from <{interaction.user.name}>")
 
     await interaction.response.defer()
-
-    economy_data = load_json(interaction.user.name, "economy")
-    hand_balance = round(economy_data["hand_balance"], 2)
-    bank_balance = round(economy_data["bank_balance"], 2)
-    max_withdrawal = economy_data["max_withdrawal"]
-    withdrawn_money = round(economy_data["withdrawn_money"], 2)
-    interest_rate = economy_data["interest_rate"]
-    user_data = load_json(interaction.user.name, "user")
-
-    embed = discord.Embed(
-      title = "🏦 Bank Account",
-      description = f"Welcome to the bank, {interaction.user.display_name}! Choose an operation below.",
-      color = discord.Color.gold()
-    )
-    embed.add_field(name = "💰 Hand Balance", value = f"{hand_balance}€", inline = True)
-    embed.add_field(name = "🏦 Bank Balance", value = f"{bank_balance}€", inline = True)
-    embed.add_field(name = f"📆🔽 Remaining Weekly Withdraw Limit", 
-                    value = f"{round(max_withdrawal - withdrawn_money, 2)}€", 
-                    inline = False)
-    if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
-      upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
-      embed.add_field(name = f"💰 You can upgrade your bank for {upgrade_cost}€", 
-                      value = f"Withdrawal limit from {max_withdrawal}€ to {max_withdrawal + 5000}€\n"
-                              f"Interest rate from {int((interest_rate - 1) * 100)}% to {int((interest_rate - 1) * 100 + 1)}%", 
-                      inline = False)
-    embed.add_field(name = "", value = "", inline = False) # pre-footer separator
-    embed.set_footer(text = "Secure Banking | Botato Bank", icon_url = self.bot.user.display_avatar.url)
-    
-    message = await interaction.followup.send(embed = embed, ephemeral = True)
-
-    deposit_modal = BankOperationModal(title = "Deposit", operation = 1, economy_data = economy_data,
-                                message = message, embed = embed)
-    deposit_modal.add_item(discord.ui.TextInput(label = "Amount"))
-    withdraw_modal = BankOperationModal(title = "Withdraw", operation = 2, economy_data = economy_data,
-                                 message = message, embed = embed)
-    withdraw_modal.add_item(discord.ui.TextInput(label = "Amount"))
-
-    menu_choice = [
-      discord.SelectOption(label = "Deposit", value = 1),
-      discord.SelectOption(label = "Withdraw", value = 2)]
-    menu = BankOperationSelect(
-      user_id = interaction.user.id,
-      placeholder = "Choose an operation",
-      options = menu_choice)
-    menu.set_modal("1", deposit_modal)
-    menu.set_modal("2", withdraw_modal)
-
-    view = discord.ui.View()
-    view.add_item(menu)
-    if user_data["level"] / 5 >= economy_data["bank_upgrade"] + 1:
-      button = BankUpgradeButton(user_id = interaction.user.id,
-                                message = message,
-                                embed = embed,
-                                economy_data = economy_data,
-                                label = "Upgrade Bank", 
-                                style = discord.ButtonStyle.primary,)
-      view.add_item(button)
-
-    await message.edit(embed = embed, view = view)
+    await bank_handler(bot = self.bot, interaction = interaction)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "shop",
     description = "Check all items available in the shop"
   )
   async def shop(self, interaction: discord.Interaction) -> None:
-    self.bot.logger.info(f"|shop| from {interaction.user.name}")
+    self.bot.logger.info(f"(INTERACTION) |shop| from <{interaction.user.name}>")
     await interaction.response.defer()
     
-    user_data = load_json(interaction.user.name, "user")
-    if user_data["role_name"] == "":
-      await create_role(interaction) # First interaction with the shop will create the custom role
-
-    shop_items = [ 
-      # <id> refers to its position in the list
-      {"emoji": "📛", "name": "Role Name", 
-                    "description": "Create a personalized role with a name that sets you apart in the server.", 
-                    "price": 149999.99, 
-                    "id": 0},
-      {"emoji": "🎨", "name": "Name Colour", 
-                    "description": "Add a splash of colour to your name in the server.", 
-                    "price": 99999.98, 
-                    "id": 1}
-    ]
-
-    item_menu_choices = []
-
-    embed = discord.Embed(
-      title = "🏪 Botato Shop",
-      description = "With the best prices for all products available in the server!",
-      color = discord.Color.blue()
-    )
-
-    for item in shop_items:
-      item_menu_choices.append(discord.SelectOption(label = item["name"], value = item["id"]))
-
-      embed.add_field(name = "", value = f"```{item['emoji']} {item['name']}```")
-      embed.add_field(name = f"💶 {item['price']}€", value = item["description"], inline = False)
-
-    embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
-    embed.set_footer(text = "Cheap Shopping | Botato Shop", icon_url = self.bot.user.display_avatar.url)
-
-    message = await interaction.followup.send(embed = embed)
-
-    item_menu = ShopItemSelect(
-      user_id = interaction.user.id,
-      shop_items = shop_items,
-      placeholder = "Purchase an item",
-      options = item_menu_choices)
-
-    view = discord.ui.View()
-    view.add_item(item_menu)
-    
-    await message.edit(embed = embed, view = view)
+    await shop_handler(bot = self.bot, interaction = interaction)
 
   
+#***************************************************************************************************
   @app_commands.command(
     name = "deposit",
     description = "Deposit money into your bank"
@@ -187,19 +93,14 @@ class Economy(commands.Cog):
     amount = "Amount of money to deposit into the bank"
   )
   async def deposit(self, interaction: discord.Interaction, amount: float) -> None:
-    self.bot.logger.info(f"|deposit| from {interaction.user.name} with amount |{amount}|")
-    amount = round(amount, 2)
-
-    economy_data = load_json(interaction.user.name, "economy")
-    if economy_data["hand_balance"] < amount:
-      await interaction.response.send_message("You do not have enough money in hand")
-    else:
-      economy_data["hand_balance"] = round(economy_data["hand_balance"] - amount, 2)
-      economy_data["bank_balance"] = round(economy_data["bank_balance"] + amount, 2)
-      await interaction.response.send_message(f"You deposited {amount}€")
-    save_json(economy_data, interaction.user.name, "economy")
+    self.bot.logger.info(f"(INTRERACTION) |deposit| from <{interaction.user.name}> with amount = "
+                        f"<{amount}>")
+    
+    await interaction.response.defer()
+    await deposit(interaction = interaction, amount = amount)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "withdraw",
     description = "Withdraw money from your bank"
@@ -208,22 +109,14 @@ class Economy(commands.Cog):
     amount = "Amount of money to withdraw from the bank"
   )
   async def withdraw(self, interaction: discord.Interaction, amount: float) -> None:
-    self.bot.logger.info(f"|withdraw| from {interaction.user.name} with amount |{amount}|")
-    amount = round(amount, 2)
-
-    economy_data = load_json(interaction.user.name, "economy")
-    if economy_data["bank_balance"] < amount:
-      await interaction.response.send_message("You do not have enough money in the bank")
-    elif economy_data["max_withdrawal"] - economy_data["withdrawn_money"] < amount:
-      await interaction.response.send_message("You cannot withdraw that much money")
-    else:
-      economy_data["hand_balance"] = round(economy_data["hand_balance"] + amount, 2)
-      economy_data["bank_balance"] = round(economy_data["bank_balance"] - amount, 2)
-      economy_data["withdrawn_money"] = round(economy_data["withdrawn_money"] + amount, 2)
-      await interaction.response.send_message(f"You withdrew {amount}€")
-      save_json(economy_data, interaction.user.name, "economy")
+    self.bot.logger.info(f"(INTRERACTION) |withdraw| from <{interaction.user.name}> with amount = "
+                        f"<{amount}>")
+    
+    await interaction.response.defer()
+    await withdraw(interaction = interaction, amount = amount)
 
 
+#***************************************************************************************************
   @app_commands.command(
     name = "transfer",
     description = "Transfer money to another user's bank"
@@ -235,36 +128,29 @@ class Economy(commands.Cog):
     mention = "Mention of the user who the transfer will go to"
   )
   async def transfer(self, interaction: discord.Interaction, amount: float, mention: str) -> None:
-    self.bot.logger.info(f"|transfer| from {interaction.user.name} with amount "
-                                    f" |{amount}| and mention |{mention}|")
+    self.bot.logger.info(f"(INTERACTION) |transfer| from <{interaction.user.name}> with amount = "
+                                    f"<{amount}> and mention = <{mention}>")
     amount = round(amount, 2)
+
     if mention.startswith("<@") and mention.endswith(">"):
       user_id = ''.join(filter(str.isdigit, mention))
       recipient = await interaction.guild.fetch_member(user_id)
     else:
-      await interaction.response.send_message(f"Invalid mention <{mention}>")
+      await interaction.response.send_message(f"<@{interaction.user.id}> Invalid mention "
+                                              f"<{mention}>", ephemeral = True)
       return
 
     if not os.path.isfile(f"data/user/{recipient.name}.json"):
-      await interaction.response.send_message(f"It seems {recipient.display_name} hasn't interacted "
-                                                "with me yet, so I don't have any data")
+      await interaction.response.send_message(f"<@{interaction.user.id}> It seems "
+                                              f"{recipient.display_name} hasn't interacted "
+                                              "with me yet, so I don't have any data",
+                                              ephemeral = True)
       return
 
-    user_economy_data = load_json(interaction.user.name, "economy")
-    recipient_economy_data = load_json(recipient.name, "economy")
-
-    if user_economy_data["bank_balance"] < amount:
-      await interaction.response.send_message("You do not have enough money in the bank")
-      return
-
-    user_economy_data["bank_balance"] = round(user_economy_data["bank_balance"] - amount, 2)
-    recipient_economy_data["bank_balance"] = round(recipient_economy_data["bank_balance"] + amount, 2)
-
-    save_json(user_economy_data, interaction.user.name, "economy")
-    save_json(recipient_economy_data, recipient.name, "economy")
-
-    await interaction.response.send_message(f"You transfered {amount}€ to {recipient.display_name}")
+    await interaction.response.defer()
+    await transfer(interaction = interaction, amount = amount, recipient = recipient)
 
 
+#***************************************************************************************************
 async def setup(bot: commands.Bot) -> None:
 	await bot.add_cog(Economy(bot))

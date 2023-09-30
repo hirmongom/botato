@@ -32,7 +32,7 @@ def make_data(user: str) -> None:
   economy_data["hand_balance"] = 0
   economy_data["bank_balance"] = 500 
   economy_data["daily_pay"] = 1
-  economy_data["max_withdrawal"] = 5000
+  economy_data["max_withdrawal"] = 25000
   economy_data["withdrawn_money"] = 0
   economy_data["bank_upgrade"] = 0
   economy_data["interest_rate"] = 1
