@@ -68,9 +68,9 @@ def get_embed(bot: commands.Bot, interaction: discord.Interaction, economy_data:
     color = discord.Color.gold()
   )
 
-  embed.add_field(name = "💰 Hand Balance", value = f"{economy_data['hand_balance']}€", 
+  embed.add_field(name = "💰 Hand Balance", value = f"{round(economy_data['hand_balance'], 2)}€", 
                   inline = True)
-  embed.add_field(name = "🏦 Bank Balance", value = f"{economy_data['bank_balance']}€", 
+  embed.add_field(name = "🏦 Bank Balance", value = f"{round(economy_data['bank_balance'], 2)}€", 
                   inline = True)
   embed.add_field(name = f"📆🔽 Remaining Weekly Withdraw Limit", 
           value = f"{round(economy_data['max_withdrawal'] - economy_data['withdrawn_money'], 2)}€", 
