@@ -80,7 +80,7 @@ async def transfer(interaction: discord.Interaction, amount: float,
 #***************************************************************************************************
 async def upgrade_bank(interaction: discord.Interaction) -> None:
   economy_data = load_json(interaction.user.name, "economy")
-  upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
+  upgrade_cost = (economy_data["bank_upgrade"] + 1) * 10000
 
   if economy_data["hand_balance"] < upgrade_cost:
     await interaction.followup.send(f"<@{interaction.user.id}> You do not have enough money in "

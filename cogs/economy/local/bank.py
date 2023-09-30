@@ -77,7 +77,7 @@ def get_embed(bot: commands.Bot, interaction: discord.Interaction, economy_data:
           inline = False)
 
   if user_data["level"] / 10 >= economy_data["bank_upgrade"] + 1:
-    upgrade_cost = (economy_data["bank_upgrade"] + 1) * 5000
+    upgrade_cost = (economy_data["bank_upgrade"] + 1) * 10000
     embed.add_field(name = f"💰 You can upgrade your bank for {upgrade_cost}€", 
                     value = f"Withdrawal limit from {economy_data['max_withdrawal']}€ "
                             f"to {economy_data['max_withdrawal'] + 5000}€\n"
