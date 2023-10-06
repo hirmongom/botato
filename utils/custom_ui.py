@@ -150,14 +150,16 @@ class CoroButton(discord.ui.Button):
 
 
 #***************************************************************************************************
+# @todo add player limit
 class MultiplayerRoom():
   def __init__(self, interaction: discord.Interaction, future: asyncio.Future, title: str, 
-              description: str, players: list[discord.Member]) -> None:
+              description: str, players: list[discord.Member], max_players: int = None) -> None:
     self.interaction = interaction
     self.future = future
     self.title = title
     self.description = description
     self.players = players
+    self.max_players = max_players
   
   async def start(self) -> None:
     await self.interaction.response.defer()
@@ -201,6 +203,11 @@ class MultiplayerRoom():
   async def player_join_logic(self, interaction: discord.Interaction, players: list[discord.Member], 
                             message: discord.Message, embed: discord.Embed) -> None:
       if interaction.user not in players:
+        if max_players:
+          if len(players) > self.max_players:
+            await interaction.followup.send(f"<@{interaction.user.id}> Players limit reached",
+                                            ephemeral = True)
+            return
         players.append(interaction.user)  
         embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False),
         await message.edit(embed = embed)

@@ -28,7 +28,7 @@ shop_items = [
   { "emoji": "📛", 
     "name": "Role Name", 
     "description": "Create a personalized role with a name that sets you apart in the server.", 
-    "price": 99900.89},
+    "price": 75900.00},
   { "emoji": "🎨", 
     "name": "Name Colour", 
     "description": "Add a splash of colour to your name in the server.", 
