@@ -15,6 +15,7 @@
 
 
 import asyncio
+from typing import Callable
 
 import discord
 
@@ -129,3 +130,80 @@ class ModalButton(discord.ui.Button):
       
     self.disabled = True
     await interaction.response.send_modal(self.modal)
+
+
+#***************************************************************************************************
+class CoroButton(discord.ui.Button):
+  def __init__(self, user_id: int, coro: Callable[..., None], restricted: bool = True, *args, **kwargs) -> None:
+    super().__init__(*args, **kwargs)
+    self.user_id = user_id
+    self.coro = coro
+    self.restricted = restricted
+
+  async def callback(self, interaction: discord.Interaction) -> None:
+    if self.restricted and interaction.user.id != self.user_id:
+      return # User not authorized
+    
+    await interaction.response.defer()
+    if self.coro is not None and callable(self.coro):
+            await self.coro(interaction)
+
+
+#***************************************************************************************************
+class MultiplayerRoom():
+  def __init__(self, interaction: discord.Interaction, future: asyncio.Future, title: str, 
+              description: str, players: list[discord.Member]) -> None:
+    self.interaction = interaction
+    self.future = future
+    self.title = title
+    self.description = description
+    self.players = players
+  
+  async def start(self) -> None:
+    await self.interaction.response.defer()
+
+    host = self.interaction.user
+    self.players.append(host)
+
+    embed = discord.Embed(
+      title = self.title,
+      description = self.description,
+      color = discord.Colour.red()
+    )
+    embed.add_field(name = "", value = "``` Players ```", inline = False)
+    embed.add_field(name = f"⭐ {host.display_name}", value = "", inline = False)
+
+    message = await self.interaction.followup.send(embed = embed)
+
+    # button to join (everyone)
+    player_join = lambda interaction: (
+      self.player_join_logic(interaction, self.players, message, embed)
+    )
+    join_button = CoroButton(user_id = None, coro = player_join, restricted = False, 
+                            label = "Join", style = discord.ButtonStyle.secondary)
+
+    # button to start (host)
+    start_future = asyncio.Future()
+    start_button = FutureButton(user_id = self.interaction.user.id, future = start_future, 
+                                label = "Start", style = discord.ButtonStyle.success)
+
+    view = discord.ui.View()
+    view.add_item(join_button)
+    view.add_item(start_button)
+    await message.edit(embed = embed, view = view)
+
+    start = await start_future  # Wait for start button press
+    view.clear_items()
+    await message.edit(embed = embed, view = view)
+
+    self.future.set_result(None)
+  
+  async def player_join_logic(self, interaction: discord.Interaction, players: list[discord.Member], 
+                            message: discord.Message, embed: discord.Embed) -> None:
+      if interaction.user not in players:
+        players.append(interaction.user)  
+        embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False),
+        await message.edit(embed = embed)
+      else:
+        await interaction.followup.send(f"<@{interaction.user.id}> You are already in the room",
+                                          ephemeral = True)

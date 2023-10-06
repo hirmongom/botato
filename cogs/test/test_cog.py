@@ -22,7 +22,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from .local.test_room import EntryButton, StartButton
+from utils.custom_ui import MultiplayerRoom
 
 
 #***************************************************************************************************
@@ -52,38 +52,19 @@ class Test(commands.Cog):
   )
   async def test_room(self, interaction: discord.Interaction) -> None:
     self.bot.logger.info(f"(INTERACTION) |test_room| from <{interaction.user.name}>")
-    await interaction.response.defer()
 
-    host = interaction.user
-    players = [host]
+    halt_future = asyncio.Future()
+    players = []
+    room = MultiplayerRoom(interaction = interaction, future = halt_future, title = "Test Room", 
+                          description = "This is a description", players = players)
+    await room.start()
+    await halt_future
 
-    embed = discord.Embed(
-      title = "Test Room",
-      description = "Room test",
-      color = discord.Colour.red()
-    )
-    embed.add_field(name = "", value = "``` Players ```", inline = False)
-    embed.add_field(name = f"⭐ {host.display_name}", value = "", inline = False)
+    response = "Game Started with players:"
+    for player in players:
+      response += "\n" + player.display_name
 
-    message = await interaction.followup.send(embed = embed)
-
-    # button to join (everyone)
-    join_button = EntryButton(players = players, embed = embed, message = message, 
-                              label = "Join", style = discord.ButtonStyle.secondary)
-
-    # button to start (host)
-    start_future = asyncio.Future()
-    start_button = StartButton(host_id = interaction.user.id, future = start_future, 
-                               label = "Start", style = discord.ButtonStyle.success)
-
-    view = discord.ui.View()
-    view.add_item(join_button)
-    view.add_item(start_button)
-    await message.edit(embed = embed, view = view)
-
-    start = await start_future  # Wait for start button press
-    view.clear_items()
-    await interaction.followup.send(embed = embed, view = view)
+    await interaction.followup.send(response)
 
 
 #***************************************************************************************************
