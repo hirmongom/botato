@@ -134,7 +134,8 @@ class ModalButton(discord.ui.Button):
 
 #***************************************************************************************************
 class CoroButton(discord.ui.Button):
-  def __init__(self, user_id: int, coro: Callable[..., None], restricted: bool = True, *args, **kwargs) -> None:
+  def __init__(self, user_id: int, coro: Callable[..., None], restricted: bool = True, 
+              *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
     self.user_id = user_id
     self.coro = coro
@@ -150,7 +151,6 @@ class CoroButton(discord.ui.Button):
 
 
 #***************************************************************************************************
-# @todo add player limit
 class MultiplayerRoom():
   def __init__(self, interaction: discord.Interaction, future: asyncio.Future, title: str, 
               description: str, players: list[discord.Member], max_players: int = None) -> None:
@@ -175,11 +175,11 @@ class MultiplayerRoom():
     embed.add_field(name = "", value = "``` Players ```", inline = False)
     embed.add_field(name = f"⭐ {host.display_name}", value = "", inline = False)
 
-    message = await self.interaction.followup.send(embed = embed)
+    self.message = await self.interaction.followup.send(embed = embed)
 
     # button to join (everyone)
     player_join = lambda interaction: (
-      self.player_join_logic(interaction, self.players, message, embed)
+      self.player_join_logic(interaction, self.players, self.message, embed)
     )
     join_button = CoroButton(user_id = None, coro = player_join, restricted = False, 
                             label = "Join", style = discord.ButtonStyle.secondary)
@@ -192,25 +192,28 @@ class MultiplayerRoom():
     view = discord.ui.View()
     view.add_item(join_button)
     view.add_item(start_button)
-    await message.edit(embed = embed, view = view)
+    await self.message.edit(embed = embed, view = view)
 
     start = await start_future  # Wait for start button press
     view.clear_items()
-    await message.edit(embed = embed, view = view)
+    await self.message.edit(embed = embed, view = view)
 
     self.future.set_result(None)
   
   async def player_join_logic(self, interaction: discord.Interaction, players: list[discord.Member], 
                             message: discord.Message, embed: discord.Embed) -> None:
       if interaction.user not in players:
-        if max_players:
+        if self.max_players:
           if len(players) > self.max_players:
             await interaction.followup.send(f"<@{interaction.user.id}> Players limit reached",
                                             ephemeral = True)
             return
         players.append(interaction.user)  
         embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False),
-        await message.edit(embed = embed)
+        await self.message.edit(embed = embed)
       else:
         await interaction.followup.send(f"<@{interaction.user.id}> You are already in the room",
                                           ephemeral = True)
+
+  def get_message(self) -> discord.Message:
+    return self.message
