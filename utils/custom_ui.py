@@ -202,7 +202,8 @@ class MultiplayerRoom():
       await start_future  # Wait for start button press
       if self.min_players and len(self.players) < self.min_players:
         await self.interaction.followup.send(f"<@{self.interaction.user.id}> Not enough players "
-                                             f"({self.min_players} min)", ephemeral = True)
+                                             f"({len(self.players)}/{self.min_players})", 
+                                             ephemeral = True)
       else:
         start = True
 
