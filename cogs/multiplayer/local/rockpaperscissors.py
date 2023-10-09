@@ -27,7 +27,9 @@ from utils.custom_ui import CoroButton
 
 #***************************************************************************************************
 move_name_map = ["Rock", "Paper", "Scissors"]
-move_emoji_map = ["🪨", "📄", "✂️", " "]
+move_emoji_map = ["🪨", "📄", "✂️"]
+num_emoji_map = ["0️⃣", "1️⃣", "2️⃣", "3️⃣"]
+
 
 # @todo need some kind of timeout so that if the command has been running for a lot of time, 
 # it gives the money back
@@ -60,15 +62,15 @@ async def rockpaperscissors_handler(bot: commands.Bot, interaction: discord.Inte
   
   await message.edit(embed = embed, view = view)
 
-  winner = await game_loop(message = message, embed = embed, view = view, future = future, 
-                          players = players, rounds = rounds, bestof = bestof)
+  winner = await game_loop(interaction = interaction, message = message, embed = embed, view = view, 
+                          future = future, players = players, rounds = rounds, bestof = bestof)
 
   if winner == None:
+    payout(players = players, bet = bet)
     await interaction.followup.send(f"<@{players[0].id}> <@{players[1].id}> It's a draw")
   else:
+    payout(players = players, bet = bet, winner = winner)
     await interaction.followup.send(f"<@{winner.id}> Won")
-
-  # @todo pay the winner (split if draw)
 
 
 #***************************************************************************************************
@@ -93,14 +95,17 @@ async def charge_users(interaction: discord.Interaction, players: list[discord.M
 def get_embed(bot: commands.Bot, players: list[discord.Member], bet: float, 
               bestof: int) -> discord.Embed:
   embed = discord.Embed(
-    title = "Rock Paper Scissors",
-    description = f"{bet}€\nBO{bestof}",
+    title = "🪨Rock 📄Paper ✂️Scissors",
+    description = f"💰 Stake: {bet}€\n🏆 Format: Best of {bestof}",
     colour = discord.Colour.blue()
   )
+  embed.add_field(name = "", value = "```🎮 Players ```", inline = False)
   embed.add_field(name = f"`{players[0].display_name}`", value = "", inline = True)
   embed.add_field(name = f"`{players[1].display_name}`", value = "", inline = True)
+  embed.add_field(name = "", value = "```🔄 Rounds ```", inline = False)
   embed.add_field(name = "", value = "", inline = False) # Pre-footer separator
-  embed.set_footer(text = "Multiplayer RPS | Botato Games", icon_url = bot.user.display_avatar.url)
+  embed.set_footer(text = "Botato Rock Paper Scissors | Botato Multiplayer Games", 
+                  icon_url = bot.user.display_avatar.url)
   return embed
 
 
@@ -140,9 +145,10 @@ async def button_pressed(interaction: discord.Interaction, players: list[discord
   
 
 #**************************************************************************************************
-async def game_loop(message: discord.Message, embed: discord.Embed, view: discord.ui.View, 
-                    future: asyncio.Future, players: list[discord.Member], 
-                    rounds: list[list[int]], bestof: int) -> discord.Member:
+async def game_loop(interaction: discord.Interaction, message: discord.Message, 
+                    embed: discord.Embed, view: discord.ui.View, future: asyncio.Future, 
+                    players: list[discord.Member], rounds: list[list[int]], 
+                    bestof: int) -> discord.Member:
   game_loop = True
   win_count = [0, 0]
 
@@ -153,7 +159,13 @@ async def game_loop(message: discord.Message, embed: discord.Embed, view: discor
     await message.edit(embed = embed, view = view)
 
     while True: # Round
-      user = await future[0]
+      try:
+        user = await asyncio.wait_for(future[0], timeout = 60)
+      except asyncio.TimeoutError:
+        await message.edit(embed = embed, view = None)
+        await interaction.followup.send(f"<@{players[0].id}> <@{players[1].id}> Game timed out")
+        return None
+      
       which_player = 0 if user == players[0] else 1
       player_confirm(embed = embed, players = players, player_id = which_player)
       await message.edit(embed = embed, view = view)
@@ -162,13 +174,16 @@ async def game_loop(message: discord.Message, embed: discord.Embed, view: discor
         if rounds[-1][0] == rounds[-1][1]: # Draw
           pass
         elif rounds[-1][0] == (rounds[-1][-1] + 1) % 3:
+          which_player = 0
           win_count[0] += 1
         else:
           win_count[1] += 1
+          which_player = 1
 
         update_score(embed = embed, players = players, score = win_count)
         show_choices(embed = embed, round_info = rounds[-1])
-        if win_count[which_player] > bestof / 2 or len(rounds) == bestof:
+
+        if (win_count[which_player] > (bestof / 2)) or (len(rounds) == bestof):
           view.clear_items()
           game_loop = False
         rounds.append([-1, -1]) # New round
@@ -184,6 +199,7 @@ async def game_loop(message: discord.Message, embed: discord.Embed, view: discor
 
   return winner
 
+
 #***************************************************************************************************
 def player_confirm(embed: discord.Embed, players: list[discord.Member], player_id: int) -> None:
   embed.set_field_at(-3 + player_id, name = "✅", value = "")
@@ -197,5 +213,18 @@ def show_choices(embed: discord.Embed, round_info = list[int]) -> None:
 
 #***************************************************************************************************
 def update_score(embed: discord.Embed, players: list[discord.Member], score: list[int]) -> None:
-  embed.set_field_at(0, name = f"`{players[0].display_name}`", value = score[0])
-  embed.set_field_at(1, name = f"`{players[1].display_name}`", value = score[1])
+  embed.set_field_at(1, name = f"`{players[0].display_name}`", value = num_emoji_map[score[0]])
+  embed.set_field_at(2, name = f"`{players[1].display_name}`", value = num_emoji_map[score[1]])
+  
+ 
+#***************************************************************************************************
+def payout(players: list[discord.Member], bet: float, winner: discord.Member = None) -> None:
+  if winner is None:
+    for player in players:
+      economy_data = load_json(player.name, "economy")
+      economy_data["hand_balance"] += bet
+      save_json(economy_data, player.name, "economy")
+  else:
+    economy_data = load_json(winner.name, "economy")
+    economy_data["hand_balance"] += bet * 2
+    save_json(economy_data, winner.name, "economy")

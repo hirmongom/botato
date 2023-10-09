@@ -153,12 +153,14 @@ class CoroButton(discord.ui.Button):
 #***************************************************************************************************
 class MultiplayerRoom():
   def __init__(self, interaction: discord.Interaction, future: asyncio.Future, title: str, 
-              description: str, players: list[discord.Member], max_players: int = None) -> None:
+              description: str, players: list[discord.Member], min_players: int = None, 
+              max_players: int = None) -> None:
     self.interaction = interaction
     self.future = future
     self.title = title
     self.description = description
     self.players = players
+    self.min_players = min_players
     self.max_players = max_players
   
   async def start(self) -> None:
@@ -174,6 +176,7 @@ class MultiplayerRoom():
     )
     embed.add_field(name = "", value = "``` Players ```", inline = False)
     embed.add_field(name = f"⭐ {host.display_name}", value = "", inline = False)
+    embed.add_field(name = "🔍 Waiting for player...", value = "", inline = False)
 
     self.message = await self.interaction.followup.send(embed = embed)
 
@@ -185,17 +188,26 @@ class MultiplayerRoom():
                             label = "Join", style = discord.ButtonStyle.secondary)
 
     # button to start (host)
-    start_future = asyncio.Future()
-    start_button = FutureButton(user_id = self.interaction.user.id, future = start_future, 
-                                label = "Start", style = discord.ButtonStyle.success)
 
+    start = False
     view = discord.ui.View()
-    view.add_item(join_button)
-    view.add_item(start_button)
-    await self.message.edit(embed = embed, view = view)
+    while not start:
+      start_future = asyncio.Future()
+      start_button = FutureButton(user_id = self.interaction.user.id, future = start_future, 
+                                  label = "Start", style = discord.ButtonStyle.success)
+      view.add_item(join_button)
+      view.add_item(start_button)
+      await self.message.edit(embed = embed, view = view)
 
-    start = await start_future  # Wait for start button press
-    view.clear_items()
+      await start_future  # Wait for start button press
+      if self.min_players and len(self.players) < self.min_players:
+        await self.interaction.followup.send(f"<@{self.interaction.user.id}> Not enough players "
+                                             f"({self.min_players} min)", ephemeral = True)
+      else:
+        start = True
+
+      view.clear_items()
+
     await self.message.edit(embed = embed, view = view)
 
     self.future.set_result(None)
@@ -209,7 +221,9 @@ class MultiplayerRoom():
                                             ephemeral = True)
             return
         players.append(interaction.user)  
-        embed.add_field(name = f"{interaction.user.display_name}", value = "", inline = False),
+        embed.set_field_at(index = -1, name = f"{interaction.user.display_name}", value = ""),
+        if self.max_players and len(players) < self.max_players:
+          embed.add_field(name = "🔍 Waiting for player...", value = "", inline = False)
         await self.message.edit(embed = embed)
       else:
         await interaction.followup.send(f"<@{interaction.user.id}> You are already in the room",

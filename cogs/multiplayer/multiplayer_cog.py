@@ -57,8 +57,11 @@ class Multiplayer(commands.Cog):
     wait_future = asyncio.Future()
     players = []
     room = MultiplayerRoom(interaction = interaction, future = wait_future, 
-                          title = "Rock Paper Scissors", description = f"{bet}€ description", 
-                          players = players, max_players = 2)
+                          title = "🎲 Rock Paper Scissors Duel Room 🎲", 
+                          description = "Stake your bet and challenge others in this classic game "
+                                        "of strategy and luck!"
+                                        f"\n\n💰 Bet: {bet}€ | 🏆 Format: BO{bestof}",
+                          players = players, min_players = 2, max_players = 2)
     await room.start()
     await wait_future
 
