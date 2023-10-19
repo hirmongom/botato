@@ -22,7 +22,7 @@ from discord.ext import commands
 
 from utils.json import load_json, save_json
 from utils.custom_ui import FutureSelectMenu, FutureModal, ModalButton
-
+from utils.achievement import add_user_stat
 
 #***************************************************************************************************
 async def bet_handler(bot: commands.Bot, interaction: discord.Interaction) -> None:
@@ -32,7 +32,7 @@ async def bet_handler(bot: commands.Bot, interaction: discord.Interaction) -> No
 
   event_ids, event_names = load_events(embed = embed)
   if len(event_ids) == 0:
-    embed.add_field(name = "There are no current events", value = "", inline = False)
+    embed.add_field(name = "There are no events", value = "", inline = False)
     await message.edit(embed = embed)
     return
 
@@ -56,14 +56,14 @@ async def bet_handler(bot: commands.Bot, interaction: discord.Interaction) -> No
   # Check if event is closed
   if event_data["status"] == "closed":
     await interaction.followup.send(f"<@{interaction.user.id}> Bets for {event_data['event']} are "
-                                    "closed")
+                                    "closed", ephemeral = True)
     return
 
   # Check if user has already placed a bet in {event_id} event
   for key in bettors.keys():
     if key == interaction.user.name:
       await interaction.followup.send(f"<@{interaction.user.id}> You have already placed a bet on "
-                                      "this event")
+                                      "this event", ephemeral = True)
       return
 
   # Get bet info
@@ -78,12 +78,14 @@ async def bet_handler(bot: commands.Bot, interaction: discord.Interaction) -> No
   try:
     amount = round(float(amount), 2)
   except Exception:
-    await interaction.followup.send(f"<@{interaction.user.id}> Bet amount must be a number")
+    await interaction.followup.send(f"<@{interaction.user.id}> Bet amount must be a number",
+                                    ephemeral = True)
     return
 
   economy_data = load_json(interaction.user.name, "economy")
   if economy_data["hand_balance"] < amount:
-    await interaction.followup.send(f"<@{interaction.user.id}> You do not have enough money")
+    await interaction.followup.send(f"<@{interaction.user.id}> You do not have enough money",
+                                    ephemeral = True)
     return
 
   # Process bet
@@ -95,7 +97,7 @@ async def bet_handler(bot: commands.Bot, interaction: discord.Interaction) -> No
   save_json(bettors, f"{event_id}/{event_id}_bettors", "bets")
 
   await interaction.followup.send(f"<@{interaction.user.id}> You placed a bet of {amount}€ " 
-                                  f"on {choice_name} in {event_names[event]}")
+                                  f"on {choice_name} in {event_names[event]}", ephemeral = True)
   await add_user_stat("bets_placed", interaction)
 
 
