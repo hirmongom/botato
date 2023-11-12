@@ -314,7 +314,7 @@ def multiplayer_help_embed(bot: commands.Bot) -> discord.Embed:
 	)
 	embed.add_field(name = "", value = "```🛠️ Commands 🛠️```", inline = False)
 	embed.add_field(
-		name = " `/rockpaperscissors [bet] [bestof]`",
+		name = " ✂️ `/rockpaperscissors [bet] [bestof]`",
 		value = "Play Rock Paper Scissors with another player",
 		inline = False
 	)
