@@ -31,8 +31,6 @@ move_emoji_map = ["🪨", "📄", "✂️"]
 num_emoji_map = ["0️⃣", "1️⃣", "2️⃣", "3️⃣"]
 
 
-# @todo need some kind of timeout so that if the command has been running for a lot of time, 
-# it gives the money back
 #***************************************************************************************************
 async def rockpaperscissors_handler(bot: commands.Bot, interaction: discord.Interaction, 
                                     message: discord.Message, players: list[discord.Member], 

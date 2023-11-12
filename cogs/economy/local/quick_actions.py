@@ -73,7 +73,7 @@ async def transfer(interaction: discord.Interaction, amount: float,
   save_json(user_economy_data, interaction.user.name, "economy")
   save_json(recipient_economy_data, recipient.name, "economy")
 
-  await interaction.followup.send(f"<@{interaction.user.id}> transfered {amount}€ to "
+  await interaction.followup.send(f"<@{interaction.user.id}> transferred {amount}€ to "
                                           f"<@{recipient.id}>")
 
 
