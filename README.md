@@ -24,11 +24,3 @@
   (e.g. ```BROWSERPATH=C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe```,
   or ```BROWSERPATH=/usr/bin/google-chrome```,
   or ```BROWSERPATH=/usr/bin/brave-browser```)
-
-
-### ./utils/keys/chromedriver/ ###
---------------
-
-  The execution might fail depending on the version compatibility between the webdriver and the browser, and/or the OS where it is being executed. To get the appropiate webdriver visit https://chromedriver.chromium.org/
-  
-  (I will keep the chromedriver I'm using commited since I share the same enviroment between multiple machines)
