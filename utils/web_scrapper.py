@@ -35,9 +35,8 @@ class WebScrapper():
     self.logger = logger
     self.options = Options()
     self.options.add_argument("--headless")
-    self.options.binary_location = browserPath
-    self.service = Service(executable_path = "./chromedriver/chromedriver")
-    self.driver = webdriver.Chrome(service = self.service, options = self.options)
+    self.options.binary_location = str(browserPath)
+    self.driver = webdriver.Chrome(options = self.options)
     self.logger.info("Started WebScrapper")
 
 
